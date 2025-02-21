@@ -8,7 +8,7 @@ import pandas as pd
 from typing import Union, Optional
 import matplotlib.pyplot as plt
 
-from Torch_utils import TorchDataLoader, gradient_scorer_pytorch, synflow, eval_model, CUDA
+from Torch_utils import TorchDataLoader, gradient_scorer_pytorch, eval_model, CUDA, Synflow
 from Codec import Chromosome
 
 
@@ -154,8 +154,8 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
         )
 
     # Predictores
-    # jaime = gradient_scorer_pytorch(c.get_unet())
-    syn = synflow(c.get_unet())
+    synflow_scorer = Synflow(c.get_unet())
+    syn = synflow_scorer.score(c.get_unet(), shape=[3, 224, 224])
 
     try:
         # Métricas
@@ -177,9 +177,11 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
                 items=True
             )
 
+        jaime = gradient_scorer_pytorch(c.get_unet())
+
         scores_dict = {
             "synflow": syn,
-            # "gradient": jaime
+            "gradient": jaime
         }
 
         for metric, score in zip(METRICS_TO_EVAL, scores):
@@ -258,5 +260,10 @@ def score_n_models(idx_start: int = None, num: int = None, chromosomes: Optional
 
 
 if __name__ == "__main__":
-    score_n_models(idx_start=58, num=10, dataset="road", epochs=10)
-    plot_results(selected_columns=["synflow"])
+    score_n_models(
+        idx_start=65,
+        num=20,
+        dataset="road",
+        epochs=10
+    )
+    plot_results(selected_columns=["synflow", "gradient"])

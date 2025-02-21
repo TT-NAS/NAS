@@ -194,7 +194,7 @@ class Chromosome:
             byteorder='big'
         )
 
-        return f"{base64.b32encode(byte_data).decode().rstrip('=')}:{length}"
+        return f"{base64.b32encode(byte_data).decode().rstrip('=')}_{length}"
 
     def unzip_binary(self, binary: str) -> str:
         """
@@ -1201,7 +1201,7 @@ if __name__ == "__main__":
     c = Chromosome(
         max_layers=4,
         max_conv_per_layer=2,
-        chromosome=unet_rara
+        chromosome=unet_paper
     )
 
     # Mostramos la arquitectura a generar

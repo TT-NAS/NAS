@@ -511,6 +511,73 @@ class UNet(nn.Module):
         return x
 
 
+class Synflow:
+    def __init__(self, model: UNet):
+        """
+        Clase para calcular el puntaje de un modelo utilizando Synflow
+
+        Parameters
+        ----------
+        model : UNet
+            Modelo a evaluar
+        """
+        self.masked_parameters = [
+            (name, param)
+            for name, param in model.named_parameters()
+        ]
+
+    def score(self, model: UNet, shape: list[int], device: torch.device = CUDA) -> float:
+        """
+        Calcula el puntaje de un modelo utilizando Synflow
+
+        Parameters
+        ----------
+        model : UNet
+            Modelo a evaluar
+        shape : list
+            Dimensiones de la imagen de entrada
+        device : torch.device, optional
+            Dispositivo para realizar los cálculos, by default CUDA
+
+        Returns
+        -------
+        float
+            Puntaje del modelo
+        """
+        scores = {}
+
+        @torch.no_grad()
+        def linearize(model: UNet) -> dict[str, Tensor]:
+            signs = {}
+
+            for name, param in model.state_dict().items():
+                signs[name] = torch.sign(param).to(device)
+                param.abs_()
+
+            return signs
+
+        @torch.no_grad()
+        def nonlinearize(model: UNet, signs: dict[str, Tensor]):
+            for name, param in model.state_dict().items():
+                param.mul_(signs[name])
+
+        signs = linearize(model)
+
+        input_dim = shape
+        input_tensor = torch.ones([1] + input_dim).to(device)
+        model = model.to(device)
+        output = model(input_tensor)
+        torch.sum(output).backward()
+
+        for _, p in self.masked_parameters:
+            scores[id(p)] = torch.clone(p.grad * p).detach().abs_()
+            p.grad.data.zero_()
+
+        nonlinearize(model, signs)
+
+        return sum(torch.sum(score_tensor) for score_tensor in scores.values()).item()
+
+
 # ========================
 # NOTE: Funciones
 # ========================
@@ -970,6 +1037,7 @@ def gradient_scorer_pytorch(model, batch_size: int = 4):
     """
     model = model.to(CUDA)
     # Set the hooks
+
     def gradient_hook(module, grad_input, grad_output):
         gradients.append((module.__class__.__name__,
                          grad_output[0].detach().clone()))
@@ -983,25 +1051,6 @@ def gradient_scorer_pytorch(model, batch_size: int = 4):
                 child.register_backward_hook(gradient_hook)
 
     assign_hook(model)
-
-    # X, Y = tm.load_data(divisions=15, image_size=(
-    #     self.image_size, self.image_size))
-
-    # # Convertir a tensores de PyTorch y reordenar dimensiones para X
-    # X = torch.tensor(X, dtype=torch.float32).permute(
-    #     0, 3, 1, 2)  # (batch, 3, 128, 128)
-
-    # # Convertir `Y` a tensor asegurando que tenga 4 dimensiones
-    # Y = torch.tensor(Y, dtype=torch.float32)
-    # if Y.dim() == 3:  # Si `Y` tiene la forma (batch, 128, 128)
-    #     Y = Y.unsqueeze(1)  # Convertir a (batch, 1, 128, 128)
-    # elif Y.dim() == 4:  # Si `Y` tiene la forma (batch, 128, 1, 128)
-    #     Y = Y.permute(0, 3, 1, 2)  # Cambiar el orden a (batch, 1, 128, 128)
-
-    # Crear DataLoader para entrenamiento
-    # train_dataset = TensorDataset(X, Y)
-    # train_dataloader = DataLoader(
-    #     train_dataset, batch_size=batch_size, shuffle=True)
 
     data_loader = TorchDataLoader("road", batch_size=batch_size)
     train_dataloader = data_loader.train
