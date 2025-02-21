@@ -1,3 +1,7 @@
+"""
+Archivo temporal para pruebas de código
+"""
+
 tipo: tuple[list[tuple[tuple[list[tuple[int, int, str]],
                              str],
                        tuple[list[tuple[int, int, str]],
@@ -46,53 +50,6 @@ decoded = (
         (3, 2, "a")
     ]
 )
-# bin = (
-#     # chromosome: [layers, bottleneck]
-#     [  # layers: [convs+deconvs, convs+deconvs, ...]
-#         [  # convs+deconvs: [nconvs+pooling, nconvs+concat]
-#             [  # nconvs+pooling: [nconvs, pooling]
-#                 [  # nconvs: [conv, conv, ...]
-#                     # --- f ----|- s -|---- a ----
-#                     # --- 4 ----|- 2 -|---- 4 ----
-#                     [0, 0, 1, 0, 0, 1, 0, 1, 1, 0],  # conv: [f, s, a]
-#                     [0, 0, 1, 0, 0, 1, 0, 1, 1, 0]
-#                 ],
-#                 # pooling
-#                 0
-#             ],
-#             [  # nconvs+concat: [nconvs, concat]
-#                 [  # nconvs: [conv, conv, ...]
-#                     # --- f ----|- s -|---- a ----
-#                     # --- 4 ----|- 2 -|---- 4 ----
-#                     [0, 0, 1, 0, 0, 1, 0, 1, 1, 0],  # conv: [f, s, a]
-#                     [0, 0, 1, 0, 0, 1, 0, 1, 1, 0]
-#                 ],
-#                 # concat
-#                 1
-#             ]
-#         ],
-#         [
-#             [
-#                 [
-#                     [0, 0, 1, 0, 0, 1, 0, 1, 1, 0],
-#                     [0, 0, 1, 0, 0, 1, 0, 1, 1, 0]
-#                 ],
-#                 0
-#             ],
-#             [
-#                 [
-#                     [0, 0, 1, 0, 0, 1, 0, 1, 1, 0],
-#                     [0, 0, 1, 0, 0, 1, 0, 1, 1, 0]
-#                 ],
-#                 1
-#             ]
-#         ],
-#     ],
-#     [  # bottleneck: [conv, conv, ...]
-#         [0, 0, 1, 0, 0, 1, 0, 1, 1, 0],  # conv: [f, s, a]
-#         [0, 0, 1, 0, 0, 1, 0, 1, 1, 0]
-#     ]
-# )
 
 # %% Prueba de congruencia entre discretización y decodificación
 FILTERS = {

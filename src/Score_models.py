@@ -1,6 +1,8 @@
 """
 Script para generar, entrenar y evaluar modelos de segmentación de imágenes
 """
+import math
+
 import torch
 import pandas as pd
 from typing import Union, Optional
@@ -13,44 +15,64 @@ from Codec import Chromosome
 METRICS_TO_EVAL = ["accuracy", "dice", "dice crossentropy", "iou"]
 
 
-def plot_results(normalize=True, file="results.csv"):
+def plot_results(selected_columns: list[str], normalize: bool = True, file: str = "results.csv"):
     """
-    Grafica los resultados de los modelos entrenados
+    Grafica los resultados de los modelos entrenados en múltiples subgráficos.
 
     Parameters
     ----------
+    selected_columns : list
+        Lista de nombres de columnas a incluir en todas las gráficas.
     normalize : bool, optional
         Si se normalizan los valores de las métricas, by default True
     file : str, optional
         Archivo en el que se encuentran los resultados, by default "results.csv"
     """
     df = pd.read_csv(file)
-    df = df.sort_values(by="iou")
-    values = {
-        key: df[key].to_list()
-        for key in df.columns[1:]
-    }
+
+    if not all(col in df.columns for col in selected_columns):
+        raise ValueError(
+            "Las columnas seleccionadas no son válidas o no están en el DataFrame."
+        )
+
+    remaining_columns = [col for col in df.columns[1:]
+                         if col not in selected_columns]
+    values = {key: df[key].to_list() for key in df.columns[1:]}
 
     if normalize:
+        if any(len(values[key]) <= 1 for key in values.keys()):
+            return
         values = {
-            key: [
-                (v - min(values[key])) / (max(values[key]) - min(values[key]))
-                for v in values[key]
-            ]
+            key: [(v - min(values[key])) / (max(values[key]) - min(values[key]))
+                  for v in values[key]]
             for key in values.keys()
         }
 
-    # graficar
-    _, ax = plt.subplots()
+    # Medidas de los subplots
+    num_subplots = len(remaining_columns)
+    rows = math.ceil(math.sqrt(num_subplots))
+    cols = math.ceil(num_subplots / rows)
+
+    _, axes = plt.subplots(rows, cols, figsize=(5 * cols, 4 * rows))
+    axes = axes.flatten() if num_subplots > 1 else [axes]
+
     colors = ["red", "green", "blue", "orange", "purple"]
-    index = 0
 
-    for key in values.keys():
-        color = colors[index % len(colors)]
-        ax.plot(values[key], label=key, color=color)
-        index += 1
+    for i, col in enumerate(remaining_columns):
+        sorted_indices = sorted(
+            range(len(values[col])), key=lambda k: values[col][k]
+        )
+        ax = axes[i]
 
-    ax.legend()
+        for index, key in enumerate(selected_columns + [col]):
+            color = colors[index % len(colors)]
+            sorted_values = [values[key][j] for j in sorted_indices]
+            ax.plot(sorted_values, label=key, color=color)
+
+        ax.set_title(f"Comparación con {col}")
+        ax.legend()
+
+    plt.tight_layout()
     plt.show()
 
 
@@ -81,7 +103,7 @@ def reg_results(scores: dict[str, float], name: str, file="results.csv"):
     df.to_csv(file, index=False)
 
 
-def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = None, seed: Optional[int] = None, epochs: int = 1, max_layers: int = 3, max_conv_per_layer: int = 2) -> bool:
+def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = None, seed: Optional[int] = None, max_layers: int = 3, max_conv_per_layer: int = 2, **kwargs: Union[str, int, float, bool]) -> bool:
     """
     Obiene los puntajes de distintas métricas de un modelo
 
@@ -103,6 +125,13 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
         Máximo número de capas para el modelo, by default 3
     max_conv_per_layer : int, optional
         Máximo número de convoluciones por capa, by default 2
+    **kwargs : str or int or float or bool
+        Argumentos adicionales para el entrenamiento:
+        - metric : (str) Métrica a utilizar para calcular la pérdida. ("iou", "dice", "dice crossentropy" o "accuracy")
+        - lr : (float) Tasa de aprendizaje
+        - epochs : (int) Número de épocas
+        - show_val : (bool) Si mostrar los resultados de la validación en cada epoch
+        - print_every : (int) Cada cuántos pasos se imprime el resultado
 
     Returns
     -------
@@ -128,61 +157,56 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
     # jaime = gradient_scorer_pytorch(c.get_unet())
     syn = synflow(c.get_unet())
 
-    # Métricas
     try:
-        c.train_unet(data_loader, epochs=epochs)
-    except torch.OutOfMemoryError:
-        print("ERROR:")
-        print("  + Semilla: " + str(seed) if seed else "Semilla: None")
-        print("  + Binary cod:", c.get_binary(zip=True))
-        print("  - Error: CUDA se quedó sin memoria")
+        # Métricas
+        c.train_unet(data_loader, **kwargs)
 
-        return False
+        model = c.get_unet()
+        model.eval()
+        imgs, masks = next(iter(data_loader.validation))
+        imgs = imgs.to(CUDA)
+        model = model.to(CUDA)
+        outputs = model(imgs)
+
+        with torch.no_grad():
+            scores = eval_model(
+                scores=outputs,
+                target=masks,
+                metrics=METRICS_TO_EVAL,
+                loss=False,
+                items=True
+            )
+
+        scores_dict = {
+            "synflow": syn,
+            # "gradient": jaime
+        }
+
+        for metric, score in zip(METRICS_TO_EVAL, scores):
+            scores_dict[metric] = score
+
+        if seed:
+            name = f"{seed}_" + c.get_binary(zip=True)
+        else:
+            name = c.get_binary(zip=True)
+
+        reg_results(scores_dict, name)
+        c.save_unet(name + ".pt")
+        c.show_results(save=True, name=name)
+
+        return True
+    except torch.OutOfMemoryError:
+        print("ERROR: CUDA se quedó sin memoria")
     except Exception as e:
         print("ERROR:")
         print("  + Semilla: " + str(seed) if seed else "Semilla: None")
         print("  + Binary cod:", c.get_binary(zip=True))
         print("  - Error:", e)
 
-        return False
-
-    model = c.get_unet()
-    model.eval()
-    imgs, masks = next(iter(data_loader.validation))
-    imgs = imgs.to(CUDA)
-    model = model.to(CUDA)
-    outputs = model(imgs)
-
-    with torch.no_grad():
-        scores = eval_model(
-            scores=outputs,
-            target=masks,
-            metrics=METRICS_TO_EVAL,
-            loss=False,
-            items=True
-        )
-
-    scores_dict = {
-        "synflow": syn,
-        # "gradient": jaime
-    }
-
-    for metric, score in zip(METRICS_TO_EVAL, scores):
-        scores_dict[metric] = score
-
-    if seed:
-        name = f"{seed}_" + c.get_binary(zip=True)
-    else:
-        name = c.get_binary(zip=True)
-
-    reg_results(scores_dict, name)
-    c.show_results(save=True, name=name)
-    c.save_unet(name + ".pt")
-
-    return True
+    return False
 
 
-def score_n_models(idx_start: int = None, num: int = None, chromosomes: Optional[list[Union[tuple, list[float], str]]] = None, seeds: list[int] = None, dataset: str = "carvana", **kwargs: int):
+def score_n_models(idx_start: int = None, num: int = None, chromosomes: Optional[list[Union[tuple, list[float], str]]] = None, seeds: list[int] = None, dataset: str = "carvana", **kwargs: Union[str, int, float, bool]):
     """
     Obtiene los puntajes de distintas métricas de varios modelos
 
@@ -202,11 +226,17 @@ def score_n_models(idx_start: int = None, num: int = None, chromosomes: Optional
         Opciones:
             - "carvana"
             - "road"
-    **kwargs : int
-        Argumentos para `score_model`:
-        - epochs : (int) Número de épocas para entrenar el modelo
+    **kwargs : str or int or float or bool
+        Argumentos para la función `score_model`:
         - max_layers : (int) Máximo número de capas para el modelo
         - max_conv_per_layer : (int) Máximo número de convoluciones por capa
+
+        Argumentos adicionales para el entrenamiento:
+        - metric : (str) Métrica a utilizar para calcular la pérdida. ("iou", "dice", "dice crossentropy" o "accuracy")
+        - lr : (float) Tasa de aprendizaje
+        - epochs : (int) Número de épocas
+        - show_val : (bool) Si mostrar los resultados de la validación en cada epoch
+        - print_every : (int) Cada cuántos pasos se imprime el resultado
     """
     if chromosomes:
         for c in chromosomes:
@@ -228,5 +258,5 @@ def score_n_models(idx_start: int = None, num: int = None, chromosomes: Optional
 
 
 if __name__ == "__main__":
-    score_n_models(idx_start=21, num=1, dataset="road", epochs=2)
-    plot_results()
+    score_n_models(idx_start=58, num=10, dataset="road", epochs=10)
+    plot_results(selected_columns=["synflow"])

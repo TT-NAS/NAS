@@ -557,6 +557,8 @@ def plot_batch(imgs: Tensor, masks: Tensor, save: bool = False, show_size: int =
     else:
         plt.show()
 
+    plt.close()
+
 
 def plot_results(model: UNet, test_loader: DataLoader, **kwargs: Union[bool, str]):
     """

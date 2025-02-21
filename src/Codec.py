@@ -1090,27 +1090,104 @@ class Chromosome:
         print(f"Modelo guardado como {name}")
 
 
-# if __name__ == "__main__":
-#     unet = "AUQUL5Mq1b9ugPsFAgDOLp3bhA==:146"
-#     c = Chromosome(
-#         max_layers=3,
-#         max_conv_per_layer=2,
-#         chromosome=unet
-#     )
-#     print(c.get_decoded())
-#     print(c)
-#     unet = "JdHSraOEJNuIdiYB9Q==:104"
-#     c = Chromosome(
-#         max_layers=3,
-#         max_conv_per_layer=2,
-#         chromosome=unet
-#     )
-#     print(c.get_decoded())
-#     print(c)
-
 if __name__ == "__main__":
-    # Prueba entrenamiento de UNet
-    data_loader = "road"
+    print("=== Prueba de codificación y decodificación ===")
+    unet_paper = (
+        [  # layers: [convs+deconvs, convs+deconvs, ...]
+            (  # convs+deconvs: [nconvs+pooling, nconvs+concat]
+                (  # nconvs+pooling: [nconvs, pooling]
+                    [  # nconvs: [conv, conv, ...]
+                        (64, 3, "relu"),  # conv: [f, s, a]
+                        (64, 3, "relu")
+                    ],
+                    # pooling
+                    "max"
+                ),
+                (  # nconvs+concat: [nconvs, concat]
+                    [  # nconvs: [conv, conv, ...]
+                        (64, 3, "relu"),  # conv: [f, s, a]
+                        (64, 3, "relu")
+                    ],
+                    # concat
+                    True
+                )
+            ),
+            (
+                (
+                    [
+                        (128, 3, "relu"),
+                        (128, 3, "relu")
+                    ],
+                    "max"
+                ),
+                (
+                    [
+                        (128, 3, "relu"),
+                        (128, 3, "relu")
+                    ],
+                    True
+                )
+            ),
+            (
+                (
+                    [
+                        (256, 3, "relu"),
+                        (256, 3, "relu")
+                    ],
+                    "max"
+                ),
+                (
+                    [
+                        (256, 3, "relu"),
+                        (256, 3, "relu")
+                    ],
+                    True
+                )
+            ),
+            (
+                (
+                    [
+                        (512, 3, "relu"),
+                        (512, 3, "relu")
+                    ],
+                    "max"
+                ),
+                (
+                    [
+                        (512, 3, "relu"),
+                        (512, 3, "relu")
+                    ],
+                    True
+                )
+            )
+        ],
+        [  # bottleneck: [conv, conv, ...]
+            (1024, 3, "relu"),  # conv: [f, s, a]
+            (1024, 3, "relu")
+        ]
+    )
+
+    c = Chromosome(
+        max_layers=4,
+        max_conv_per_layer=2,
+        chromosome=unet_paper
+    )
+
+    print("Name:\n", c)
+    print("Decoded:\n", c.get_decoded())
+    print("Real:\n", c.get_real())
+    print("Binary:\n", c.get_binary())
+
+    # Comprobamos que la decodificación y codificación sean correctas
+    assert c.get_decoded() == unet_paper
+    # Aunque tenga letras se trata de una codificación binaria
+    # Solo está comprimida para que no sea tan larga
+    assert (
+        c.get_binary(zip=True) == "ARARAIQIQ4IMIGEGEHKDKBVBVB6Q6QPIPIPEHEA:188"
+    )
+
+    print("=== Prueba de entrenamiento y evaluación ===")
+    # Distintas redes a elegir
     unet_paper = "ARARAIQIQ4IMIGEGEHKDKBVBVB6Q6QPIPIPEHEA:188"
     unet_paper_mini = "AJAJAEQEQWIGIDEDEF2B2A5A5BKQKQFIFIKECEA:188"
     unet_rara = "AE6HZLHCTEYFIMM24G3TPQWZ4AS5CUI:146"
@@ -1119,259 +1196,33 @@ if __name__ == "__main__":
         max_conv_per_layer=2,
         chromosome=unet_rara
     )
-    print(c)
-    print(repr(c))
+
+    # Mostramos la arquitectura a generar
     print(c.get_decoded())
-    print(c.get_binary())
-    # c.train_unet(
-    #     data_loader=data_loader,
-    #     epochs=5
-    # )
-    # c.show_results()
-    # c.show_results("carvana")
-    # print(c.get_aptitude())
-    # print(c.get_aptitude("carvana"))
-    # c.show_results(data_loader, save=True)
-    # c.save_unet()
 
+    # Al entrenarla se generará el modelo UNet automáticamente
+    c.train_unet(
+        data_loader="road",
+        epochs=5
+    )
 
-# if __name__ == "__main__":
-#     # Prueba dimensiones de la UNet
-#     import torch
-#     from Torch_utils import CUDA
+    # Si no especificamos un DataLoader, se usará el dataloader con el que se entrenó
+    c.show_results()
+    c.show_results("carvana")
 
-#     binary = "01000100000100010000001000100000100010000111000100001100010000011000100001100010000111010100001101010000011010100001101010000111110100001111010000011110100001111010000111100100001110010000"
-#     c = Chromosome(
-#         max_layers=4,
-#         max_conv_per_layer=2,
-#         seed=42,
-#         chromosome=binary
-#     )
-#     print(c.get_decoded())
-#     x = torch.randn([32, 3, 128, 128]).to(CUDA)
-#     model = c.get_unet().to(CUDA)
-#     print(model(x).shape)
+    # Tampoco es necesario especificar el DataLoader si ya se ha entrenado
+    print(c.get_aptitude())
+    print(c.get_aptitude("carvana"))
 
+    # Guardamos los resultados
+    c.show_results(
+        save=True,
+        name="para el road.png"
+    )
+    c.show_results(
+        "carvana",
+        save=True,
+        name="para carvana.png"
+    )
 
-# if __name__ == "__main__":
-#     # Prueba codec con UNet mini
-#     binary = "00100100000010010000000100100000010010000101100100000110010000001100100000110010000101110100000111010000001110100000111010000101010100000101010000001010100000101010000101000100000100010000"
-#     real = [
-#         0.26, 0.34, 0.01, 0.26, 0.34, 0.01, 0.01, 0.26, 0.34, 0.01, 0.26, 0.34, 0.01, 0.51, 0.34, 0.34, 0.01, 0.34, 0.34, 0.01, 0.01, 0.34, 0.34, 0.01, 0.34, 0.34, 0.01, 0.51, 0.43, 0.34, 0.01,
-#         0.43, 0.34, 0.01, 0.01, 0.43, 0.34, 0.01, 0.43, 0.34, 0.01, 0.51, 0.51, 0.34, 0.01, 0.51, 0.34, 0.01, 0.01, 0.51, 0.34, 0.01, 0.51, 0.34, 0.01, 0.51, 0.59, 0.34, 0.01, 0.59, 0.34, 0.01
-#     ]
-#     decoded = (
-#         [(([
-#             (4, 3, "relu"),
-#             (4, 3, "relu")
-#         ], "max"
-#         ), ([
-#             (4, 3, "relu"),
-#             (4, 3, "relu")
-#         ], True
-#         )), (([
-#             (8, 3, "relu"),
-#             (8, 3, "relu")
-#         ], "max"
-#         ), ([
-#             (8, 3, "relu"),
-#             (8, 3, "relu")
-#         ], True
-#         )), (([
-#             (16, 3, "relu"),
-#             (16, 3, "relu")
-#         ], "max"
-#         ), ([
-#             (16, 3, "relu"),
-#             (16, 3, "relu")
-#         ], True
-#         )), (([
-#             (32, 3, "relu"),
-#             (32, 3, "relu")
-#         ], "max"
-#         ), ([
-#             (32, 3, "relu"),
-#             (32, 3, "relu")
-#         ], True
-#         ))],
-#         [
-#             (64, 3, "relu"),
-#             (64, 3, "relu")
-#         ]
-#     )
-#     c = Chromosome(
-#         max_layers=4,
-#         max_conv_per_layer=2,
-#         seed=42,
-#         chromosome=decoded
-#     )
-#     print(c.get_decoded())
-#     print(c.get_binary())
-#     print(c.get_real())
-
-
-# if __name__ == "__main__":
-#     # Prueba codec con UNet del paper
-#     binary = "01000100000100010000001000100000100010000111000100001100010000011000100001100010000111010100001101010000011010100001101010000111110100001111010000011110100001111010000111100100001110010000"
-#     real = [
-#         # -- Layers
-#         # - Layer 1
-#         # Encoder
-#         0.59, 0.34, 0.01,  # conv1
-#         0.59, 0.34, 0.01,  # conv2
-#         0.01,  # pooling
-#         # Decoder
-#         0.59, 0.34, 0.01,  # conv1
-#         0.59, 0.34, 0.01,  # conv2
-#         0.51,  # concat
-#         # - Layer 2
-#         # Encoder
-#         0.68, 0.34, 0.01,  # conv1
-#         0.68, 0.34, 0.01,  # conv2
-#         0.01,  # pooling
-#         # Decoder
-#         0.68, 0.34, 0.01,  # conv1
-#         0.68, 0.34, 0.01,  # conv2
-#         0.51,  # concat
-#         # - Layer 3
-#         # Encoder
-#         0.76, 0.34, 0.01,  # conv1
-#         0.76, 0.34, 0.01,  # conv2
-#         0.01,  # pooling
-#         # Decoder
-#         0.76, 0.34, 0.01,  # conv1
-#         0.76, 0.34, 0.01,  # conv2
-#         0.51,  # concat
-#         # - Layer 4
-#         # Encoder
-#         0.84, 0.34, 0.01,  # conv1
-#         0.84, 0.34, 0.01,  # conv2
-#         0.01,  # pooling
-#         # Decoder
-#         0.84, 0.34, 0.01,  # conv1
-#         0.84, 0.34, 0.01,  # conv2
-#         0.51,  # concat
-#         # -- Bottleneck
-#         0.93, 0.34, 0.01,  # conv1
-#         0.93, 0.34, 0.01  # conv2
-#     ]
-#     decoded = (
-#         [  # layers: [convs+deconvs, convs+deconvs, ...]
-#             (  # convs+deconvs: [nconvs+pooling, nconvs+concat]
-#                 (  # nconvs+pooling: [nconvs, pooling]
-#                     [  # nconvs: [conv, conv, ...]
-#                         (64, 3, "relu"),  # conv: [f, s, a]
-#                         (64, 3, "relu")
-#                     ],
-#                     # pooling
-#                     "max"
-#                 ),
-#                 (  # nconvs+concat: [nconvs, concat]
-#                     [  # nconvs: [conv, conv, ...]
-#                         (64, 3, "relu"),  # conv: [f, s, a]
-#                         (64, 3, "relu")
-#                     ],
-#                     # concat
-#                     True
-#                 )
-#             ),
-#             (
-#                 (
-#                     [
-#                         (128, 3, "relu"),
-#                         (128, 3, "relu")
-#                     ],
-#                     "max"
-#                 ),
-#                 (
-#                     [
-#                         (128, 3, "relu"),
-#                         (128, 3, "relu")
-#                     ],
-#                     True
-#                 )
-#             ),
-#             (
-#                 (
-#                     [
-#                         (256, 3, "relu"),
-#                         (256, 3, "relu")
-#                     ],
-#                     "max"
-#                 ),
-#                 (
-#                     [
-#                         (256, 3, "relu"),
-#                         (256, 3, "relu")
-#                     ],
-#                     True
-#                 )
-#             ),
-#             (
-#                 (
-#                     [
-#                         (512, 3, "relu"),
-#                         (512, 3, "relu")
-#                     ],
-#                     "max"
-#                 ),
-#                 (
-#                     [
-#                         (512, 3, "relu"),
-#                         (512, 3, "relu")
-#                     ],
-#                     True
-#                 )
-#             )
-#         ],
-#         [  # bottleneck: [conv, conv, ...]
-#             (1024, 3, "relu"),  # conv: [f, s, a]
-#             (1024, 3, "relu")
-#         ]
-#     )
-#     c = Chromosome(
-#         max_layers=4,
-#         max_conv_per_layer=2,
-#         seed=42,
-#         chromosome=real
-#     )
-#     print(c.get_decoded())
-#     print(c.get_binary())
-#     print(c.get_real())
-
-
-# if __name__ == "__main__":
-    # c = Chromosome(
-    #     max_layers=2,
-    #     max_conv_per_layer=2,
-    #     seed=42
-    # )
-    # cr = Chromosome(
-    #     max_layers=c.max_layers,
-    #     max_conv_per_layer=c.max_conv_per_layer,
-    #     chromosome=c.get_real()
-    # )
-    # cb=Chromosome(
-    #     max_layers=cr.max_layers,
-    #     max_conv_per_layer=cr.max_conv_per_layer,
-    #     chromosome=cr.get_binary()
-    # )
-    # cd = Chromosome(
-    #     max_layers=cb.max_layers,
-    #     max_conv_per_layer=cb.max_conv_per_layer,
-    #     chromosome=cb.get_decoded()
-    # )
-    # print(c.get_binary())
-    # print(cr.get_binary())
-    # print(cb.get_binary())
-    # print(cd.get_binary())
-    # print()
-    # print(c.get_real())
-    # print(cr.get_real())
-    # print(cb.get_real())
-    # print(cd.get_real())
-    # print()
-    # print(c.get_decoded())
-    # print(cr.get_decoded())
-    # print(cb.get_decoded())
-    # print(cd.get_decoded())
+    c.save_unet()
