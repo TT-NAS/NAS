@@ -200,10 +200,17 @@ class Chromosome:
         """
         Descomprime un cromosoma binario
         """
-        if ':' not in binary:
+        if '_' not in binary:
             return binary
 
-        encoded_data, length = binary.split(":")
+        binary = binary.split("_")
+
+        if len(binary) != 2:
+            raise ValueError(
+                "El cromosoma binario no está en el formato correcto"
+            )
+
+        encoded_data, length = binary
         length = int(length)
         padding = '=' * ((8 - len(encoded_data) % 8) % 8)
         byte_data = base64.b32decode(encoded_data + padding)
@@ -1183,14 +1190,14 @@ if __name__ == "__main__":
     # Aunque tenga letras se trata de una codificación binaria
     # Solo está comprimida para que no sea tan larga
     assert (
-        c.get_binary(zip=True) == "ARARAIQIQ4IMIGEGEHKDKBVBVB6Q6QPIPIPEHEA:188"
+        c.get_binary(zip=True) == "ARARAIQIQ4IMIGEGEHKDKBVBVB6Q6QPIPIPEHEA_188"
     )
 
     print("=== Prueba de entrenamiento y evaluación ===")
     # Distintas redes a elegir
-    unet_paper = "ARARAIQIQ4IMIGEGEHKDKBVBVB6Q6QPIPIPEHEA:188"
-    unet_paper_mini = "AJAJAEQEQWIGIDEDEF2B2A5A5BKQKQFIFIKECEA:188"
-    unet_rara = "AE6HZLHCTEYFIMM24G3TPQWZ4AS5CUI:146"
+    unet_paper = "ARARAIQIQ4IMIGEGEHKDKBVBVB6Q6QPIPIPEHEA_188"
+    unet_paper_mini = "AJAJAEQEQWIGIDEDEF2B2A5A5BKQKQFIFIKECEA_188"
+    unet_rara = "AE6HZLHCTEYFIMM24G3TPQWZ4AS5CUI_146"
     c = Chromosome(
         max_layers=4,
         max_conv_per_layer=2,
