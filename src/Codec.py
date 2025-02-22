@@ -322,6 +322,14 @@ class Chromosome:
         seed : Optional[int], optional
             Semilla para la generación de números aleatorios, by default None
         """
+        # Limpiamos las caches caducadas
+        self.data_loader = "0"
+        self.aptitude = None
+        self.__decoded = ()
+        self.__unet = None
+        self.__real = []
+        self.__binary = str()
+
         if seed is not None:
             random.seed(
                 int(
@@ -339,8 +347,7 @@ class Chromosome:
                 )
             )
 
-        if self.num_layers is None:
-            self.num_layers = random.randint(2, self.max_layers)
+        self.num_layers = random.randint(2, self.max_layers)
 
         layers = []
 
@@ -867,7 +874,7 @@ class Chromosome:
         Parameters
         ----------
         data_loader : TorchDataLoader or str
-            DataLoader con las imágenes a evaluar, by default None
+            DataLoader con las imágenes a evaluar, si no se proporciona se utiliza el DataLoader con el que se entrenó el modelo, by default None
         metric : str, optional
             Métrica a utilizar para calcular la pérdida, by default "iou"
 
@@ -1051,8 +1058,8 @@ class Chromosome:
 
         Parameters
         ----------
-        data_loader : TorchDataLoader or str
-            DataLoader con las imágenes a evaluar
+        data_loader : TorchDataLoader or str, optional
+            DataLoader con las imágenes a evaluar, si no se especifica se usará el DataLoader con el que se entrenó, by default None
         """
         if not self.__unet:
             self.set_unet()
@@ -1107,16 +1114,14 @@ if __name__ == "__main__":
                         (64, 3, "relu"),  # conv: [f, s, a]
                         (64, 3, "relu")
                     ],
-                    # pooling
-                    "max"
+                    "max"  # pooling
                 ),
                 (  # nconvs+concat: [nconvs, concat]
                     [  # nconvs: [conv, conv, ...]
                         (64, 3, "relu"),  # conv: [f, s, a]
                         (64, 3, "relu")
                     ],
-                    # concat
-                    True
+                    True  # concat
                 )
             ),
             (
@@ -1215,6 +1220,7 @@ if __name__ == "__main__":
 
     # Si no especificamos un DataLoader, se usará el dataloader con el que se entrenó
     c.show_results()
+    # Aunque se haya entrenado con un DataLoader, podemos evaluar con otro
     c.show_results("carvana")
 
     # Tampoco es necesario especificar el DataLoader si ya se ha entrenado

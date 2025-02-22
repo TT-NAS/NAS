@@ -13,9 +13,11 @@ from Codec import Chromosome
 
 
 METRICS_TO_EVAL = ["accuracy", "dice", "dice crossentropy", "iou"]
+RESULTS_FILE = "results.csv"
+LOG_FILE = "log.txt"
 
 
-def plot_results(selected_columns: list[str], normalize: bool = True, file: str = "results.csv"):
+def plot_results(selected_columns: list[str], normalize: bool = True, file: str = RESULTS_FILE):
     """
     Grafica los resultados de los modelos entrenados en múltiples subgráficos.
 
@@ -26,7 +28,7 @@ def plot_results(selected_columns: list[str], normalize: bool = True, file: str 
     normalize : bool, optional
         Si se normalizan los valores de las métricas, by default True
     file : str, optional
-        Archivo en el que se encuentran los resultados, by default "results.csv"
+        Archivo en el que se encuentran los resultados, by default RESULTS_FILE
     """
     df = pd.read_csv(file)
 
@@ -50,8 +52,8 @@ def plot_results(selected_columns: list[str], normalize: bool = True, file: str 
 
     # Medidas de los subplots
     num_subplots = len(remaining_columns)
-    rows = math.ceil(math.sqrt(num_subplots))
-    cols = math.ceil(num_subplots / rows)
+    cols = math.ceil(math.sqrt(num_subplots))
+    rows = math.ceil(num_subplots / cols)
 
     _, axes = plt.subplots(rows, cols, figsize=(5 * cols, 4 * rows))
     axes = axes.flatten() if num_subplots > 1 else [axes]
@@ -72,11 +74,14 @@ def plot_results(selected_columns: list[str], normalize: bool = True, file: str 
         ax.set_title(f"Comparación con {col}")
         ax.legend()
 
+    for ax in axes:
+        ax.set_ylim(-0.5, 1.5)
+
     plt.tight_layout()
     plt.show()
 
 
-def reg_results(scores: dict[str, float], name: str, file="results.csv"):
+def reg_results(scores: dict[str, float], name: str, file=RESULTS_FILE):
     """
     Registra los resultados de un modelo en un archivo CSV
 
@@ -89,7 +94,7 @@ def reg_results(scores: dict[str, float], name: str, file="results.csv"):
     name : str
         Nombre del modelo
     file : str, optional
-        Archivo en el que se registran los resultados, by default "results.csv"
+        Archivo en el que se registran los resultados, by default RESULTS_FILE
     """
     df = pd.read_csv(file)
     row = {
@@ -101,6 +106,21 @@ def reg_results(scores: dict[str, float], name: str, file="results.csv"):
     new_row = pd.DataFrame([row])
     df = pd.concat([df, new_row], ignore_index=True)
     df.to_csv(file, index=False)
+
+
+def log(message: str, file: str = LOG_FILE):
+    """
+    Registra un mensaje en un archivo de texto
+
+    Parameters
+    ----------
+    message : str
+        Mensaje a registrar
+    file : str, optional
+        Archivo en el que se registra el mensaje, by default LOG_FILE
+    """
+    with open(file, "a") as f:
+        f.write(message + "\n")
 
 
 def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = None, seed: Optional[int] = None, max_layers: int = 3, max_conv_per_layer: int = 2, **kwargs: Union[str, int, float, bool]) -> bool:
@@ -119,8 +139,6 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
         Cromosoma para asignar al modelo (hace que se ignore `seed`), by default None
     seed : int, optional
         Semilla para generar el cromosoma, by default None
-    epochs : int, optional
-        Número de épocas para entrenar el modelo, by default 1
     max_layers : int, optional
         Máximo número de capas para el modelo, by default 3
     max_conv_per_layer : int, optional
@@ -153,12 +171,20 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
             seed=seed
         )
 
-    # Predictores
-    synflow_scorer = Synflow(c.get_unet())
-    syn = synflow_scorer.score(c.get_unet(), shape=[3, 224, 224])
-
     try:
+        # Predictores
+        synflow_scorer = Synflow(c.get_unet())
+        syn = synflow_scorer.score(c.get_unet(), shape=[3, 224, 224])
+        # syn + 1 para evitar log(0), prácticamente no afecta
+        syn = math.log(syn + 1)
+
+        # reseteamos la unet para evitar problemas con el gradiente
+        c.set_unet()
+        jaime = gradient_scorer_pytorch(c.get_unet())
+        jaime = math.log(jaime + 1)
+
         # Métricas
+        c.set_unet()
         c.train_unet(data_loader, **kwargs)
 
         model = c.get_unet()
@@ -177,8 +203,6 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
                 items=True
             )
 
-        jaime = gradient_scorer_pytorch(c.get_unet())
-
         scores_dict = {
             "synflow": syn,
             "gradient": jaime
@@ -193,17 +217,25 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
             name = c.get_binary(zip=True)
 
         reg_results(scores_dict, name)
-        c.save_unet(name + ".pt")
         c.show_results(save=True, name=name)
+        c.save_unet(name + ".pt")
 
         return True
     except torch.OutOfMemoryError:
-        print("ERROR: CUDA se quedó sin memoria")
+        log("ERROR:")
+        log("  + Semilla: " + str(seed) if seed else "Semilla: None")
+        log("  + Binary cod: " + c.get_binary(zip=True))
+        log("  - Error: CUDA se quedó sin memoria")
+    except KeyboardInterrupt:
+        print("El entrenamiento fue interrumpido")
+        exit()
     except Exception as e:
-        print("ERROR:")
-        print("  + Semilla: " + str(seed) if seed else "Semilla: None")
-        print("  + Binary cod:", c.get_binary(zip=True))
-        print("  - Error:", e)
+        log("ERROR:")
+        log("  + Semilla: " + str(seed) if seed else "Semilla: None")
+        log("  + Binary cod: " + c.get_binary(zip=True))
+        log("  - Error:" + str(e))
+    finally:
+        torch.cuda.empty_cache()
 
     return False
 
@@ -247,22 +279,28 @@ def score_n_models(idx_start: int = None, num: int = None, chromosomes: Optional
         for s in seeds:
             score_model(dataset, seed=s, **kwargs)
     elif idx_start and num:
-        j = idx_start
         i = idx_start
+        last_succes = idx_start
+        seed = idx_start
 
-        while j < idx_start + num:
-            succes = score_model(dataset, seed=i, **kwargs)
+        while i < idx_start + num:
+            succes = score_model(dataset, seed=seed, **kwargs)
 
             if succes:
-                j += 1
+                i += 1
+                last_succes = seed
 
-            i += 1
+            seed += 1
+
+            if last_succes + 20 < seed:
+                log("Se han intentado entrenar demasiados modelos sin éxito seguidos")
+                break
 
 
 if __name__ == "__main__":
     score_n_models(
-        idx_start=85,
-        num=20,
+        idx_start=139,
+        num=2,
         dataset="road",
         epochs=10
     )

@@ -210,14 +210,14 @@ class TorchDataLoader:
     Wrapper de los DataLoaders de train, validation y test para un dataset
     """
 
-    def __init__(self, dataset_class: Union[Dataset, str], batch_size: Optional[int] = None, train_val_prop: float = 0.8, test_prop: float = 0.2, **kwargs: T.Compose):
+    def __init__(self, dataset_class: str, batch_size: Optional[int] = None, train_val_prop: float = 0.8, test_prop: float = 0.2, **kwargs: T.Compose):
         """
         Wrapper de los DataLoaders de train, validation y test para un dataset
 
         Parameters
         ----------
-        dataset_class : Dataset or str
-            Clase del dataset a cargar o nombre del dataset
+        dataset_class : str
+            Nombre del dataset a cargar
 
             Opciones:
                 - "carvana"
@@ -228,7 +228,7 @@ class TorchDataLoader:
             Proporción que se usará entre train y validation, by default 0.8
         test_prop : float, optional
             Proporción que se usará entre el conjunto de entrenamiento (train y validation) y test, by default 0.2
-        **kwargs : T.Compose or float
+        **kwargs : T.Compose
             Argumentos adicionales para el dataset:
             - transform : (T.Compose) Transformaciones a aplicar a las imágenes
 
@@ -237,22 +237,14 @@ class TorchDataLoader:
         ValueError
             Si el nombre del dataset ingresado no es válido
         """
-        if isinstance(dataset_class, str):
-            if dataset_class == "carvana" or dataset_class == "c":
-                dataset_class = CarvanaDataset
-                self.identifier = "c"
-            elif dataset_class == "road" or dataset_class == "r":
-                dataset_class = RoadDataset
-                self.identifier = "r"
-            else:
-                raise ValueError("Invalid dataset class")
+        if dataset_class == "carvana" or dataset_class == "c":
+            dataset_class = CarvanaDataset
+            self.identifier = "c"
+        elif dataset_class == "road" or dataset_class == "r":
+            dataset_class = RoadDataset
+            self.identifier = "r"
         else:
-            if isinstance(dataset_class, CarvanaDataset):
-                self.identifier = "c"
-            elif isinstance(dataset_class, RoadDataset):
-                self.identifier = "r"
-            else:
-                self.identifier = "0"
+            raise ValueError("Invalid dataset class")
 
         dataset = dataset_class(
             train=True,
