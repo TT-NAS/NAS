@@ -1214,7 +1214,7 @@ if __name__ == "__main__":
 
     # Al entrenarla se generará el modelo UNet automáticamente
     c.train_unet(
-        data_loader="road",
+        data_loader="car",
         epochs=5
     )
 
@@ -1224,13 +1224,13 @@ if __name__ == "__main__":
     c.show_results("carvana")
 
     # Tampoco es necesario especificar el DataLoader si ya se ha entrenado
-    print(c.get_aptitude())
-    print(c.get_aptitude("carvana"))
+    print("Aptitud para el DataLoader de entrenamiento:", c.get_aptitude())
+    print("Aptitud para el DataLoader de validación:", c.get_aptitude("carvana"))
 
     # Guardamos los resultados
     c.show_results(
         save=True,
-        name="para el road.png"
+        name="para car dataset.png"
     )
     c.show_results(
         "carvana",

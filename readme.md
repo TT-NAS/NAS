@@ -8,4 +8,6 @@ Le dan en Download All, descomprimen el .zip, y adentro hay otros .zip, descompr
 - test.zip
 - train_masks.zip
 
+Por último ponen las carpetas descomprimidas dentro de una carpeta llamada `carvana-dataset`
+
 Luego hago un readme chido

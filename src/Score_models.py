@@ -299,8 +299,8 @@ def score_n_models(idx_start: int = None, num: int = None, chromosomes: Optional
 
 if __name__ == "__main__":
     score_n_models(
-        idx_start=139,
-        num=2,
+        idx_start=141,
+        num=5,
         dataset="road",
         epochs=10
     )

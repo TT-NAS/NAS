@@ -5,6 +5,7 @@ Clases
 ------
 - CarvanaDataset: Clase para cargar el dataset de Carvana
 - RoadDataset: Clase para cargar el dataset de carreteras
+- CarDataset: Clase para cargar el dataset de carros
 - TorchDataLoader: Wrapper de los DataLoaders de train, validation y test para un dataset
     - No es necesario instanciar esta clase, se puede usar directamente un DataLoader de PyTorch,
       pero esta clase facilita el proceso de cargar los datos
@@ -41,21 +42,27 @@ import matplotlib.pyplot as plt
 # ========================
 # NOTE: Constantes
 # ========================
-torch.manual_seed(42)
 CARVANA_BATCH_SIZE = 32
 ROAD_BATCH_SIZE = 1
+CAR_BATCH_SIZE = 4
 SHOW_SIZE = 32
+
 WIDTH = 224
 HEIGHT = 224
 CHANNELS = 3
+
 CARVANA_DATA_PATH = "./carvana-dataset/"
 ROAD_DATA_PATH = "./road-dataset/"
+CAR_DATA_PATH = "./car-dataset/"
+
 MODELS_PATH = "./models/"
 IMGS_PATH = "./imgs/"
+
 TRANSFORM = T.Compose([
     T.Resize([WIDTH, HEIGHT]),
     T.ToTensor()
 ])
+
 CUDA = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 if not torch.cuda.is_available():
@@ -205,6 +212,66 @@ class RoadDataset(Dataset):
             return image
 
 
+class CarDataset(Dataset):
+    """
+    Clase para cargar el dataset de carros
+    """
+
+    def __init__(self, train: bool, test_prop: float, transform: T.Compose = TRANSFORM):
+        """
+        Clase para cargar el dataset de carros
+
+        Parameters
+        ----------
+        train : bool
+            Si se cargan los datos de entrenamiento o de prueba
+        test_prop : float
+            Proporción de imágenes que se usarán para test
+        transform : T.Compose, optional
+            Transformaciones a aplicar a las imágenes, by default TRANSFORM
+        """
+        self.transform = transform
+
+        CAR_TRAIN_PATH = os.path.join(CAR_DATA_PATH, "Images")
+        CAR_MASKS_PATH = os.path.join(CAR_DATA_PATH, "Masks")
+
+        len_dataset = len(os.listdir(CAR_TRAIN_PATH))
+        train_and_val_prop = 1 - test_prop
+        split_index = int(len_dataset * train_and_val_prop)
+
+        if train:
+            self.image_paths = CAR_TRAIN_PATH
+            self.mask_paths = CAR_MASKS_PATH
+            self.images = sorted(os.listdir(self.image_paths))[:split_index]
+            self.masks = sorted(os.listdir(self.mask_paths))[:split_index]
+
+            assert (
+                len(self.images) == len(self.masks)
+            ), "El número de imágenes y máscaras no coincide"
+        else:
+            self.image_paths = CAR_TRAIN_PATH
+            self.images = sorted(os.listdir(self.image_paths))[split_index:]
+            self.masks = None
+
+    def __len__(self) -> int:
+        return len(self.images)
+
+    def __getitem__(self, idx: int) -> tuple[Tensor, Optional[Tensor]]:
+        image_path = os.path.join(self.image_paths, self.images[idx])
+        image = Image.open(image_path)
+        image = self.transform(image)
+
+        if self.masks:
+            mask_path = os.path.join(self.mask_paths, self.masks[idx])
+            mask = Image.open(mask_path).convert("L")
+            mask = self.transform(mask)
+            mask /= mask.max().item()
+
+            return image, mask
+        else:
+            return image
+
+
 class TorchDataLoader:
     """
     Wrapper de los DataLoaders de train, validation y test para un dataset
@@ -222,6 +289,7 @@ class TorchDataLoader:
             Opciones:
                 - "carvana"
                 - "road"
+                - "car"
         batch_size : int, optional
             Tamaño del batch, by default BATCH_SIZE
         train_val_prop : float, optional
@@ -243,6 +311,9 @@ class TorchDataLoader:
         elif dataset_class == "road" or dataset_class == "r":
             dataset_class = RoadDataset
             self.identifier = "r"
+        elif dataset_class == "car" or dataset_class == "ca":
+            dataset_class = CarDataset
+            self.identifier = "ca"
         else:
             raise ValueError("Invalid dataset class")
 
@@ -270,6 +341,8 @@ class TorchDataLoader:
                 batch_size = CARVANA_BATCH_SIZE
             elif isinstance(dataset, RoadDataset):
                 batch_size = ROAD_BATCH_SIZE
+            elif isinstance(dataset, CarDataset):
+                batch_size = CAR_BATCH_SIZE
             else:
                 batch_size = 1
 
@@ -593,8 +666,8 @@ def plot_batch(imgs: Tensor, masks: Tensor, save: bool = False, show_size: int =
         Ruta donde se guardarán las imágenes, by default IMGS_PATH
     """
     # Mostrar las dimensiones de los un batch de imágenes y máscaras
-    print(f" - Imágenes: {imgs.shape}")
-    print(f" - Máscaras: {masks.shape}")
+    # print(f" - Imágenes: {imgs.shape}")
+    # print(f" - Máscaras: {masks.shape}")
     # Mostrar un batch de imágenes y máscaras
     plt.figure(figsize=(20, 10))
 
@@ -1153,10 +1226,12 @@ def gradient_scorer_pytorch_ant(model, batch_size: int = 32):
 if __name__ == "__main__":
     # === Prueba de DataLoader ===
     # Elige el dataset a cargar
-    name = "carvana"
-    bs = CARVANA_BATCH_SIZE
+    # name = "carvana"
+    # bs = CARVANA_BATCH_SIZE
     # name = "road"
     # bs = ROAD_BATCH_SIZE
+    name = "car"
+    bs = CAR_BATCH_SIZE
 
     data_loader = TorchDataLoader(name)
     imgs, masks = next(iter(data_loader.train))
