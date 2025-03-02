@@ -15,18 +15,18 @@ class Chromosome:
     Clase que representa un cromosoma de una red UNet
     """
 
-    def __init__(self, max_layers: int, max_conv_per_layer: int, seed: Optional[int] = None, chromosome: Optional[Union[tuple, list, str]] = None):
+    def __init__(self, max_layers: int, max_convs_per_layer: int, seed: Optional[int] = None, chromosome: Optional[Union[tuple, list, str]] = None):
         """
         Clase que representa un cromosoma de una red UNet
 
         A tener en cuenta:
-        - El numero de convoluciones en el cuello de botella es el mismo que el max_conv_per_layer
+        - El numero de convoluciones en el cuello de botella es el mismo que el max_convs_per_layer
 
         Parameters
         ----------
         max_layers : int
             Número máximo de capas de la red
-        max_conv_per_layer : int
+        max_convs_per_layer : int
             Número máximo de capas convolucionales por bloque
         seed : Optional[int], optional
             Semilla para la generación de números aleatorios, by default None
@@ -34,7 +34,7 @@ class Chromosome:
             Cromosoma de un individuo a cargar, by default None
         """
         self.max_layers = max_layers
-        self.max_conv_per_layer = max_conv_per_layer
+        self.max_convs_per_layer = max_convs_per_layer
         self.seed = seed
 
         # __decoded será el cromosoma como tal, __real y __binary son solo auxiliares y caché
@@ -48,12 +48,12 @@ class Chromosome:
         self.num_layers = None
 
         # 3 valores por convolución en encoding y decoding + 2 valores por pooling y concatenación
-        self.REAL_LAYER_LEN = 3 * self.max_conv_per_layer * 2 + 2
-        self.REAL_BOTTLENECK_LEN = 3 * self.max_conv_per_layer
+        self.REAL_LAYER_LEN = 3 * self.max_convs_per_layer * 2 + 2
+        self.REAL_BOTTLENECK_LEN = 3 * self.max_convs_per_layer
         # filters: 4 bits, kernel_size: 2 bits, activation: 4 bits = 10 bits
         # pooling: 1 bit, concat: 1 bit = 2 bits
-        self.BIN_LAYER_LEN = 10 * self.max_conv_per_layer * 2 + 2
-        self.BIN_BOTTLENECK_LEN = 10 * self.max_conv_per_layer
+        self.BIN_LAYER_LEN = 10 * self.max_convs_per_layer * 2 + 2
+        self.BIN_BOTTLENECK_LEN = 10 * self.max_convs_per_layer
 
         if chromosome:
             if isinstance(chromosome, tuple):
@@ -68,7 +68,16 @@ class Chromosome:
     # ========================
     # NOTE: Utils de la clase
     # ========================
-    def __str__(self):
+    def __str__(self) -> str:
+        """
+        Devuelve una representación en string del cromosoma
+
+        Returns
+        -------
+        str
+            Representación en string del cromosoma
+        """
+        seed = self.seed if self.seed is not None else 'N'
         transform = repr(self.data_loader_args.get(
             "transform", "0"
         )).replace("\n", "").replace(" ", "").replace("'", "")
@@ -76,10 +85,18 @@ class Chromosome:
             "data_path", "0"
         ).replace("\n", "")
 
-        return f"{self.get_binary(zip=True)}-dl{self.data_loader}-t{transform}-dp{data_path}"
+        return f"s{seed}-{self.get_binary(zip=True)}-dl{self.data_loader}-t{transform}-dp{data_path}"
 
-    def __repr__(self):
-        return f"Chromosome(max_layers={self.max_layers}, max_conv_per_layer={self.max_conv_per_layer}, seed={self.seed}, chromosome='{self.get_binary(zip=True)}')"
+    def __repr__(self) -> str:
+        """
+        Devuelve la representación de la instancia
+
+        Returns
+        -------
+        str
+            Representación de la instancia
+        """
+        return f"Chromosome(max_layers={self.max_layers}, max_convs_per_layer={self.max_convs_per_layer}, seed={self.seed}, chromosome='{self.get_binary(zip=True)}')"
 
     def validate(self):
         """
@@ -168,11 +185,11 @@ class Chromosome:
                     "Las capas no coinciden entre el cromosoma decodificado y el número de capas"
                 )
 
-            if len(self.__decoded[1]) != self.max_conv_per_layer or len(self.__decoded[0][0][0][0]) != self.max_conv_per_layer:
+            if len(self.__decoded[1]) != self.max_convs_per_layer or len(self.__decoded[0][0][0][0]) != self.max_convs_per_layer:
                 raise ValueError(
                     "El espacio para convoluciones no es compatible con el número máximo permitido"
                 )
-            # TODO: Crear función para contar convoluciones activas dentro de una capa y validar con max_conv_per_layer
+            # TODO: Crear función para contar convoluciones activas dentro de una capa y validar con max_convs_per_layer
 
         if self.num_layers is not None and self.num_layers > self.max_layers:
             raise ValueError("El número de capas supera el máximo permitido")
@@ -199,16 +216,14 @@ class Chromosome:
             random.seed(
                 int(
                     str(seed) +
-                    str(self.max_layers) +
-                    str(self.max_conv_per_layer)
+                    str(self.max_convs_per_layer)
                 )
             )
         elif self.seed is not None:
             random.seed(
                 int(
                     str(self.seed) +
-                    str(self.max_layers) +
-                    str(self.max_conv_per_layer)
+                    str(self.max_convs_per_layer)
                 )
             )
 
@@ -222,7 +237,7 @@ class Chromosome:
             pooling = random.choice(list(POOLINGS.values()))
             concat = random.choice(list(CONCATENATION.values()))
 
-            for _ in range(self.max_conv_per_layer):
+            for _ in range(self.max_convs_per_layer):
                 conv = (
                     random.choice(list(FILTERS.values())),
                     random.choice(list(KERNEL_SIZES.values())),
@@ -240,7 +255,7 @@ class Chromosome:
 
         bottleneck = []
 
-        for _ in range(self.max_conv_per_layer):
+        for _ in range(self.max_convs_per_layer):
             conv = (
                 random.choice(list(FILTERS.values())),
                 random.choice(list(KERNEL_SIZES.values())),
@@ -255,14 +270,17 @@ class Chromosome:
     # ========================
     # NOTE: Setters
     # ========================
-    def set_decoded(self, decoded_chromosome: Optional[tuple[tuple, int]] = None):
+    def set_decoded(self, decoded_chromosome: Optional[tuple[tuple, int]] = None, **kwargs: int):
         """
         Crea el cromosoma decodificado a partir de otro o a partir de los cromosomas real o binario
 
         Parameters
         ----------
         decoded_chromosome : Optional[tuple], optional
-            (Cromosoma decodificado, Número de capas), by default None
+            (Cromosoma decodificado, número de capas), by default None
+        **kwargs : int
+            Argumentos adicionales para la generación del cromosoma si se debe generar uno nuevo:
+            - seed : (int) Semilla para la generación de números aleatorios
         """
         if decoded_chromosome:
             # === Si recibimos un cromosoma decodificado lo asignamos ===
@@ -291,7 +309,7 @@ class Chromosome:
             bottleneck_len = self.BIN_BOTTLENECK_LEN
             real = False
         else:
-            self.generate_random()
+            self.generate_random(**kwargs)
 
             return
 
@@ -303,14 +321,17 @@ class Chromosome:
         )
         self.validate()
 
-    def set_real(self, real_chromosome: Optional[tuple[list[float], int]] = None):
+    def set_real(self, real_chromosome: Optional[tuple[list[float], int]] = None, **kwargs: int):
         """
         Crea el cromosoma real a partir de otro o a partir del cromosoma decodificado
 
         Parameters
         ----------
         real_chromosome : Optional[tuple], optional
-            (Cromosoma real, Número de capas), by default None
+            (Cromosoma real, número de capas), by default None
+        **kwargs : int
+            Argumentos adicionales para la generación del cromosoma si se debe generar uno nuevo:
+            - seed : (int) Semilla para la generación de números aleatorios
         """
         if real_chromosome:
             # === Si recibimos un cromosoma real lo asignamos ===
@@ -333,7 +354,7 @@ class Chromosome:
 
         # Si el cromosoma no está definido, lo generamos
         if not self.__decoded:
-            self.set_decoded()
+            self.set_decoded(**kwargs)
 
         self.__real: list[float] = encode_chromosome(
             self.__decoded,
@@ -341,14 +362,17 @@ class Chromosome:
         )
         self.validate()
 
-    def set_binary(self, binary_chromosome: Optional[tuple[str, int]] = None):
+    def set_binary(self, binary_chromosome: Optional[tuple[str, int]] = None, **kwargs: int):
         """
         Crea el cromosoma binario a partir de otro o a partir del cromosoma decodificado
 
         Parameters
         ----------
         binary_chromosome : Optional[tuple], optional
-            (Cromosoma binario, Número de capas), by default None
+            (Cromosoma binario, número de capas), by default None
+        **kwargs : int
+            Argumentos adicionales para la generación del cromosoma si se debe generar uno nuevo:
+            - seed : (int) Semilla para la generación de números aleatorios
         """
         if binary_chromosome:
             # === Si recibimos un cromosoma binario lo asignamos ===
@@ -372,7 +396,7 @@ class Chromosome:
 
         # Si el cromosoma no está definido, lo generamos
         if not self.__decoded:
-            self.set_decoded()
+            self.set_decoded(**kwargs)
 
         self.__binary: str = encode_chromosome(
             self.__decoded,
@@ -387,6 +411,9 @@ class Chromosome:
         Parameters
         ----------
         **kwargs : int
+            Argumentos adicionales para la generación del cromosoma si se debe generar uno nuevo:
+            - seed : (int) Semilla para la generación de números aleatorios
+
             Argumentos adicionales para el modelo UNet
             - in_channels : (int) Número de canales de entrada
         """
@@ -397,14 +424,16 @@ class Chromosome:
 
         # Si el cromosoma no está definido, lo generamos
         if not self.__decoded:
-            self.set_decoded()
+            seed = kwargs.pop("seed", None)
+
+            self.set_decoded(seed=seed)
 
         self.__unet = UNet(
             decoded_chromosome=self.__decoded,
             **kwargs
         )
 
-    def set_aptitude(self, data_loader: Optional[Union[TorchDataLoader, str]] = None, metric: str = "iou", **kwargs: Union[float, str, object]):
+    def set_aptitude(self, data_loader: Optional[Union[TorchDataLoader, str]] = None, metric: str = "iou", **kwargs: Union[str, int, float, object]):
         """
         Evalúa el modelo UNet
 
@@ -419,15 +448,17 @@ class Chromosome:
                 - "iou"
                 - "dice"
                 - "dice crossentropy"
-                - "accuracy"
-        **kwargs : float or T.Compose or str
-            Argumentos adicionales para las funciones de pérdida:
-            - smooth : (float) Valor para suavizar la división
-            - threshold : (float) Umbral para considerar si un píxel es 1 o 0
+        **kwargs : T.Compose or str or int or float
+            Argumentos adicionales para el DataLoader:
+            - batch_size : (int) Tamaño del batch
+            - train_val_prop : (float) Proporción que se usará entre train y validation
+            - test_prop : (float) Proporción que se usará entre el conjunto de entrenamiento (train y validation) y test
 
             Argumentos adicionales para el dataset:
+            - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de entrenamiento (train y validation) y test
             - transform : (T.Compose) Transformaciones a aplicar a las imágenes
             - data_path : (str) Ruta de los datos
+            - dataset_len : (int) Número de imágenes a cargar
 
         Returns
         -------
@@ -437,35 +468,21 @@ class Chromosome:
         if not self.__unet:
             self.set_unet()
 
-        data_loader_args = None
-        if "transform" in kwargs or "data_path" in kwargs:
-            data_loader_args = {
-                k: v for k, v in kwargs.items()
-                if k in ["transform", "data_path"]
-            }
-            kwargs = {
-                k: v for k, v in kwargs.items()
-                if k not in ["transform", "data_path"]
-            }
-
         if not data_loader:
             if not self.data_loader:
                 raise ValueError("No se ha especificado un DataLoader")
 
-            if data_loader_args is not None:
-                self.data_loader_args = data_loader_args
+            if not kwargs:
+                kwargs = self.data_loader_args
 
             data_loader = TorchDataLoader(
                 self.data_loader,
-                **self.data_loader_args
+                **kwargs
             )
         elif isinstance(data_loader, str):
-            if data_loader_args is None:
-                data_loader_args = {}
-
             data_loader = TorchDataLoader(
                 data_loader,
-                **data_loader_args
+                **kwargs
             )
 
         imgs = next(iter(data_loader.test))
@@ -481,20 +498,25 @@ class Chromosome:
             metrics=[metric],
             # Loss: True para minimización
             loss=True,
-            items=True,
-            **kwargs
+            items=True
         )[0]
 
     # ========================
     # NOTE: Getters
     # ========================
-    def get_decoded(self) -> tuple[list[tuple[tuple[list[tuple[int, int, str]],
-                                                    str],
-                                              tuple[list[tuple[int, int, str]],
-                                                    bool]]],
-                                   list[tuple[int, int, str]]]:
+    def get_decoded(self, **kwargs: int) -> tuple[list[tuple[tuple[list[tuple[int, int, str]],
+                                                                   str],
+                                                             tuple[list[tuple[int, int, str]],
+                                                                   bool]]],
+                                                  list[tuple[int, int, str]]]:
         """
         Devuelve el estado actual del cromosoma sin codificación
+
+        Parameters
+        ----------
+        **kwargs : int
+            Argumentos adicionales para la generación del cromosoma si se debe generar uno nuevo:
+            - seed : (int) Semilla para la generación de números aleatorios
 
         Returns
         -------
@@ -502,13 +524,19 @@ class Chromosome:
             Cromosoma decodificado
         """
         if not self.__decoded:
-            self.set_decoded()
+            self.set_decoded(**kwargs)
 
         return self.__decoded
 
-    def get_real(self) -> list[float]:
+    def get_real(self, **kwargs: int) -> list[float]:
         """
         Devuelve el estado actual del cromosoma con codificación real
+
+        Parameters
+        ----------
+        **kwargs : int
+            Argumentos adicionales para la generación del cromosoma si se debe generar uno nuevo:
+            - seed : (int) Semilla para la generación de números aleatorios
 
         Returns
         -------
@@ -516,13 +544,21 @@ class Chromosome:
             Cromosoma en su representación real
         """
         if not self.__real:
-            self.set_real()
+            self.set_real(**kwargs)
 
         return self.__real
 
-    def get_binary(self, zip: bool = False) -> str:
+    def get_binary(self, zip: bool = False, **kwargs: int) -> str:
         """
         Devuelve el estado actual del cromosoma con codificación binaria
+
+        Parameters
+        ----------
+        zip : bool, optional
+            Si se devolverá el cromosoma binario comprimido, by default False
+        **kwargs : int
+            Argumentos adicionales para la generación del cromosoma si se debe generar uno nuevo:
+            - seed : (int) Semilla para la generación de números aleatorios
 
         Returns
         -------
@@ -530,16 +566,25 @@ class Chromosome:
             Cromosoma en su representación binaria
         """
         if not self.__binary:
-            self.set_binary()
+            self.set_binary(**kwargs)
 
         if zip:
             return zip_binary(self.__binary)
 
         return self.__binary
 
-    def get_unet(self) -> UNet:
+    def get_unet(self, **kwargs: int) -> UNet:
         """
         Devuelve el modelo UNet
+
+        Parameters
+        ----------
+        **kwargs : int
+            Argumentos adicionales para la generación del cromosoma si se debe generar uno nuevo:
+            - seed : (int) Semilla para la generación de números aleatorios
+
+            Argumentos adicionales para el modelo UNet
+            - in_channels : (int) Número de canales de entrada
 
         Returns
         -------
@@ -547,43 +592,60 @@ class Chromosome:
             Modelo UNet
         """
         if not self.__unet:
-            self.set_unet()
+            self.set_unet(**kwargs)
 
         return self.__unet
 
-    def get_aptitude(self, data_loader: Optional[Union[TorchDataLoader, str]] = None, metric: str = "iou", **kwargs: Union[float, str, object]) -> float:
+    def get_aptitude(self, **kwargs: Union[str, int, float, TorchDataLoader, object]) -> float:
         """
         Devuelve la aptitud del cromosoma
 
         Parameters
         ----------
-        data_loader : TorchDataLoader or str, optional
-            DataLoader con las imágenes a evaluar, by default None
-        metric : str, optional
-            Métrica a utilizar para calcular la pérdida, by default "iou"
-        **kwargs : float or T.Compose or str
-            Argumentos adicionales para las funciones de pérdida:
-            - smooth : (float) Valor para suavizar la división
-            - threshold : (float) Umbral para considerar si un píxel es 1 o 0
+        **kwargs : T.Compose or str or int or float
+            Argumentos adicionales para la función 'set_aptitude':
+            - data_loader : (TorchDataLoader) DataLoader con las imágenes a evaluar
+            - metric : (str) Métrica a utilizar para calcular la pérdida ("iou", "dice" o "dice crossentropy")
+
+            Argumentos adicionales para el DataLoader:
+            - batch_size : (int) Tamaño del batch
+            - train_val_prop : (float) Proporción que se usará entre train y validation
+            - test_prop : (float) Proporción que se usará entre el conjunto de entrenamiento (train y validation) y test
 
             Argumentos adicionales para el dataset:
+            - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de entrenamiento (train y validation) y test
             - transform : (T.Compose) Transformaciones a aplicar a las imágenes
             - data_path : (str) Ruta de los datos
+            - dataset_len : (int) Número de imágenes a cargar
 
         Returns
         -------
         float
             Aptitud del cromosoma
         """
-        if self.aptitude is None or data_loader or "transform" in kwargs or "data_path" in kwargs:
-            self.set_aptitude(data_loader, metric, **kwargs)
+        if self.aptitude is None or kwargs.get("data_loader", None) is not None or any(arg in kwargs for arg in TorchDataLoader.ARGS):
+            self.set_aptitude(**kwargs)
 
         return self.aptitude
+
+    def get_layers(self) -> int:
+        """
+        Devuelve el número de capas de la red
+
+        Returns
+        -------
+        int
+            Número de capas
+        """
+        if not self.num_layers:
+            self.validate()
+
+        return self.num_layers
 
     # ========================
     # NOTE: Funciones de la UNet
     # ========================
-    def train_unet(self, data_loader: Union[TorchDataLoader, str], **kwargs: Union[str, float, int, bool, object]):
+    def train_unet(self, data_loader: Union[TorchDataLoader, str], **kwargs: Union[str, int, float, bool, object]) -> tuple[float, int, dict[str, list[float]]]:
         """
         Entrena el modelo UNet
 
@@ -591,30 +653,37 @@ class Chromosome:
         ----------
         data_loader : TorchDataLoader or str
             DataLoader con los datos de entrenamiento y validación
-        **kwargs : str or int or float or bool or T.Compose
+        **kwargs : T.Compose or str or int or float or bool
             Argumentos adicionales para el entrenamiento:
-            - metric : (str) Métrica a utilizar para calcular la pérdida. ("iou", "dice", "dice crossentropy" o "accuracy")
+            - metric : (str) Métrica a utilizar para calcular la pérdida. ("iou", "dice" o "dice crossentropy")
             - lr : (float) Tasa de aprendizaje
             - epochs : (int) Número de épocas
             - show_val : (bool) Si mostrar los resultados de la validación en cada epoch
             - print_every : (int) Cada cuántos pasos se imprime el resultado
+            - early_stopping_patience : (int) Número de épocas a esperar sin mejora antes de detener el entrenamiento
+            - early_stopping_delta : (float) Umbral mínimo de mejora para considerar un progreso
+            - stopping_threshold : (float) Umbral de rendimiento para la métrica de validación. Si se alcanza o supera, el entrenamiento se detiene
+
+            Argumentos adicionales para el DataLoader:
+            - batch_size : (int) Tamaño del batch
+            - train_val_prop : (float) Proporción que se usará entre train y validation
+            - test_prop : (float) Proporción que se usará entre el conjunto de entrenamiento (train y validation) y test
 
             Argumentos adicionales para el dataset:
+            - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de entrenamiento (train y validation) y test
             - transform : (T.Compose) Transformaciones a aplicar a las imágenes
             - data_path : (str) Ruta de los datos
+            - dataset_len : (int) Número de imágenes a cargar
+
+        Returns
+        -------
+        tuple
+            (Tiempo de entrenamiento en segundos, última época, resultados de las métricas a lo largo del entrenamiento)
         """
         if not self.__unet:
             self.set_unet()
 
-        if "transform" in kwargs or "data_path" in kwargs:
-            self.data_loader_args = {
-                k: v for k, v in kwargs.items()
-                if k in ["transform", "data_path"]
-            }
-            kwargs = {
-                k: v for k, v in kwargs.items()
-                if k not in ["transform", "data_path"]
-            }
+        self.data_loader_args, kwargs = TorchDataLoader.get_args(kwargs)
 
         if isinstance(data_loader, str):
             data_loader = TorchDataLoader(
@@ -624,20 +693,24 @@ class Chromosome:
 
         self.data_loader = str(data_loader)
 
-        start = time.time()
+        start = time.perf_counter()
 
-        train_model(
+        self.__unet, last_epoch, metrics = train_model(
             model=self.__unet,
             data_loader=data_loader,
             **kwargs
         )
 
+        time_seconds = time.perf_counter() - start
+
         print(
             "Entrenamiento finalizado en "
-            f"{time.time() - start:.3f} segundos"
+            f"{time_seconds:.4f} segundos"
         )
 
-    def show_results(self, data_loader: Optional[Union[TorchDataLoader, str]] = None, save: bool = False, name: Optional[str] = None, **kwargs: Union[str, object]):
+        return time_seconds, last_epoch, metrics
+
+    def show_results(self, data_loader: Optional[Union[TorchDataLoader, str]] = None, name: Optional[str] = None, **kwargs: Union[str, object]):
         """
         Muestra los resultados del modelo UNet actual
 
@@ -645,57 +718,59 @@ class Chromosome:
         ----------
         data_loader : TorchDataLoader or str, optional
             DataLoader con las imágenes a evaluar, si no se especifica se usará el DataLoader con el que se entrenó, by default None
-        **kwargs : str or T.Compose
+        name : Optional[str], optional
+            Nombre del archivo, si no se especifica el nombre será el hash del cromosoma binario, by default None
+        **kwargs : T.Compose or str or int or float or bool
+            Argumentos adicionales para la función `plot_batch`:
+            - save : (bool) Si se guardan las imágenes o se muestran
+            - show_size : (int) Número de imágenes a mostrar
+            - path : (str) Ruta donde se guardarán las imágenes
+
+            Argumentos adicionales para el DataLoader:
+            - batch_size : (int) Tamaño del batch
+            - train_val_prop : (float) Proporción que se usará entre train y validation
+            - test_prop : (float) Proporción que se usará entre el conjunto de entrenamiento (train y validation) y test
+
             Argumentos adicionales para el dataset:
+            - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de entrenamiento (train y validation) y test
             - transform : (T.Compose) Transformaciones a aplicar a las imágenes
             - data_path : (str) Ruta de los datos
+            - dataset_len : (int) Número de imágenes a cargar
         """
         if not self.__unet:
             self.set_unet()
 
-        data_loader_args = None
-        if "transform" in kwargs or "data_path" in kwargs:
-            data_loader_args = {
-                k: v for k, v in kwargs.items()
-                if k in ["transform", "data_path"]
-            }
-            kwargs = {
-                k: v for k, v in kwargs.items()
-                if k not in ["transform", "data_path"]
-            }
+        data_loader_args, kwargs = TorchDataLoader.get_args(kwargs)
 
         if not data_loader:
             if not self.data_loader:
                 raise ValueError("No se ha especificado un DataLoader")
 
-            if data_loader_args is not None:
-                self.data_loader_args = data_loader_args
+            if not data_loader_args:
+                data_loader_args = self.data_loader_args
 
             data_loader = TorchDataLoader(
                 self.data_loader,
-                **self.data_loader_args
+                **data_loader_args
             )
         elif isinstance(data_loader, str):
-            if data_loader_args is None:
-                data_loader_args = {}
-
             data_loader = TorchDataLoader(
                 data_loader,
                 **data_loader_args
             )
 
-        if save and not name:
+        if name is None:
             name = self.__str__() + ".png"
             name = name.replace("/", "#s").replace("\\", "#b")
 
         plot_results(
             model=self.__unet,
             test_loader=data_loader.test,
-            save=save,
-            name=name
+            name=name,
+            **kwargs
         )
 
-    def save_unet(self, name: Optional[str] = None):
+    def save_unet(self, name: Optional[str] = None, **kwargs: str):
         """
         Guarda el modelo UNet en un archivo
 
@@ -703,16 +778,20 @@ class Chromosome:
         ----------
         name : Optional[str], optional
             Nombre del archivo, si no se especifica el nombre será el hash del cromosoma binario, by default None
+
+        **kwargs : str
+            Argumentos adicionales para la función `save_model`:
+            - path : (str) Ruta donde se guardará el modelo
         """
         if not self.__unet:
             self.set_unet()
 
-        if not name:
+        if name is None:
             name = self.__str__() + ".pt"
             name = name.replace("/", "#s").replace("\\", "#b")
 
         save_model(
             model=self.__unet,
-            name=name
+            name=name,
+            **kwargs
         )
-        print(f"Modelo guardado como {name}")

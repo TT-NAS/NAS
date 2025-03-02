@@ -5,6 +5,19 @@ from .constants import FILTERS, KERNEL_SIZES, ACTIVATION_FUNCTIONS, POOLINGS, CO
 
 
 def zip_binary(binary: str) -> str:
+    """
+    Codifica un string binario en base32 y lo devuelve junto con su longitud
+
+    Parameters
+    ----------
+    binary : str
+        String binario a codificar
+
+    Returns
+    -------
+    str
+        String codificado en base32 y su longitud
+    """
     length = len(binary)
     byte_data = int(binary, 2).to_bytes(
         (length + 7) // 8,
@@ -64,7 +77,7 @@ def encode_convs(convs: list[tuple[int, int, str]], real: bool) -> Union[list[fl
 
     Parameters
     ----------
-    fsa_blocks : list
+    convs : list
         Lista con los valores de las convoluciones
     real : bool
         Indica si la codificación deseada es real o binaria

@@ -84,3 +84,53 @@ __all__ = [
     "unzip_binary", "decode_chromosome", "decode_layer", "decode_convs", "decode_gene",
     "FILTERS", "KERNEL_SIZES", "ACTIVATION_FUNCTIONS", "POOLINGS", "CONCATENATION"
 ]
+
+# # ESTRUCTURA DE UN CROMOSOMA DECODIFICADO (solo para referencia)
+# tipo: tuple[list[tuple[tuple[list[tuple[int, int, str]],
+#                              str],
+#                        tuple[list[tuple[int, int, str]],
+#                              bool]]],
+#             list[tuple[int, int, str]]]
+# decoded = (
+#     # chromosome: [layers, bottleneck]
+#     [  # layers: [convs+deconvs, convs+deconvs, ...]
+#         (  # convs+deconvs: [nconvs+pooling, nconvs+concat]
+#             (  # nconvs+pooling: [nconvs, pooling]
+#                 [  # nconvs: [conv, conv, ...]
+#                     (3, 2, "a"),  # conv: [f, s, a]
+#                     (3, 2, "a")
+#                 ],
+#                 # pooling
+#                 "p"
+#             ),
+#             (  # nconvs+concat: [nconvs, concat]
+#                 [  # nconvs: [conv, conv, ...]
+#                     (3, 2, "a"),  # conv: [f, s, a]
+#                     (3, 2, "a")
+#                 ],
+#                 # concat
+#                 True
+#             )
+#         ),
+#         (
+#             (
+#                 [
+#                     (3, 2, "a"),
+#                     (3, 2, "a")
+#                 ],
+#                 "p"
+#             ),
+#             (
+#                 [
+#                     (3, 2, "a"),
+#                     (3, 2, "a")
+#                 ],
+#                 False
+#             )
+#         ),
+#     ],
+#     [  # bottleneck: [conv, conv, ...]
+#         (3, 2, "a"),  # conv: [f, s, a]
+#         (3, 2, "a")
+#     ]
+# )

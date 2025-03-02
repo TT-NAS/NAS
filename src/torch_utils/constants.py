@@ -1,7 +1,14 @@
 import torch
+import logging
+
 from torchvision import transforms as T
 
-CARVANA_BATCH_SIZE = 32
+
+CARVANA_DATASET_LENGTH = 5088
+ROAD_DATASET_LENGTH = 300
+CAR_DATASET_LENGTH = 512
+
+CARVANA_BATCH_SIZE = 4
 ROAD_BATCH_SIZE = 1
 CAR_BATCH_SIZE = 4
 SHOW_SIZE = 32
@@ -28,19 +35,9 @@ CUDA = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 if not torch.cuda.is_available():
     print("CUDA is not available, using CPU")
 
-if __name__ == "__main__":
-    xd = {"transform": TRANSFORM, "data_path": CARVANA_DATA_PATH}
-    transform = repr(xd.get("transform", "0")).replace("\n", "").replace(" ", "").replace("'", "")
-    print(transform)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(levelname)s - %(message)s'
+)
 
-    xd = {"data_path": CARVANA_DATA_PATH}
-    transform = repr(xd.get("transform", "0")).replace("\n", "").replace(" ", "").replace("'", "")
-    print(transform)
-
-    xd = {"data_path": CARVANA_DATA_PATH}
-    transform = xd.get("data_path", "0").replace("\n", "")
-    print(transform)
-
-    xd = {}
-    transform = xd.get("data_path", "0").replace("\n", "")
-    print(transform)
+LOGGER = logging.getLogger()

@@ -6,7 +6,22 @@ from .constants import FILTERS, KERNEL_SIZES, ACTIVATION_FUNCTIONS, POOLINGS, CO
 
 def unzip_binary(binary: str) -> str:
     """
-    Descomprime un cromosoma binario
+    Decodifica un string binario en base32
+
+    Parameters
+    ----------
+    binary : str
+        String binario a decodificar
+
+    Returns
+    -------
+    str
+        String decodificado
+
+    Raises
+    ------
+    ValueError
+        Si el cromosoma binario no está en el formato correcto
     """
     if '_' not in binary:
         return binary
@@ -71,7 +86,7 @@ def decode_convs(convs: Union[list[float], str], real: bool) -> list[tuple[int, 
 
     Parameters
     ----------
-    conv : list or str
+    convs : list or str
         Lista de convoluciones
     real : bool
         Indica si la codificación de las convoluciones es real o binaria

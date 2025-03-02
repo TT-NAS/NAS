@@ -34,17 +34,19 @@ from .classes import (
 )
 from .functions import (
     plot_batch, plot_results,
-    dice_loss, dice_crossentropy_loss, iou_loss, accuracy,
+    dice_loss, dice_crossentropy_loss, iou_loss, accuracy_loss,
     eval_model, train_model, save_model,
     gradient_scorer_pytorch
 )
 from .constants import (
+    CARVANA_DATASET_LENGTH, ROAD_DATASET_LENGTH, CAR_DATASET_LENGTH,
     CARVANA_BATCH_SIZE, ROAD_BATCH_SIZE, CAR_BATCH_SIZE, SHOW_SIZE,
     CARVANA_DATA_PATH, ROAD_DATA_PATH, CAR_DATA_PATH,
     MODELS_PATH, IMAGES_PATH,
     WIDTH, HEIGHT, CHANNELS,
     TRANSFORM,
-    CUDA
+    CUDA,
+    LOGGER
 )
 
 __all__ = [
@@ -54,14 +56,16 @@ __all__ = [
     "Synflow",
 
     "plot_batch", "plot_results",
-    "dice_loss", "dice_crossentropy_loss", "iou_loss", "accuracy",
+    "dice_loss", "dice_crossentropy_loss", "iou_loss", "accuracy_loss",
     "eval_model", "train_model", "save_model",
     "gradient_scorer_pytorch",
 
+    "CARVANA_DATASET_LENGTH", "ROAD_DATASET_LENGTH", "CAR_DATASET_LENGTH",
     "CARVANA_BATCH_SIZE", "ROAD_BATCH_SIZE", "CAR_BATCH_SIZE", "SHOW_SIZE",
     "WIDTH", "HEIGHT", "CHANNELS",
     "CARVANA_DATA_PATH", "ROAD_DATA_PATH", "CAR_DATA_PATH",
     "MODELS_PATH", "IMAGES_PATH",
     "TRANSFORM",
     "CUDA",
+    "LOGGER"
 ]

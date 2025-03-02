@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader, Dataset, random_split
 from PIL import Image
 
 from .constants import (
+    CARVANA_DATASET_LENGTH, ROAD_DATASET_LENGTH, CAR_DATASET_LENGTH,
     CARVANA_BATCH_SIZE, ROAD_BATCH_SIZE, CAR_BATCH_SIZE, SHOW_SIZE,
     CARVANA_DATA_PATH, ROAD_DATA_PATH, CAR_DATA_PATH,
     CHANNELS,
@@ -21,7 +22,7 @@ class CarvanaDataset(Dataset):
     Clase para cargar el dataset de Carvana
     """
 
-    def __init__(self, train: bool, transform: T.Compose = TRANSFORM, data_path: str = CARVANA_DATA_PATH, **_):
+    def __init__(self, train: bool, transform: T.Compose = TRANSFORM, data_path: str = CARVANA_DATA_PATH, dataset_len: int = CARVANA_DATASET_LENGTH):
         """
         Clase para cargar el dataset de Carvana
 
@@ -31,6 +32,10 @@ class CarvanaDataset(Dataset):
             Si se cargan los datos de entrenamiento o de prueba
         transform : T.Compose, optional
             Transformaciones a aplicar a las imágenes, by default TRANSFORM
+        data_path : str, optional
+            Ruta de los datos, by default CARVANA_DATA_PATH
+        dataset_len : int, optional
+            Número de imágenes a cargar, by default CARVANA_DATASET_LENGTH
         """
         self.transform = transform
 
@@ -38,13 +43,15 @@ class CarvanaDataset(Dataset):
         CARVANA_MASKS_PATH = os.path.join(data_path, "train_masks")
         CARVANA_TEST_PATH = os.path.join(data_path, "test")
 
+        dataset_len = min(dataset_len, CARVANA_DATASET_LENGTH)
+
         if train:
             self.train = True
 
             self.image_paths = CARVANA_TRAIN_PATH
             self.mask_paths = CARVANA_MASKS_PATH
-            self.images = sorted(os.listdir(self.image_paths))
-            self.masks = sorted(os.listdir(self.mask_paths))
+            self.images = sorted(os.listdir(self.image_paths))[:dataset_len]
+            self.masks = sorted(os.listdir(self.mask_paths))[:dataset_len]
 
             assert (
                 len(self.images) == len(self.masks)
@@ -101,7 +108,7 @@ class RoadDataset(Dataset):
     Clase para cargar el dataset de carreteras
     """
 
-    def __init__(self, train: bool, test_prop: float, transform: T.Compose = TRANSFORM, data_path: str = ROAD_DATA_PATH):
+    def __init__(self, train: bool, test_prop: float = 0.2, transform: T.Compose = TRANSFORM, data_path: str = ROAD_DATA_PATH, dataset_len: int = ROAD_DATASET_LENGTH):
         """
         Clase para cargar el dataset de carreteras
 
@@ -110,18 +117,22 @@ class RoadDataset(Dataset):
         train : bool
             Si se cargan los datos de entrenamiento o de prueba
         test_prop : float
-            Proporción de imágenes que se usarán para test
+            Proporción de imágenes que se usarán para test, by default 0.2
         transform : T.Compose, optional
             Transformaciones a aplicar a las imágenes, by default TRANSFORM
+        data_path : str, optional
+            Ruta de los datos, by default ROAD_DATA_PATH
+        dataset_len : int, optional
+            Número de imágenes a cargar, by default ROAD_DATASET_LENGTH
         """
         self.transform = transform
 
         ROAD_TRAIN_PATH = os.path.join(data_path, "images")
         ROAD_MASKS_PATH = os.path.join(data_path, "masks")
 
-        len_dataset = len(os.listdir(ROAD_TRAIN_PATH))
+        dataset_len = min(dataset_len, ROAD_DATASET_LENGTH)
         train_and_val_prop = 1 - test_prop
-        split_index = int(len_dataset * train_and_val_prop)
+        split_index = int(dataset_len * train_and_val_prop)
 
         if train:
             self.image_paths = ROAD_TRAIN_PATH
@@ -134,13 +145,36 @@ class RoadDataset(Dataset):
             ), "El número de imágenes y máscaras no coincide"
         else:
             self.image_paths = ROAD_TRAIN_PATH
-            self.images = sorted(os.listdir(self.image_paths))[split_index:]
+            self.images = sorted(
+                os.listdir(self.image_paths)
+            )[split_index:dataset_len]
             self.masks = None
 
     def __len__(self) -> int:
+        """
+        Devuelve el número de imágenes en el dataset
+
+        Returns
+        -------
+        int
+            Número de imágenes
+        """
         return len(self.images)
 
-    def __getitem__(self, idx: int) -> tuple[Tensor, Optional[Tensor]]:
+    def __getitem__(self, idx: int) -> Union[tuple[Tensor, Tensor], Tensor]:
+        """
+        Devuelve una imagen y su máscara si el dataset es de entrenamiento
+
+        Parameters
+        ----------
+        idx : int
+            Índice de la imagen a cargar
+
+        Returns
+        -------
+        tuple or Tensor
+            (Imagen, Máscara) si el dataset es de entrenamiento, (Imagen) si es de prueba
+        """
         image_path = os.path.join(self.image_paths, self.images[idx])
         image = Image.open(image_path)
         image = self.transform(image)
@@ -161,7 +195,7 @@ class CarDataset(Dataset):
     Clase para cargar el dataset de carros
     """
 
-    def __init__(self, train: bool, test_prop: float, transform: T.Compose = TRANSFORM, data_path: str = CAR_DATA_PATH):
+    def __init__(self, train: bool, test_prop: float = 0.2, transform: T.Compose = TRANSFORM, data_path: str = CAR_DATA_PATH, dataset_len: int = CAR_DATASET_LENGTH):
         """
         Clase para cargar el dataset de carros
 
@@ -170,18 +204,22 @@ class CarDataset(Dataset):
         train : bool
             Si se cargan los datos de entrenamiento o de prueba
         test_prop : float
-            Proporción de imágenes que se usarán para test
+            Proporción de imágenes que se usarán para test, by default 0.2
         transform : T.Compose, optional
             Transformaciones a aplicar a las imágenes, by default TRANSFORM
+        data_path : str, optional
+            Ruta de los datos, by default CAR_DATA_PATH
+        dataset_len : int, optional
+            Número de imágenes a cargar, by default CAR_DATASET_LENGTH
         """
         self.transform = transform
 
         CAR_TRAIN_PATH = os.path.join(data_path, "Images")
         CAR_MASKS_PATH = os.path.join(data_path, "Masks")
 
-        len_dataset = len(os.listdir(CAR_TRAIN_PATH))
+        dataset_len = min(dataset_len, CAR_DATASET_LENGTH)
         train_and_val_prop = 1 - test_prop
-        split_index = int(len_dataset * train_and_val_prop)
+        split_index = int(dataset_len * train_and_val_prop)
 
         if train:
             self.image_paths = CAR_TRAIN_PATH
@@ -194,13 +232,36 @@ class CarDataset(Dataset):
             ), "El número de imágenes y máscaras no coincide"
         else:
             self.image_paths = CAR_TRAIN_PATH
-            self.images = sorted(os.listdir(self.image_paths))[split_index:]
+            self.images = sorted(
+                os.listdir(self.image_paths)
+            )[split_index:dataset_len]
             self.masks = None
 
     def __len__(self) -> int:
+        """
+        Devuelve el número de imágenes en el dataset
+
+        Returns
+        -------
+        int
+            Número de imágenes
+        """
         return len(self.images)
 
-    def __getitem__(self, idx: int) -> tuple[Tensor, Optional[Tensor]]:
+    def __getitem__(self, idx: int) -> Union[tuple[Tensor, Tensor], Tensor]:
+        """
+        Devuelve una imagen y su máscara si el dataset es de entrenamiento
+
+        Parameters
+        ----------
+        idx : int
+            Índice de la imagen a cargar
+
+        Returns
+        -------
+        tuple or Tensor
+            (Imagen, Máscara) si el dataset es de entrenamiento, (Imagen) si es de prueba
+        """
         image_path = os.path.join(self.image_paths, self.images[idx])
         image = Image.open(image_path)
         image = self.transform(image)
@@ -221,7 +282,16 @@ class TorchDataLoader:
     Wrapper de los DataLoaders de train, validation y test para un dataset
     """
 
-    def __init__(self, dataset_class: str, batch_size: Optional[int] = None, train_val_prop: float = 0.8, test_prop: float = 0.2, **kwargs: Union[T.Compose, str]):
+    ARGS = [
+        "batch_size",
+        "train_val_prop",
+        "test_prop",
+        "transform",
+        "data_path",
+        "dataset_len"
+    ]
+
+    def __init__(self, dataset_class: str, batch_size: Optional[int] = None, train_val_prop: float = 0.8, **kwargs: Union[T.Compose, str, int]):
         """
         Wrapper de los DataLoaders de train, validation y test para un dataset
 
@@ -238,12 +308,12 @@ class TorchDataLoader:
             Tamaño del batch, by default BATCH_SIZE
         train_val_prop : float, optional
             Proporción que se usará entre train y validation, by default 0.8
-        test_prop : float, optional
-            Proporción que se usará entre el conjunto de entrenamiento (train y validation) y test, by default 0.2
-        **kwargs : T.Compose or str
+        **kwargs : T.Compose or str or int
             Argumentos adicionales para el dataset:
+            - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de entrenamiento (train y validation) y test
             - transform : (T.Compose) Transformaciones a aplicar a las imágenes
             - data_path : (str) Ruta de los datos
+            - dataset_len : (int) Número de imágenes a cargar
 
         Raises
         ------
@@ -264,12 +334,10 @@ class TorchDataLoader:
 
         dataset = dataset_class(
             train=True,
-            test_prop=test_prop,
             **kwargs
         )
         test_dataset = dataset_class(
             train=False,
-            test_prop=test_prop,
             **kwargs
         )
 
@@ -310,6 +378,30 @@ class TorchDataLoader:
     def __str__(self) -> str:
         return self.identifier
 
+    @staticmethod
+    def get_args(kwargs: dict[str, any]) -> tuple[dict[str, Union[str, int, float, T.Compose, None]], dict[str, any]]:
+        """
+        Devuelve los argumentos necesarios para instanciar la clase
+
+        Returns
+        -------
+        tuple
+            (Argumentos necesarios para instanciar la clase, argumentos restantes)
+        """
+        data_loader_args = {}
+
+        if any(arg in kwargs for arg in TorchDataLoader.ARGS):
+            data_loader_args = {
+                k: v for k, v in kwargs.items()
+                if k in TorchDataLoader.ARGS
+            }
+            kwargs = {
+                k: v for k, v in kwargs.items()
+                if k not in TorchDataLoader.ARGS
+            }
+
+        return data_loader_args, kwargs
+
 
 class UNet(nn.Module):
     """
@@ -325,8 +417,6 @@ class UNet(nn.Module):
         "softsign": nn.Softsign,
         "selu": nn.SELU,
         "elu": nn.ELU,
-        # No existe `nn.Exponential`, pero `Sigmoid` es una opción cercana
-        "exponential": nn.Sigmoid,
         "linear": nn.Identity,
     }
 
@@ -536,7 +626,7 @@ class Synflow:
             for name, param in model.named_parameters()
         ]
 
-    def score(self, model: UNet, shape: list[int], device: torch.device = CUDA) -> float:
+    def score(self, model: UNet, shape: list[int]) -> float:
         """
         Calcula el puntaje de un modelo utilizando Synflow
 
@@ -546,8 +636,6 @@ class Synflow:
             Modelo a evaluar
         shape : list
             Dimensiones de la imagen de entrada
-        device : torch.device, optional
-            Dispositivo para realizar los cálculos, by default CUDA
 
         Returns
         -------
@@ -561,7 +649,7 @@ class Synflow:
             signs = {}
 
             for name, param in model.state_dict().items():
-                signs[name] = torch.sign(param).to(device)
+                signs[name] = torch.sign(param).to(CUDA)
                 param.abs_()
 
             return signs
@@ -574,8 +662,8 @@ class Synflow:
         signs = linearize(model)
 
         input_dim = shape
-        input_tensor = torch.ones([1] + input_dim).to(device)
-        model = model.to(device)
+        input_tensor = torch.ones([1] + input_dim).to(CUDA)
+        model = model.to(CUDA)
         output = model(input_tensor)
         torch.sum(output).backward()
 
