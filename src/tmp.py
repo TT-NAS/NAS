@@ -2,6 +2,7 @@
 Archivo temporal para pruebas de código
 """
 
+# ESTRUCTURA DE UN CROMOSOMA
 tipo: tuple[list[tuple[tuple[list[tuple[int, int, str]],
                              str],
                        tuple[list[tuple[int, int, str]],
@@ -50,6 +51,192 @@ decoded = (
         (3, 2, "a")
     ]
 )
+
+
+# %% Prueba de DataLoader
+from torch_utils import CARVANA_BATCH_SIZE, ROAD_BATCH_SIZE, CAR_BATCH_SIZE
+from torch_utils import TorchDataLoader
+from torch_utils import plot_batch
+
+# Elige el dataset a cargar
+# name = "carvana"
+# data_path = "../carvana-dataset/"
+# bs = CARVANA_BATCH_SIZE
+# name = "road"
+# bs = ROAD_BATCH_SIZE
+# data_path = "../road-dataset/"
+name = "car"
+bs = CAR_BATCH_SIZE
+data_path = "../car-dataset/"
+
+data_loader = TorchDataLoader(name, data_path=data_path)
+imgs, masks = next(iter(data_loader.train))
+
+# SHOW_SIZE solo es para mostrar las imágenes de prueba, si se quiere ver un batch de entrenamiento
+# se debe asignar show_size al correspondiente del dataset, por ejemplo, CARVANA_BATCH_SIZE o ROAD_BATCH_SIZE
+plot_batch(imgs, masks, show_size=bs)
+
+# Comprobación de las dimensiones de los DataLoaders
+train = data_loader.train
+data_train = next(iter(train))
+val = data_loader.validation
+data_val = next(iter(val))
+test = data_loader.test
+data_test = next(iter(test))
+
+print(
+    f"Train: {len(train)},\t length: {len(data_train)},\t shape: {data_train[0].shape}"
+)
+print(
+    f"Val:   {len(val)},\t length: {len(data_val)},\t shape: {data_val[0].shape}"
+)
+print(
+    f"Test:  {len(test)},\t length: 1,\t shape: {data_test.shape}"
+)
+
+
+# %% Prueba de codificación y decodificación
+from codec import Chromosome
+
+unet_paper = (
+    [  # layers: [convs+deconvs, convs+deconvs, ...]
+        (  # convs+deconvs: [nconvs+pooling, nconvs+concat]
+            (  # nconvs+pooling: [nconvs, pooling]
+                [  # nconvs: [conv, conv, ...]
+                    (64, 3, "relu"),  # conv: [f, s, a]
+                    (64, 3, "relu")
+                ],
+                "max"  # pooling
+            ),
+            (  # nconvs+concat: [nconvs, concat]
+                [  # nconvs: [conv, conv, ...]
+                    (64, 3, "relu"),  # conv: [f, s, a]
+                    (64, 3, "relu")
+                ],
+                True  # concat
+            )
+        ),
+        (
+            (
+                [
+                    (128, 3, "relu"),
+                    (128, 3, "relu")
+                ],
+                "max"
+            ),
+            (
+                [
+                    (128, 3, "relu"),
+                    (128, 3, "relu")
+                ],
+                True
+            )
+        ),
+        (
+            (
+                [
+                    (256, 3, "relu"),
+                    (256, 3, "relu")
+                ],
+                "max"
+            ),
+            (
+                [
+                    (256, 3, "relu"),
+                    (256, 3, "relu")
+                ],
+                True
+            )
+        ),
+        (
+            (
+                [
+                    (512, 3, "relu"),
+                    (512, 3, "relu")
+                ],
+                "max"
+            ),
+            (
+                [
+                    (512, 3, "relu"),
+                    (512, 3, "relu")
+                ],
+                True
+            )
+        )
+    ],
+    [  # bottleneck: [conv, conv, ...]
+        (1024, 3, "relu"),  # conv: [f, s, a]
+        (1024, 3, "relu")
+    ]
+)
+
+c = Chromosome(
+    max_layers=4,
+    max_conv_per_layer=2,
+    chromosome=unet_paper
+)
+
+print("Name:\n", c)
+print("Decoded:\n", c.get_decoded())
+print("Real:\n", c.get_real())
+print("Binary:\n", c.get_binary())
+
+# Comprobamos que la decodificación y codificación sean correctas
+assert c.get_decoded() == unet_paper
+# Aunque tenga letras se trata de una codificación binaria
+# Solo está comprimida para que no sea tan larga
+assert (
+    c.get_binary(zip=True) == "ARARAIQIQ4IMIGEGEHKDKBVBVB6Q6QPIPIPEHEA_188"
+)
+
+
+# %% Prueba de entrenamiento y evaluación
+from codec import Chromosome
+
+# Distintas redes a elegir
+unet_paper = "ARARAIQIQ4IMIGEGEHKDKBVBVB6Q6QPIPIPEHEA_188"
+unet_paper_mini = "AJAJAEQEQWIGIDEDEF2B2A5A5BKQKQFIFIKECEA_188"
+unet_rara = "AE6HZLHCTEYFIMM24G3TPQWZ4AS5CUI_146"
+c = Chromosome(
+    max_layers=4,
+    max_conv_per_layer=2,
+    chromosome=unet_paper
+)
+
+# Mostramos la arquitectura a generar
+print(c.get_decoded())
+
+# Al entrenarla se generará el modelo UNet automáticamente
+c.train_unet(
+    data_loader="car",
+    epochs=1,
+    data_path="../car-dataset/"
+)
+
+# Si no especificamos un DataLoader, se usará el dataloader con el que se entrenó
+c.show_results()
+# Aunque se haya entrenado con un DataLoader, podemos evaluar con otro
+c.show_results("carvana", data_path="../carvana-dataset/")
+
+# Tampoco es necesario especificar el DataLoader si ya se ha entrenado
+print("Aptitud para el DataLoader de entrenamiento:", c.get_aptitude())
+print("Aptitud para el DataLoader de validación:", c.get_aptitude(
+    "carvana", data_path="../carvana-dataset/"
+))
+
+# Guardamos los resultados
+c.show_results(
+    save=True
+)
+c.show_results(
+    "carvana",
+    save=True,
+    name="para carvana.png",
+    data_path="../carvana-dataset/"
+)
+
+c.save_unet()
 
 # %% Prueba de congruencia entre discretización y decodificación
 FILTERS = {
@@ -334,17 +521,19 @@ print(y)
 print(y.shape)
 
 
-#%%
-def prueba(a,**_):
+# %%
+def prueba(a, **_):
     print(a)
+
 
 def prueba2(**kwargs):
     prueba(**kwargs)
 
+
 prueba(a=1, b=2)
 
 
-#%%
+# %%
 import base64
 
 
@@ -387,3 +576,25 @@ import torch
 a = torch.tensor([1])
 
 print(1 - a)
+
+
+# %%
+kwargs = {
+    "data_path": "path1",
+    "other_key": "value"
+}
+
+data_loader_args = {
+    "transform": "transform2",
+    "data_path": "path2"
+}
+
+data_loader_args = {
+    k: v for k, v in kwargs.items()
+    if k in ["transform", "data_path"] and (k not in data_loader_args or v is not None)
+}
+
+
+print(data_loader_args)
+
+# %%

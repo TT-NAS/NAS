@@ -8,8 +8,8 @@ import pandas as pd
 from typing import Union, Optional
 import matplotlib.pyplot as plt
 
-from Torch_utils import TorchDataLoader, gradient_scorer_pytorch, eval_model, CUDA, Synflow
-from Codec import Chromosome
+from torch_utils import CUDA, Synflow, TorchDataLoader, gradient_scorer_pytorch, eval_model
+from codec import Chromosome
 
 
 METRICS_TO_EVAL = ["accuracy", "dice", "dice crossentropy", "iou"]
