@@ -43,7 +43,6 @@ def encode_gene(value: Union[int, bool, str], options: dict, real: bool) -> Unio
     Returns
     -------
     float or str
-        El valor codificado en real (dentro de un rango de [0, 1]) o binario (en un string de 0s y 1s)
         Valor codificado en
         - un flotante con rango [0, 1] si `real=True`
         - un string con 0s y 1s si `real=False`

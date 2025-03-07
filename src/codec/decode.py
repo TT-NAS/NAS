@@ -41,10 +41,12 @@ def unzip_binary(binary: str) -> str:
     return bin(int.from_bytes(byte_data, byteorder='big'))[2:].zfill(length)
 
 
-def decode_gene(value: Union[float, str], options: dict[str, Union[int, bool, str]], real: bool) -> Union[int, bool, str]:
+def decode_gene(value: Union[float, str], options: dict[str, Union[int, bool, str]],
+                real: bool) -> Union[int, bool, str]:
     """
     Para real:
-        Pasa el tamaño del diccionario a un rango de 0 a 1, selecciona el valor equivalente a value y lo devuelve
+        Pasa el tamaño del diccionario a un rango de 0 a 1, selecciona el valor
+        equivalente a value y lo devuelve
     Para binario:
         Devuelve el valor en la posición 'value' del diccionario
 
@@ -118,10 +120,11 @@ def decode_convs(convs: Union[list[float], str], real: bool) -> list[tuple[int, 
     ]
 
 
-def decode_layer(layer: Union[list[float], str], real: bool) -> tuple[tuple[list[tuple[int, int, str]],
-                                                                            str],
-                                                                      tuple[list[tuple[int, int, str]],
-                                                                            bool]]:
+def decode_layer(layer: Union[list[float], str],
+                 real: bool) -> tuple[tuple[list[tuple[int, int, str]],
+                                            str],
+                                      tuple[list[tuple[int, int, str]],
+                                            bool]]:
     """
     Decodifica una capa del cromosoma
 
@@ -176,7 +179,8 @@ def decode_chromosome(
                             bool]]],
            list[tuple[int, int, str]]]:
     """
-    Transforma el cromosoma en una lista con los valores de las capas, entendible para el humano y siendo un paso previo a la creación del modelo
+    Transforma el cromosoma en una lista con los valores de las capas, entendible para el humano y
+    siendo un paso previo a la creación del modelo
 
     Parameters
     ----------

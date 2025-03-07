@@ -15,7 +15,8 @@ class Chromosome:
     Clase que representa un cromosoma de una red UNet
     """
 
-    def __init__(self, max_layers: int, max_convs_per_layer: int, seed: Optional[int] = None, chromosome: Optional[Union[tuple, list, str]] = None):
+    def __init__(self, max_layers: int, max_convs_per_layer: int, seed: Optional[int] = None,
+                 chromosome: Optional[Union[tuple, list, str]] = None):
         """
         Clase que representa un cromosoma de una red UNet
 
@@ -78,6 +79,7 @@ class Chromosome:
             Representación en string del cromosoma
         """
         seed = self.seed if self.seed is not None else 'N'
+        binary = self.get_binary(zip=True)
         transform = repr(self.data_loader_args.get(
             "transform", "0"
         )).replace("\n", "").replace(" ", "").replace("'", "")
@@ -85,7 +87,7 @@ class Chromosome:
             "data_path", "0"
         ).replace("\n", "")
 
-        return f"s{seed}-{self.get_binary(zip=True)}-dl{self.data_loader}-t{transform}-dp{data_path}"
+        return f"s{seed}-{binary}-dl{self.data_loader}-t{transform}-dp{data_path}"
 
     def __repr__(self) -> str:
         """
@@ -96,7 +98,14 @@ class Chromosome:
         str
             Representación de la instancia
         """
-        return f"Chromosome(max_layers={self.max_layers}, max_convs_per_layer={self.max_convs_per_layer}, seed={self.seed}, chromosome='{self.get_binary(zip=True)}')"
+        return (
+            "Chromosome("
+            f"max_layers={self.max_layers}, "
+            f"max_convs_per_layer={self.max_convs_per_layer}, "
+            f"seed={self.seed}, "
+            f"chromosome='{self.get_binary(zip=True)}'"
+            ")"
+        )
 
     def validate(self):
         """
@@ -185,11 +194,13 @@ class Chromosome:
                     "Las capas no coinciden entre el cromosoma decodificado y el número de capas"
                 )
 
-            if len(self.__decoded[1]) != self.max_convs_per_layer or len(self.__decoded[0][0][0][0]) != self.max_convs_per_layer:
+            if (len(self.__decoded[1]) != self.max_convs_per_layer
+                    or len(self.__decoded[0][0][0][0]) != self.max_convs_per_layer):
                 raise ValueError(
                     "El espacio para convoluciones no es compatible con el número máximo permitido"
                 )
-            # TODO: Crear función para contar convoluciones activas dentro de una capa y validar con max_convs_per_layer
+            # TODO: Crear función para contar convoluciones activas dentro de una capa y
+            # validar con max_convs_per_layer
 
         if self.num_layers is not None and self.num_layers > self.max_layers:
             raise ValueError("El número de capas supera el máximo permitido")
@@ -433,14 +444,16 @@ class Chromosome:
             **kwargs
         )
 
-    def set_aptitude(self, data_loader: Optional[Union[TorchDataLoader, str]] = None, metric: str = "iou", **kwargs: Union[str, int, float, object]):
+    def set_aptitude(self, data_loader: Optional[Union[TorchDataLoader, str]] = None,
+                     metric: str = "iou", **kwargs: Union[str, int, float, object]):
         """
         Evalúa el modelo UNet
 
         Parameters
         ----------
         data_loader : TorchDataLoader or str
-            DataLoader con las imágenes a evaluar, si no se proporciona se utiliza el DataLoader con el que se entrenó el modelo, by default None
+            DataLoader con las imágenes a evaluar, si no se proporciona se utiliza el DataLoader
+            con el que se entrenó el modelo, by default None
         metric : str, optional
             Métrica a utilizar para calcular la pérdida, by default "iou"
 
@@ -452,10 +465,10 @@ class Chromosome:
             Argumentos adicionales para el DataLoader:
             - batch_size : (int) Tamaño del batch
             - train_val_prop : (float) Proporción que se usará entre train y validation
-            - test_prop : (float) Proporción que se usará entre el conjunto de entrenamiento (train y validation) y test
 
             Argumentos adicionales para el dataset:
-            - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de entrenamiento (train y validation) y test
+            - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
+                          entrenamiento (train y validation) y test
             - transform : (T.Compose) Transformaciones a aplicar a las imágenes
             - data_path : (str) Ruta de los datos
             - dataset_len : (int) Número de imágenes a cargar
@@ -605,15 +618,16 @@ class Chromosome:
         **kwargs : T.Compose or str or int or float
             Argumentos adicionales para la función 'set_aptitude':
             - data_loader : (TorchDataLoader) DataLoader con las imágenes a evaluar
-            - metric : (str) Métrica a utilizar para calcular la pérdida ("iou", "dice" o "dice crossentropy")
+            - metric : (str) Métrica a utilizar para calcular la pérdida
+                       ("iou", "dice" o "dice crossentropy")
 
             Argumentos adicionales para el DataLoader:
             - batch_size : (int) Tamaño del batch
             - train_val_prop : (float) Proporción que se usará entre train y validation
-            - test_prop : (float) Proporción que se usará entre el conjunto de entrenamiento (train y validation) y test
 
             Argumentos adicionales para el dataset:
-            - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de entrenamiento (train y validation) y test
+            - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
+                          entrenamiento (train y validation) y test
             - transform : (T.Compose) Transformaciones a aplicar a las imágenes
             - data_path : (str) Ruta de los datos
             - dataset_len : (int) Número de imágenes a cargar
@@ -623,7 +637,9 @@ class Chromosome:
         float
             Aptitud del cromosoma
         """
-        if self.aptitude is None or kwargs.get("data_loader", None) is not None or any(arg in kwargs for arg in TorchDataLoader.ARGS):
+        if (self.aptitude is None
+                or kwargs.get("data_loader", None) is not None
+                or any(arg in kwargs for arg in TorchDataLoader.ARGS)):
             self.set_aptitude(**kwargs)
 
         return self.aptitude
@@ -645,7 +661,11 @@ class Chromosome:
     # ========================
     # NOTE: Funciones de la UNet
     # ========================
-    def train_unet(self, data_loader: Union[TorchDataLoader, str], **kwargs: Union[str, int, float, bool, object]) -> tuple[float, int, dict[str, list[float]]]:
+    def train_unet(self, data_loader: Union[TorchDataLoader, str],
+                   **kwargs: Union[str, int, float, bool, object]) -> tuple[float,
+                                                                            int,
+                                                                            dict[str,
+                                                                                 list[float]]]:
         """
         Entrena el modelo UNet
 
@@ -655,22 +675,25 @@ class Chromosome:
             DataLoader con los datos de entrenamiento y validación
         **kwargs : T.Compose or str or int or float or bool
             Argumentos adicionales para el entrenamiento:
-            - metric : (str) Métrica a utilizar para calcular la pérdida. ("iou", "dice" o "dice crossentropy")
+            - metric : (str) Métrica a utilizar para calcular la pérdida
+                       ("iou", "dice" o "dice crossentropy")
             - lr : (float) Tasa de aprendizaje
             - epochs : (int) Número de épocas
+            - early_stopping_patience : (int) Número de épocas a esperar sin mejora antes de
+                                        detener el entrenamiento
+            - early_stopping_delta : (float) Umbral mínimo de mejora para considerar un progreso
+            - stopping_threshold : (float) Umbral de rendimiento para la métrica de validación.
+                                   Si se alcanza o supera, el entrenamiento se detiene
             - show_val : (bool) Si mostrar los resultados de la validación en cada epoch
             - print_every : (int) Cada cuántos pasos se imprime el resultado
-            - early_stopping_patience : (int) Número de épocas a esperar sin mejora antes de detener el entrenamiento
-            - early_stopping_delta : (float) Umbral mínimo de mejora para considerar un progreso
-            - stopping_threshold : (float) Umbral de rendimiento para la métrica de validación. Si se alcanza o supera, el entrenamiento se detiene
 
             Argumentos adicionales para el DataLoader:
             - batch_size : (int) Tamaño del batch
             - train_val_prop : (float) Proporción que se usará entre train y validation
-            - test_prop : (float) Proporción que se usará entre el conjunto de entrenamiento (train y validation) y test
 
             Argumentos adicionales para el dataset:
-            - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de entrenamiento (train y validation) y test
+            - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
+                          entrenamiento (train y validation) y test
             - transform : (T.Compose) Transformaciones a aplicar a las imágenes
             - data_path : (str) Ruta de los datos
             - dataset_len : (int) Número de imágenes a cargar
@@ -678,7 +701,8 @@ class Chromosome:
         Returns
         -------
         tuple
-            (Tiempo de entrenamiento en segundos, última época, resultados de las métricas a lo largo del entrenamiento)
+            (Tiempo de entrenamiento en segundos, última época, resultados de las métricas
+            a lo largo del entrenamiento)
         """
         if not self.__unet:
             self.set_unet()
@@ -710,16 +734,19 @@ class Chromosome:
 
         return time_seconds, last_epoch, metrics
 
-    def show_results(self, data_loader: Optional[Union[TorchDataLoader, str]] = None, name: Optional[str] = None, **kwargs: Union[str, object]):
+    def show_results(self, data_loader: Optional[Union[TorchDataLoader, str]] = None,
+                     name: Optional[str] = None, **kwargs: Union[str, object]):
         """
         Muestra los resultados del modelo UNet actual
 
         Parameters
         ----------
         data_loader : TorchDataLoader or str, optional
-            DataLoader con las imágenes a evaluar, si no se especifica se usará el DataLoader con el que se entrenó, by default None
+            DataLoader con las imágenes a evaluar, si no se especifica se usará el DataLoader
+            con el que se entrenó, by default None
         name : Optional[str], optional
-            Nombre del archivo, si no se especifica el nombre será el hash del cromosoma binario, by default None
+            Nombre del archivo, si no se especifica el nombre será el hash del cromosoma
+            binario, by default None
         **kwargs : T.Compose or str or int or float or bool
             Argumentos adicionales para la función `plot_batch`:
             - save : (bool) Si se guardan las imágenes o se muestran
@@ -729,10 +756,10 @@ class Chromosome:
             Argumentos adicionales para el DataLoader:
             - batch_size : (int) Tamaño del batch
             - train_val_prop : (float) Proporción que se usará entre train y validation
-            - test_prop : (float) Proporción que se usará entre el conjunto de entrenamiento (train y validation) y test
 
             Argumentos adicionales para el dataset:
-            - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de entrenamiento (train y validation) y test
+            - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
+                          entrenamiento (train y validation) y test
             - transform : (T.Compose) Transformaciones a aplicar a las imágenes
             - data_path : (str) Ruta de los datos
             - dataset_len : (int) Número de imágenes a cargar
@@ -777,7 +804,8 @@ class Chromosome:
         Parameters
         ----------
         name : Optional[str], optional
-            Nombre del archivo, si no se especifica el nombre será el hash del cromosoma binario, by default None
+            Nombre del archivo, si no se especifica el nombre será el hash del cromosoma
+            binario, by default None
 
         **kwargs : str
             Argumentos adicionales para la función `save_model`:

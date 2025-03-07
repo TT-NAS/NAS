@@ -21,7 +21,8 @@ data_loader = TorchDataLoader(name, data_path=data_path)
 imgs, masks = next(iter(data_loader.train))
 
 # SHOW_SIZE solo es para mostrar las imágenes de prueba, si se quiere ver un batch de entrenamiento
-# se debe asignar show_size al correspondiente del dataset, por ejemplo, CARVANA_BATCH_SIZE o ROAD_BATCH_SIZE
+# se debe asignar show_size al correspondiente del dataset,
+# por ejemplo, CARVANA_BATCH_SIZE o ROAD_BATCH_SIZE
 plot_batch(imgs, masks, show_size=bs)
 
 # Comprobación de las dimensiones de los DataLoaders
@@ -142,7 +143,6 @@ assert (
 # %% Prueba de entrenamiento y evaluación
 from codec import Chromosome
 
-# Distintas redes a elegir
 unet_paper = "AVCVCKRKRUIUISEKEPCHCFRDRD2R2RNI5I7UPUI_188"
 c = Chromosome(
     max_layers=4,
@@ -232,25 +232,6 @@ CONCATENATION = {
 
 
 def discretize_gene(value: int | bool | str, options: dict) -> str:
-    """
-    Devuelve el valor real equivalente a value en las opciones
-
-    Parameters
-    ----------
-    value : int or bool or str
-        Valor a discretizar
-    options : dict
-        Opciones de discretización
-
-    Returns
-    -------
-    El valor encontrado en esa lista
-
-    Raises
-    -------
-    ValueError
-        Si el valor no está en la lista
-    """
     step = 1 / len(options)
     real_rep = 0.01
 
@@ -264,23 +245,6 @@ def discretize_gene(value: int | bool | str, options: dict) -> str:
 
 
 def decode_gene(value: float, options: dict) -> int | bool | str:
-    """
-    Para real:
-        Pasa el tamaño del diccionario a un rango de 0 a 1, selecciona el valor equivalente a value y lo devuelve
-    Para binario:
-        Devuelve el valor equivalente a value en el diccionario
-
-    Parameters
-    ----------
-    value : float
-        Valor a decodificar
-    options : dict
-        Opciones de decodificación
-
-    Returns
-    -------
-    El valor encontrado en esa lista
-    """
     step = 1 / len(options)
 
     for i in range(len(options)):
@@ -307,5 +271,18 @@ probarDic(KERNEL_SIZES, "KERNEL_SIZES")
 probarDic(ACTIVATION_FUNCTIONS, "ACTIVATION_FUNCTIONS")
 probarDic(POOLINGS, "POOLINGS")
 probarDic(CONCATENATION, "CONCATENATION")
+
+# %%
+from codec import Chromosome
+
+unet_tmp = "OG2DGZF2WEDVMCTBSMEAO_104"
+c = Chromosome(
+    max_layers=4,
+    max_convs_per_layer=2,
+    chromosome=unet_tmp
+)
+
+# Mostramos la arquitectura a generar
+print(c.get_decoded())
 
 # %%

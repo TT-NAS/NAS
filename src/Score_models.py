@@ -18,7 +18,8 @@ RESULTS_FILE = "results.csv"
 LOG_FILE = "log.txt"
 
 
-def plot_learning_curve(metrics: dict[str, list[float]], save: bool = False, name: str = "learning curve.png", path: str = IMAGES_PATH):
+def plot_learning_curve(metrics: dict[str, list[float]], save: bool = False,
+                        name: str = "learning curve.png", path: str = IMAGES_PATH):
     """
     Genera gráficas para visualizar la evolución de métricas de entrenamiento y validación.
 
@@ -145,7 +146,9 @@ def plot_learning_curve(metrics: dict[str, list[float]], save: bool = False, nam
     plt.close()
 
 
-def plot_scores_and_metrics(selected_columns: list[str], normalize: bool = True, file: str = RESULTS_FILE, save: bool = False, name: str = "scores.png", path: str = IMAGES_PATH):
+def plot_scores_and_metrics(selected_columns: list[str], normalize: bool = True,
+                            file: str = RESULTS_FILE, save: bool = False, name: str = "scores.png",
+                            path: str = IMAGES_PATH):
     """
     Grafica los resultados de los modelos entrenados en múltiples subgráficos.
 
@@ -225,7 +228,8 @@ def plot_scores_and_metrics(selected_columns: list[str], normalize: bool = True,
     plt.close()
 
 
-def reg_results(chromosome: Chromosome, time_seconds: float, last_epoch: int, scores: dict[str, float], file: str = RESULTS_FILE):
+def reg_results(chromosome: Chromosome, time_seconds: float, last_epoch: int,
+                scores: dict[str, float], file: str = RESULTS_FILE):
     """
     Registra los resultados de un modelo en un archivo CSV
 
@@ -275,7 +279,11 @@ def log(message: str, file: str = LOG_FILE):
         f.write(message + "\n")
 
 
-def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = None, seed: Optional[int] = None, max_layers: int = 3, max_convs_per_layer: int = 2, alternative_datasets: Optional[list[str]] = None, save_pretrained_results: bool = True, **kwargs: Union[str, int, float, bool, object]) -> bool:
+def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = None,
+                seed: Optional[int] = None, max_layers: int = 3, max_convs_per_layer: int = 2,
+                alternative_datasets: Optional[list[str]] = None,
+                save_pretrained_results: bool = True,
+                **kwargs: Union[str, int, float, bool, object]) -> bool:
     """
     Obiene los puntajes de distintas métricas de un modelo
 
@@ -296,27 +304,31 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
     max_conv_per_layer : int, optional
         Máximo número de convoluciones por capa, by default 2
     alternative_datasets : Optional[list], optional
-        Lista de nombres de datasets con los que probar el modelo, además del dataset principal, by default []
+        Lista de nombres de datasets con los que probar el modelo, además del
+        dataset principal, by default []
     save_pretrained_results : bool, optional
         Si entrenar una epoch del modelo y guardar los resultados, by default True
     **kwargs : T.Compose or str or int or float or bool
         Argumentos adicionales para el entrenamiento:
-        - metric : (str) Métrica a utilizar para calcular la pérdida. ("iou", "dice" o "dice crossentropy")
+        - metric : (str) Métrica a utilizar para calcular la pérdida
+                   ("iou", "dice" o "dice crossentropy")
         - lr : (float) Tasa de aprendizaje
         - epochs : (int) Número de épocas
+        - early_stopping_patience : (int) Número de épocas a esperar sin mejora antes de detener
+                                    el entrenamiento
+        - early_stopping_delta : (float) Umbral mínimo de mejora para considerar un progreso
+        - stopping_threshold : (float) Umbral de rendimiento para la métrica de validación. Si se
+                               alcanza o supera, el entrenamiento se detiene
         - show_val : (bool) Si mostrar los resultados de la validación en cada epoch
         - print_every : (int) Cada cuántos pasos se imprime el resultado
-        - early_stopping_patience : (int) Número de épocas a esperar sin mejora antes de detener el entrenamiento
-        - early_stopping_delta : (float) Umbral mínimo de mejora para considerar un progreso
-        - stopping_threshold : (float) Umbral de rendimiento para la métrica de validación. Si se alcanza o supera, el entrenamiento se detiene
 
         Argumentos adicionales para el DataLoader:
         - batch_size : (int) Tamaño del batch
         - train_val_prop : (float) Proporción que se usará entre train y validation
-        - test_prop : (float) Proporción que se usará entre el conjunto de entrenamiento (train y validation) y test
 
         Argumentos adicionales para el dataset:
-        - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de entrenamiento (train y validation) y test
+        - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
+                      entrenamiento (train y validation) y test
         - transform : (T.Compose) Transformaciones a aplicar a las imágenes
         - data_path : (str) Ruta de los datos
         - length : (int) Número de imágenes a cargar
@@ -328,6 +340,9 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
     """
     data_loader_args, kwargs = TorchDataLoader.get_args(kwargs)
     data_loader = TorchDataLoader(dataset, **data_loader_args)
+
+    if alternative_datasets is None:
+        alternative_datasets = []
 
     if chromosome:
         c = Chromosome(
@@ -417,8 +432,12 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
         )
 
         c.save_unet()
-        plot_learning_curve(metrics, save=True,
-                            name=f"learning curve {dataset} {last_epoch + 1}-epochs.png", path=save_path)
+        plot_learning_curve(
+            metrics,
+            save=True,
+            name=f"learning curve {dataset} {last_epoch + 1}-epochs.png",
+            path=save_path
+        )
         c.show_results(
             save=True,
             path=save_path,
@@ -461,7 +480,10 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
     return False
 
 
-def score_n_models(idx_start: int = None, num: int = None, chromosomes: Optional[list[Union[tuple, list[float], str]]] = None, seeds: list[int] = None, dataset: str = "carvana", **kwargs: Union[str, int, float, bool]):
+def score_n_models(idx_start: int = None, num: int = None,
+                   chromosomes: Optional[list[Union[tuple, list[float], str]]] = None,
+                   seeds: list[int] = None, dataset: str = "carvana",
+                   **kwargs: Union[str, int, float, bool]):
     """
     Obtiene los puntajes de distintas métricas de varios modelos
 
@@ -470,7 +492,8 @@ def score_n_models(idx_start: int = None, num: int = None, chromosomes: Optional
     start : int, optional
         Índice de inicio (si no se especifica `chromosomes` o `seeds`), by default None
     num : int, optional
-        Cantidad de modelos a evaluar (si no se especifica `chromosomes` o `seeds`), by default None
+        Cantidad de modelos a evaluar
+        (si no se especifica `chromosomes` o `seeds`), by default None
     chromosomes : Optional[list[Union[tuple, list[float], str]]], optional
         Cromosomas para asignar a los modelos (hace que se ignore `seeds`), by default None
     seeds : list[int], optional
@@ -485,25 +508,29 @@ def score_n_models(idx_start: int = None, num: int = None, chromosomes: Optional
         Argumentos para la función `score_model`:
         - max_layers : (int) Máximo número de capas para el modelo
         - max_conv_per_layer : (int) Máximo número de convoluciones por capa
-        - alternative_datasets : (list) Lista de nombres de datasets con los que probar el modelo, además del dataset principal
+        - alternative_datasets : (list) Lista de nombres de datasets con los que probar el modelo,
+                                 además del dataset principal
 
         Argumentos adicionales para el entrenamiento:
-        - metric : (str) Métrica a utilizar para calcular la pérdida. ("iou", "dice" o "dice crossentropy")
+        - metric : (str) Métrica a utilizar para calcular la pérdida
+                   ("iou", "dice" o "dice crossentropy")
         - lr : (float) Tasa de aprendizaje
         - epochs : (int) Número de épocas
+        - early_stopping_patience : (int) Número de épocas a esperar sin mejora antes de detener el
+                                    entrenamiento
+        - early_stopping_delta : (float) Umbral mínimo de mejora para considerar un progreso
+        - stopping_threshold : (float) Umbral de rendimiento para la métrica de validación. Si se
+                               alcanza o supera, el entrenamiento se detiene
         - show_val : (bool) Si mostrar los resultados de la validación en cada epoch
         - print_every : (int) Cada cuántos pasos se imprime el resultado
-        - early_stopping_patience : (int) Número de épocas a esperar sin mejora antes de detener el entrenamiento
-        - early_stopping_delta : (float) Umbral mínimo de mejora para considerar un progreso
-        - stopping_threshold : (float) Umbral de rendimiento para la métrica de validación. Si se alcanza o supera, el entrenamiento se detiene
 
         Argumentos adicionales para el DataLoader:
         - batch_size : (int) Tamaño del batch
         - train_val_prop : (float) Proporción que se usará entre train y validation
-        - test_prop : (float) Proporción que se usará entre el conjunto de entrenamiento (train y validation) y test
 
         Argumentos adicionales para el dataset:
-        - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de entrenamiento (train y validation) y test
+        - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
+                      entrenamiento (train y validation) y test
         - transform : (T.Compose) Transformaciones a aplicar a las imágenes
         - data_path : (str) Ruta de los datos
         - length : (int) Número de imágenes a cargar
@@ -543,8 +570,8 @@ if __name__ == "__main__":
     #     max_layers=4
     # )
     score_n_models(
-        idx_start=100,
-        num=5,
+        idx_start=7,
+        num=23,
         dataset_len=1000,
         alternative_datasets=["car"],
     )

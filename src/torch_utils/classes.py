@@ -22,7 +22,8 @@ class CarvanaDataset(Dataset):
     Clase para cargar el dataset de Carvana
     """
 
-    def __init__(self, train: bool, transform: T.Compose = TRANSFORM, data_path: str = CARVANA_DATA_PATH, dataset_len: int = CARVANA_DATASET_LENGTH):
+    def __init__(self, train: bool, transform: T.Compose = TRANSFORM,
+                 data_path: str = CARVANA_DATA_PATH, dataset_len: int = CARVANA_DATASET_LENGTH):
         """
         Clase para cargar el dataset de Carvana
 
@@ -108,7 +109,8 @@ class RoadDataset(Dataset):
     Clase para cargar el dataset de carreteras
     """
 
-    def __init__(self, train: bool, test_prop: float = 0.2, transform: T.Compose = TRANSFORM, data_path: str = ROAD_DATA_PATH, dataset_len: int = ROAD_DATASET_LENGTH):
+    def __init__(self, train: bool, test_prop: float = 0.2, transform: T.Compose = TRANSFORM,
+                 data_path: str = ROAD_DATA_PATH, dataset_len: int = ROAD_DATASET_LENGTH):
         """
         Clase para cargar el dataset de carreteras
 
@@ -195,7 +197,8 @@ class CarDataset(Dataset):
     Clase para cargar el dataset de carros
     """
 
-    def __init__(self, train: bool, test_prop: float = 0.2, transform: T.Compose = TRANSFORM, data_path: str = CAR_DATA_PATH, dataset_len: int = CAR_DATASET_LENGTH):
+    def __init__(self, train: bool, test_prop: float = 0.2, transform: T.Compose = TRANSFORM,
+                 data_path: str = CAR_DATA_PATH, dataset_len: int = CAR_DATASET_LENGTH):
         """
         Clase para cargar el dataset de carros
 
@@ -291,7 +294,8 @@ class TorchDataLoader:
         "dataset_len"
     ]
 
-    def __init__(self, dataset_class: str, batch_size: Optional[int] = None, train_val_prop: float = 0.8, **kwargs: Union[T.Compose, str, int]):
+    def __init__(self, dataset_class: str, batch_size: Optional[int] = None,
+                 train_val_prop: float = 0.8, **kwargs: Union[T.Compose, str, int]):
         """
         Wrapper de los DataLoaders de train, validation y test para un dataset
 
@@ -310,7 +314,8 @@ class TorchDataLoader:
             Proporción que se usará entre train y validation, by default 0.8
         **kwargs : T.Compose or str or int
             Argumentos adicionales para el dataset:
-            - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de entrenamiento (train y validation) y test
+            - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
+                          entrenamiento (train y validation) y test
             - transform : (T.Compose) Transformaciones a aplicar a las imágenes
             - data_path : (str) Ruta de los datos
             - dataset_len : (int) Número de imágenes a cargar
@@ -379,7 +384,9 @@ class TorchDataLoader:
         return self.identifier
 
     @staticmethod
-    def get_args(kwargs: dict[str, any]) -> tuple[dict[str, Union[str, int, float, T.Compose, None]], dict[str, any]]:
+    def get_args(kwargs: dict[str, any]) -> tuple[dict[str,
+                                                       Union[str, int, float, T.Compose, None]],
+                                                  dict[str, any]]:
         """
         Devuelve los argumentos necesarios para instanciar la clase
 
@@ -431,7 +438,8 @@ class UNet(nn.Module):
         in_channels: int = CHANNELS
     ):
         """
-        Implementación de la arquitectura UNet capaz de generarse a partir de un cromosoma decodificado
+        Implementación de la arquitectura UNet capaz de generarse a partir de un cromosoma
+        decodificado
 
         Parameters
         ----------
@@ -509,7 +517,8 @@ class UNet(nn.Module):
             )
         )
 
-    def build_convs(self, convs: list[tuple[int, int, str]], in_channels: int) -> tuple[nn.Sequential, int]:
+    def build_convs(self, convs: list[tuple[int, int, str]],
+                    in_channels: int) -> tuple[nn.Sequential, int]:
         """
         Construye una secuencia de convoluciones con batch normalization
 

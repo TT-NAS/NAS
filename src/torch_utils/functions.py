@@ -18,7 +18,8 @@ from .constants import (
 )
 
 
-def plot_batch(imgs: Tensor, masks: Tensor, save: bool = False, show_size: int = SHOW_SIZE, name: str = "batch.png", path: str = IMAGES_PATH):
+def plot_batch(imgs: Tensor, masks: Tensor, save: bool = False, show_size: int = SHOW_SIZE,
+               name: str = "batch.png", path: str = IMAGES_PATH):
     """
     Muestra un conjunto de imágenes y máscaras junto con sus dimensiones
 
@@ -59,7 +60,8 @@ def plot_batch(imgs: Tensor, masks: Tensor, save: bool = False, show_size: int =
         plt.savefig(os.path.join(path, name))
 
         print(
-            f"Gráfico de prueba con el batch guardado en {os.path.join(path, name)}")
+            f"Gráfico de prueba con el batch guardado en {os.path.join(path, name)}"
+        )
     else:
         plt.show()
 
@@ -205,7 +207,8 @@ def accuracy_loss(pred_mask: Tensor, target_mask: Tensor) -> Tensor:
     return 1 - acc
 
 
-def eval_model(scores: Tensor, target: Tensor, metrics: list[str], clone: bool = True, loss: bool = True, items=False) -> Union[list[float], Tensor]:
+def eval_model(scores: Tensor, target: Tensor, metrics: list[str],
+               clone: bool = True, loss: bool = True, items=False) -> Union[list[float], Tensor]:
     """
     Evalúa un modelo en base a una lista de métricas
 
@@ -264,7 +267,12 @@ def eval_model(scores: Tensor, target: Tensor, metrics: list[str], clone: bool =
     return results
 
 
-def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", lr: float = 0.01, epochs: Optional[int] = None, show_val: bool = False, print_every: int = 25, early_stopping_patience: int = 5, early_stopping_delta: float = 0.001, stopping_threshold: float = 0.05) -> tuple[UNet, int, dict[str, list[float]]]:
+def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", lr: float = 0.01,
+                epochs: Optional[int] = None, early_stopping_patience: int = 5,
+                early_stopping_delta: float = 0.001, stopping_threshold: float = 0.05,
+                show_val: bool = False, print_every: int = 25) -> tuple[UNet,
+                                                                        int,
+                                                                        dict[str, list[float]]]:
     """
     Entrena un modelo UNet
 
@@ -285,16 +293,17 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
         Tasa de aprendizaje, by default 0.01
     epochs : Optional[int], optional
         Número de épocas, si no se especifica, se activa el early stopping, by default None
-    show_val : bool, optional
-        Si mostrar los resultados de la validación en cada epoch, by default False
-    print_every : int, optional
-        Cada cuántos pasos se imprime el resultado, by default 25
     early_stopping_patience : int, optional
         Número de épocas a esperar sin mejora antes de detener el entrenamiento, by default 5
     early_stopping_delta : float, optional
         Umbral mínimo de mejora para considerar un progreso, by default 0.001
     stopping_threshold : float, optional
-        Umbral de rendimiento para la métrica de validación. Si se alcanza o supera, el entrenamiento se detiene, by default 0.05
+        Umbral de rendimiento para la métrica de validación. Si se alcanza o supera,
+        el entrenamiento se detiene, by default 0.05
+    show_val : bool, optional
+        Si mostrar los resultados de la validación en cada epoch, by default False
+    print_every : int, optional
+        Cada cuántos pasos se imprime el resultado, by default 25
 
     Returns
     -------
@@ -517,7 +526,8 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
 
         if counter >= early_stopping_patience:
             print(
-                f"Early stopping activado por falta de mejora. La mejor métrica {metric} fue: {best_val_loss:.4f}"
+                "Early stopping activado por falta de mejora. "
+                f"La mejor métrica {metric} fue: {best_val_loss:.4f}"
             )
             if best_model_state is not None:
                 model.load_state_dict(best_model_state)

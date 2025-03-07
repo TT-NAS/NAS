@@ -29,11 +29,13 @@ Variables
 - seed : Semilla para la generación de números aleatorios
     - Se utiliza cuando el cromosoma se genera aleatoriamente
 - data_loader : Identificador del DataLoader con el que se ha evaluado el cromosoma
-    - Es una letra que indica el DataLoader utilizado ('c' para carvana, 'r' para road y '0' para no especificado)
-    - Se asigna solo al entrenar el modelo, después puede se utiliza para deducir el DataLoader a ocupar en métodos
-      como `get_aptitude` o `show_results` si no se proporciona uno
+    - Es una letra que indica el DataLoader utilizado
+      ('c' para carvana, 'r' para road, 'ca' para car y '0' para no especificado)
+    - Se asigna solo al entrenar el modelo, después puede se utiliza para deducir el DataLoader
+      a ocupar en métodos como `get_aptitude` o `show_results` si no se proporciona uno
 - aptitude : Aptitud del cromosoma
-    - Es la pérdida del modelo UNet evaluado con el DataLoader especificado o guardado en `data_loader`
+    - Es la pérdida del modelo UNet evaluado con el DataLoader especificado
+      o guardado en `data_loader`
 - __decoded : Es el cromosoma en su forma más entendible, con listas y tuplas
 - __real : Es el cromosoma en su forma real, con valores entre 0 y 1
 - __binary : Es el cromosoma en su forma binaria, con 0s y 1s
@@ -67,7 +69,8 @@ Funciones para asignar el cromosoma a partir de otro, o para generarlos si no es
 
 Getters
 -------
-Funciones para obtener el cromosoma en su forma decodificada, real, binaria, el modelo UNet o la aptitud del cromosoma
+Funciones para obtener el cromosoma en su forma decodificada, real, binaria, el modelo UNet
+o la aptitud del cromosoma
 
 Funciones de la UNet
 --------------------
