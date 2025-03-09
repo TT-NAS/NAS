@@ -8,9 +8,9 @@ import pandas as pd
 from typing import Union, Optional
 import matplotlib.pyplot as plt
 
-from utils import RESULTS_PATH, IMAGES_PATH, WIDTH, HEIGHT, CHANNELS
-from utils import OutOfMemoryError, TorchDataLoader, Synflow
-from utils import empty_cache, gradient_scorer_pytorch
+from utils import RESULTS_PATH, IMAGES_PATH
+from utils import OutOfMemoryError, TorchDataLoader
+from utils import empty_cache_torch
 from codec import Chromosome
 
 
@@ -361,21 +361,8 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
     save_path = os.path.join(IMAGES_PATH, str(c))
 
     try:
-        # Predictores
-        synflow_scorer = Synflow(c.get_unet())
-        syn = synflow_scorer.score(
-            c.get_unet(), shape=[CHANNELS, WIDTH, HEIGHT])
-        # syn + 1 para evitar log(0), prácticamente no afecta
-        syn = math.log(syn + 1)
-
-        # reseteamos la unet para evitar problemas con el gradiente
-        c.set_unet()
-        jaime = gradient_scorer_pytorch(c.get_unet())
-        jaime = math.log(jaime + 1)
-
         # Métricas
         if save_pretrained_results:
-            c.set_unet()
             kwargs2 = kwargs.copy()
             kwargs2["epochs"] = 1
             c.train_unet(data_loader, **kwargs2)
@@ -399,31 +386,26 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
                 )
 
         c.set_unet()
-        empty_cache()
+        empty_cache_torch()
         time_seconds, last_epoch, metrics = c.train_unet(data_loader, **kwargs)
-
-        scores_dict = {
-            "synflow": syn,
-            "gradient": jaime
-        }
 
         # si se realizó validación en cada epoch
         if metrics["val_loss"]:
-            scores_dict.update({
+            scores_dict = {
                 "loss": metrics["val_loss"][-1],
                 "iou": metrics["val_iou"][-1],
                 "dice": metrics["val_dice"][-1],
                 "dice crossentropy": metrics["val_dice crossentropy"][-1],
                 "accuracy": metrics["val_accuracy"][-1]
-            })
+            }
         else:
-            scores_dict.update({
+            scores_dict = {
                 "loss": metrics["train_loss"][-1],
                 "iou": metrics["train_iou"][-1],
                 "dice": metrics["train_dice"][-1],
                 "dice crossentropy": metrics["train_dice crossentropy"][-1],
                 "accuracy": metrics["train_accuracy"][-1]
-            })
+            }
 
         reg_results(
             chromosome=c,
@@ -476,7 +458,7 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
         log("  + Binary cod: " + c.get_binary(zip=True))
         log("  - Error:" + str(e))
     finally:
-        empty_cache()
+        empty_cache_torch()
 
     return False
 
@@ -572,7 +554,7 @@ if __name__ == "__main__":
     #     max_layers=4
     # )
     score_n_models(
-        idx_start=7,
+        idx_start=0,
         num=23,
         dataset_len=1000,
         alternative_datasets=["car"],

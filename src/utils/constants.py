@@ -16,7 +16,7 @@ CARVANA_DATA_PATH = os.path.join(DATASETS_PATH, "carvana-dataset")
 ROAD_DATA_PATH = os.path.join(DATASETS_PATH, "road-dataset")
 CAR_DATA_PATH = os.path.join(DATASETS_PATH, "car-dataset")
 
-RESULTS_PATH = "./results"
+RESULTS_PATH = "./results_ant"
 IMAGES_PATH = os.path.join(RESULTS_PATH, "imgs")
 MODELS_PATH = os.path.join(RESULTS_PATH, "models")
 

@@ -77,15 +77,9 @@ Funciones de la UNet
 Funciones para crear, evaluar y entrenar el modelo UNet
 """
 from .chromosome import Chromosome
-from .encode import zip_binary, encode_chromosome, encode_convs, encode_gene
-from .decode import unzip_binary, decode_chromosome, decode_layer, decode_convs, decode_gene
-from .constants import FILTERS, KERNEL_SIZES, ACTIVATION_FUNCTIONS, POOLINGS, CONCATENATION
 
 __all__ = [
-    "Chromosome",
-    "zip_binary", "encode_chromosome", "encode_convs", "encode_gene",
-    "unzip_binary", "decode_chromosome", "decode_layer", "decode_convs", "decode_gene",
-    "FILTERS", "KERNEL_SIZES", "ACTIVATION_FUNCTIONS", "POOLINGS", "CONCATENATION"
+    "Chromosome"
 ]
 
 # # ESTRUCTURA DE UN CROMOSOMA DECODIFICADO (solo para referencia)

@@ -3,7 +3,7 @@ import math
 from typing import Union, Optional
 
 import torch
-from torch import nn, Tensor
+from torch import Tensor
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
@@ -17,6 +17,13 @@ from .constants import (
     IMAGES_PATH, MODELS_PATH,
     LOGGER
 )
+
+
+def empty_cache_torch():
+    """
+    Limpia la memoria de la GPU
+    """
+    torch.cuda.empty_cache()
 
 
 def get_images_and_masks(train: bool, images_path: str,
@@ -116,7 +123,7 @@ def get_cache(images: list[str], cache_path: str,
 
 def get_data(train: bool, images_path: str, masks_path: Optional[str], cache_path: str,
              postfix_img: str, postfix_mask: str, postfix_tensor: str,
-             transform: T.Compose,) -> list[str]:
+             transform: T.Compose) -> list[str]:
     """
     Obtiene los datos del dataset en forma de una lista con los nombres de archivo de los tensores
 
@@ -758,71 +765,3 @@ def save_model(model: UNet, name: str, path: str = MODELS_PATH):
     torch.save(model.state_dict(), os.path.join(path, name))
 
     print(f"Modelo guardado en {os.path.join(path, name)}")
-
-
-def gradient_scorer_pytorch(model, batch_size: int = 4):
-    """
-    Score a model using the gradient activity of the network.
-
-    Parameters
-    ----------
-    model : torch.nn.Module
-        Model to score.
-    batch_size : int, optional
-        Size of the batches. The default is 5.
-
-    Returns
-    -------
-    score : float
-        Score of the model.
-    """
-    model = model.to(CUDA)
-    # Set the hooks
-
-    def gradient_hook(module, grad_input, grad_output):
-        gradients.append((module.__class__.__name__,
-                         grad_output[0].detach().clone()))
-
-    # Asignar el hook a todas las capas convolucionales
-    def assign_hook(module):
-        for _, child in module.named_children():
-            if len(list(child.children())):
-                assign_hook(child)
-            elif isinstance(child, nn.Conv2d):
-                child.register_backward_hook(gradient_hook)
-
-    assign_hook(model)
-
-    data_loader = TorchDataLoader("road", batch_size=batch_size)
-    train_dataloader = data_loader.train
-
-    # Compute the scores
-    scores = []
-    gradients = []
-
-    # Definir la función de pérdida
-    criterion = F.binary_cross_entropy_with_logits
-
-    # Forward
-    # for image, mask in train_dataloader:
-    image, mask = next(iter(train_dataloader))
-    image = image.to(CUDA)
-    mask = mask.to(CUDA)
-    # Debe retornar (batch_size, num_classes, height, width)
-    output = model(image)
-    loss = criterion(output, mask)  # Calcula la pérdida
-    model.zero_grad()
-    loss.backward()
-
-    # Process
-    addition_back = []
-    for i, (name, grad) in enumerate(gradients):
-        # Average of the magnitude of the gradients
-        addition_grad = grad.detach().clone().nan_to_num(nan=0).abs().sum(dim=0).flatten()
-        # Min-Max normalization
-        addition_grad = (addition_grad - addition_grad.min()) / \
-            (addition_grad.max() - addition_grad.min())
-        addition_back.append(addition_grad.sum(dim=0))
-    addition_back = torch.tensor(addition_back).nan_to_num(0)
-    score = torch.sum(addition_back).item()
-    return score

@@ -5,9 +5,8 @@ import torch
 from torch import nn, Tensor
 from torchvision import transforms as T
 from torch.utils.data import DataLoader, Dataset, random_split
-from PIL import Image
 
-from .torch_constants import TRANSFORM, CUDA
+from .torch_constants import TRANSFORM
 from .constants import (
     CARVANA_DATASET_LENGTH, ROAD_DATASET_LENGTH, CAR_DATASET_LENGTH,
     CARVANA_BATCH_SIZE, ROAD_BATCH_SIZE, CAR_BATCH_SIZE, SHOW_SIZE,
@@ -16,9 +15,57 @@ from .constants import (
 )
 
 
-class CarvanaDataset(Dataset):
+class TorchDataset(Dataset):
     """
-    Clase para cargar el dataset de Carvana
+    Superclase para datasets en PyTorch que implementa los métodos __len__ y __getitem__.
+    """
+
+    def __init__(self):
+        """
+        Inicializa la estructura base del dataset.
+        """
+        self.tensors = None
+        self.cache_path = None
+        self.train = None
+
+    def __len__(self) -> int:
+        """
+        Devuelve el número de elementos en el dataset.
+
+        Returns
+        -------
+        int
+            Número de elementos en el dataset.
+        """
+        return len(self.tensors)
+
+    def __getitem__(self, idx: int) -> Union[tuple[torch.Tensor, torch.Tensor], torch.Tensor]:
+        """
+        Devuelve una imagen y su máscara si el dataset es de entrenamiento.
+
+        Parameters
+        ----------
+        idx : int
+            Índice de la imagen a cargar.
+
+        Returns
+        -------
+        tuple or Tensor
+            (Imagen, Máscara) si el dataset es de entrenamiento, (Imagen) si es de prueba.
+        """
+        tensor = torch.load(os.path.join(self.cache_path, self.tensors[idx]))
+
+        if self.train:
+            image = tensor[:3]
+            mask = tensor[3:]
+            return image, mask
+
+        return tensor
+
+
+class CarvanaDataset(TorchDataset):
+    """
+    Clase para cargar el dataset de Carvana.
     """
 
     def __init__(self, train: bool, data_path: str, dataset_len: int, postfix_img: str,
@@ -39,20 +86,14 @@ class CarvanaDataset(Dataset):
         """
         from .torch_functions import get_data
 
+        super().__init__()
+
         cache_path = os.path.join(data_path, "cache")
-
-        if train:
-            self.train = True
-
-            images_path = os.path.join(data_path, "train")
-            masks_path = os.path.join(data_path, "train_masks")
-            self.cache_path = os.path.join(cache_path, "train_val")
-        else:
-            self.train = False
-
-            images_path = os.path.join(data_path, "test")
-            masks_path = None
-            self.cache_path = os.path.join(cache_path, "test")
+        images_path = os.path.join(data_path, "train" if train else "test")
+        masks_path = os.path.join(data_path, "train_masks") if train else None
+        self.cache_path = os.path.join(
+            cache_path, "train_val" if train else "test")
+        self.train = train
 
         self.tensors = get_data(
             train=train,
@@ -68,45 +109,13 @@ class CarvanaDataset(Dataset):
         if train:
             self.tensors = self.tensors[:dataset_len]
 
-    def __len__(self) -> int:
-        """
-        Devuelve el número de imágenes en el dataset
 
-        Returns
-        -------
-        int
-            Número de imágenes
-        """
-        return len(self.tensors)
-
-    def __getitem__(self, idx: int) -> Union[tuple[Tensor, Tensor], Tensor]:
-        """
-        Devuelve una imagen y su máscara si el dataset es de entrenamiento
-
-        Parameters
-        ----------
-        idx : int
-            Índice de la imagen a cargar
-
-        Returns
-        -------
-        tuple or Tensor
-            (Imagen, Máscara) si el dataset es de entrenamiento, (Imagen) si es de prueba
-        """
-        tensor = torch.load(os.path.join(self.cache_path, self.tensors[idx]))
-
-        if self.train:
-            image = tensor[:3]
-            mask = tensor[3:]
-
-            return image, mask
-
-        return tensor
-
-
-class BasicDataset(Dataset):
+class BasicDataset(TorchDataset):
     """
-    Clase para cargar el dataset de carreteras
+    Clase para cargar un dataset sencillo con el formato de directorios:
+    - data_path
+        - images
+        - masks
     """
 
     def __init__(self, train: bool, data_path: str, dataset_len: int, postfix_img: str,
@@ -133,20 +142,18 @@ class BasicDataset(Dataset):
         """
         from .torch_functions import get_data
 
-        cache_path = os.path.join(data_path, "cache")
+        super().__init__()
 
+        cache_path = os.path.join(data_path, "cache")
         images_path = os.path.join(data_path, "images")
         masks_path = os.path.join(data_path, "masks")
 
         train_and_val_prop = 1 - test_prop
         split_index = int(dataset_len * train_and_val_prop)
 
-        if train:
-            self.train = True
-            self.cache_path = os.path.join(cache_path, "train_val")
-        else:
-            self.train = False
-            self.cache_path = os.path.join(cache_path, "test")
+        self.train = train
+        self.cache_path = os.path.join(
+            cache_path, "train_val" if train else "test")
 
         self.tensors = get_data(
             train=train,
@@ -163,41 +170,6 @@ class BasicDataset(Dataset):
             self.tensors = self.tensors[:split_index]
         else:
             self.tensors = self.tensors[split_index:dataset_len]
-
-    def __len__(self) -> int:
-        """
-        Devuelve el número de imágenes en el dataset
-
-        Returns
-        -------
-        int
-            Número de imágenes
-        """
-        return len(self.tensors)
-
-    def __getitem__(self, idx: int) -> Union[tuple[Tensor, Tensor], Tensor]:
-        """
-        Devuelve una imagen y su máscara si el dataset es de entrenamiento
-
-        Parameters
-        ----------
-        idx : int
-            Índice de la imagen a cargar
-
-        Returns
-        -------
-        tuple or Tensor
-            (Imagen, Máscara) si el dataset es de entrenamiento, (Imagen) si es de prueba
-        """
-        tensor = torch.load(os.path.join(self.cache_path, self.tensors[idx]))
-
-        if self.train:
-            image = tensor[:3]
-            mask = tensor[3:]
-
-            return image, mask
-
-        return tensor
 
 
 class TorchDataLoader:
@@ -564,68 +536,3 @@ class UNet(nn.Module):
                 num_concat += 1
 
         return x
-
-
-class Synflow:
-    def __init__(self, model: UNet):
-        """
-        Clase para calcular el puntaje de un modelo utilizando Synflow
-
-        Parameters
-        ----------
-        model : UNet
-            Modelo a evaluar
-        """
-        self.masked_parameters = [
-            (name, param)
-            for name, param in model.named_parameters()
-        ]
-
-    def score(self, model: UNet, shape: list[int]) -> float:
-        """
-        Calcula el puntaje de un modelo utilizando Synflow
-
-        Parameters
-        ----------
-        model : UNet
-            Modelo a evaluar
-        shape : list
-            Dimensiones de la imagen de entrada
-
-        Returns
-        -------
-        float
-            Puntaje del modelo
-        """
-        scores = {}
-
-        @torch.no_grad()
-        def linearize(model: UNet) -> dict[str, Tensor]:
-            signs = {}
-
-            for name, param in model.state_dict().items():
-                signs[name] = torch.sign(param).to(CUDA)
-                param.abs_()
-
-            return signs
-
-        @torch.no_grad()
-        def nonlinearize(model: UNet, signs: dict[str, Tensor]):
-            for name, param in model.state_dict().items():
-                param.mul_(signs[name])
-
-        signs = linearize(model)
-
-        input_dim = shape
-        input_tensor = torch.ones([1] + input_dim).to(CUDA)
-        model = model.to(CUDA)
-        output = model(input_tensor)
-        torch.sum(output).backward()
-
-        for _, p in self.masked_parameters:
-            scores[id(p)] = torch.clone(p.grad * p).detach().abs_()
-            p.grad.data.zero_()
-
-        nonlinearize(model, signs)
-
-        return sum(torch.sum(score_tensor) for score_tensor in scores.values()).item()
