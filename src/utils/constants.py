@@ -16,8 +16,9 @@ CARVANA_DATA_PATH = os.path.join(DATASETS_PATH, "carvana-dataset")
 ROAD_DATA_PATH = os.path.join(DATASETS_PATH, "road-dataset")
 CAR_DATA_PATH = os.path.join(DATASETS_PATH, "car-dataset")
 
-MODELS_PATH = "./models"
-IMAGES_PATH = "./imgs"
+RESULTS_PATH = "./results"
+IMAGES_PATH = os.path.join(RESULTS_PATH, "imgs")
+MODELS_PATH = os.path.join(RESULTS_PATH, "models")
 
 WIDTH = 224
 HEIGHT = 224

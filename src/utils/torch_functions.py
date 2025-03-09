@@ -14,7 +14,7 @@ from .torch_classes import UNet, TorchDataLoader
 from .torch_constants import CUDA
 from .constants import (
     SHOW_SIZE,
-    MODELS_PATH, IMAGES_PATH,
+    IMAGES_PATH, MODELS_PATH,
     LOGGER
 )
 

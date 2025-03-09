@@ -8,14 +8,14 @@ import pandas as pd
 from typing import Union, Optional
 import matplotlib.pyplot as plt
 
-from utils import IMAGES_PATH, WIDTH, HEIGHT, CHANNELS
+from utils import RESULTS_PATH, IMAGES_PATH, WIDTH, HEIGHT, CHANNELS
 from utils import OutOfMemoryError, TorchDataLoader, Synflow
 from utils import empty_cache, gradient_scorer_pytorch
 from codec import Chromosome
 
 
-RESULTS_FILE = "results.csv"
-LOG_FILE = "log.txt"
+RESULTS_FILE = os.path.join(RESULTS_PATH, "results.csv")
+LOG_FILE = os.path.join(RESULTS_PATH, "log.txt")
 
 
 def plot_learning_curve(metrics: dict[str, list[float]], save: bool = False,
@@ -139,7 +139,8 @@ def plot_learning_curve(metrics: dict[str, list[float]], save: bool = False,
     if save:
         plt.savefig(os.path.join(path, name))
         print(
-            f"Gráfico de curva de aprendizaje guardada en {os.path.join(path, name)}")
+            f"Gráfico de curva de aprendizaje guardada en {os.path.join(path, name)}"
+        )
     else:
         plt.show()
 
