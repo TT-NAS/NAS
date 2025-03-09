@@ -1,4 +1,5 @@
 Env/
 __pycache__/
-carvana-dataset/
 models/
+data/
+annotations/

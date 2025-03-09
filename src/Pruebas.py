@@ -2,20 +2,20 @@
 Archivo temporal para pruebas de código
 """
 # %% Prueba de DataLoader
-from torch_utils import CARVANA_BATCH_SIZE, ROAD_BATCH_SIZE, CAR_BATCH_SIZE
-from torch_utils import TorchDataLoader
-from torch_utils import plot_batch
+from utils import CARVANA_BATCH_SIZE, ROAD_BATCH_SIZE, CAR_BATCH_SIZE
+from utils import TorchDataLoader
+from utils import plot_batch
 
 # Elige el dataset a cargar
-# name = "carvana"
-# data_path = "../carvana-dataset/"
-# bs = CARVANA_BATCH_SIZE
+name = "carvana"
+data_path = "../data/carvana-dataset/"
+bs = CARVANA_BATCH_SIZE
 # name = "road"
 # bs = ROAD_BATCH_SIZE
-# data_path = "../road-dataset/"
-name = "car"
-bs = CAR_BATCH_SIZE
-data_path = "../car-dataset/"
+# data_path = "../data/road-dataset/"
+# name = "car"
+# bs = CAR_BATCH_SIZE
+# data_path = "../data/car-dataset/"
 
 data_loader = TorchDataLoader(name, data_path=data_path)
 imgs, masks = next(iter(data_loader.train))
@@ -154,9 +154,11 @@ c = Chromosome(
 print(c.get_decoded())
 
 data_loader = "carvana"
-data_path = "../carvana-dataset/"
+data_path = "../data/carvana-dataset/"
 data_loader_alternativo = "car"
-data_path_alternativo = "../car-dataset/"
+data_path_alternativo = "../data/car-dataset/"
+data_loader_alternativo2 = "road"
+data_path_alternativo2 = "../data/road-dataset/"
 
 # Al entrenarla se generará el modelo UNet automáticamente
 c.train_unet(
@@ -170,6 +172,7 @@ c.train_unet(
 c.show_results()
 # Aunque se haya entrenado con un DataLoader, podemos evaluar con otro
 c.show_results(data_loader_alternativo, data_path=data_path_alternativo)
+c.show_results(data_loader_alternativo2, data_path=data_path_alternativo2)
 
 # Tampoco es necesario especificar el DataLoader si ya se ha entrenado
 print("Aptitud para el DataLoader de entrenamiento:", c.get_aptitude())
@@ -177,19 +180,29 @@ print("Aptitud para el otro DataLoader:", c.get_aptitude(
     data_loader=data_loader_alternativo,
     data_path=data_path_alternativo
 ))
+print("Aptitud para el 3er DataLoader:", c.get_aptitude(
+    data_loader=data_loader_alternativo2,
+    data_path=data_path_alternativo2
+))
 
-# Guardamos los resultados
-c.show_results(
-    save=True
-)
-c.show_results(
-    data_loader_alternativo,
-    save=True,
-    name="para el otro DataLoader.png",
-    data_path=data_path_alternativo
-)
+# # Guardamos los resultados
+# c.show_results(
+#     save=True
+# )
+# c.show_results(
+#     data_loader_alternativo,
+#     save=True,
+#     name="para el otro DataLoader.png",
+#     data_path=data_path_alternativo
+# )
+# c.show_results(
+#     data_loader_alternativo2,
+#     save=True,
+#     name="para el otro DataLoader.png",
+#     data_path=data_path_alternativo2
+# )
 
-c.save_unet()
+# c.save_unet()
 
 # %% Prueba de congruencia entre discretización y decodificación
 FILTERS = {
@@ -286,3 +299,93 @@ c = Chromosome(
 print(c.get_decoded())
 
 # %%
+import os
+import time
+from PIL import Image
+from utils.torch_constants import CARVANA_DATA_PATH, TRANSFORM, CARVANA_DATASET_LENGTH
+import torch
+
+data_path = "." + CARVANA_DATA_PATH
+
+CARVANA_TRAIN_PATH = os.path.join(data_path, "train")
+CARVANA_MASKS_PATH = os.path.join(data_path, "train_masks")
+images = sorted(os.listdir(CARVANA_TRAIN_PATH))
+masks = sorted(os.listdir(CARVANA_MASKS_PATH))
+
+
+def save_tensor(idx: int):
+    # tiempo preciso
+    start = time.perf_counter()
+    image_path = os.path.join(CARVANA_TRAIN_PATH, images[idx])
+    image = Image.open(image_path)
+    image = TRANSFORM(image)
+
+    mask_path = os.path.join(CARVANA_MASKS_PATH, masks[idx])
+    mask = Image.open(mask_path)
+    mask = TRANSFORM(mask)
+    mask /= mask.max()
+    total_time = time.perf_counter() - start
+
+    tensor = torch.cat((image, mask))
+
+    image_2 = tensor[:3]
+    mask_2 = tensor[3:]
+
+    assert torch.equal(image, image_2)
+    assert torch.equal(mask, mask_2)
+
+    os.makedirs("tmp", exist_ok=True)
+    torch.save(tensor, f"tmp/tensor_{idx}.pt")
+
+    return total_time
+
+
+def get_tensor(idx: int):
+    start = time.perf_counter()
+    tensor = torch.load(f"tmp/tensor_{idx}.pt")
+
+    image = tensor[:3]
+    mask = tensor[3:]
+    total_time = time.perf_counter() - start
+
+    return image, mask, total_time
+
+
+def prueba_ifs(int):
+    start = time.perf_counter()
+    suma = 0
+
+    for i in range(int):
+        if i % 2 == 0:
+            suma += i
+        else:
+            suma -= i
+
+    print("Suma:", suma)
+
+    return time.perf_counter() - start
+
+
+print(prueba_ifs(CARVANA_DATASET_LENGTH))
+
+
+# tiempo_promedio_normal = 0
+# tiempo_promedio_optimizado = 0
+# cant_a_guardar = CARVANA_DATASET_LENGTH
+
+# for i in range(cant_a_guardar):
+#     tiempo_promedio_normal += save_tensor(i)
+
+#     if i % 100 == 0:
+#         print(f"Guardando imagen {i}")
+
+
+# for i in range(cant_a_guardar):
+#     image, mask, tiempo = get_tensor(i)
+#     tiempo_promedio_optimizado += tiempo
+
+#     if i % 100 == 0:
+#         print(f"Cargando imagen {i}")
+
+# print("Tiempo promedio normal:", tiempo_promedio_normal / cant_a_guardar)
+# print("Tiempo promedio optimizado:", tiempo_promedio_optimizado / cant_a_guardar)

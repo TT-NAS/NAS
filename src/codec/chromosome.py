@@ -2,9 +2,9 @@ import time
 import random
 from typing import Union, Optional
 
-from torch_utils import CUDA
-from torch_utils import UNet, TorchDataLoader
-from torch_utils import plot_results, train_model, save_model, eval_model
+from utils import CUDA
+from utils import UNet, TorchDataLoader
+from utils import plot_results, train_model, save_model, eval_model
 from .encode import zip_binary, encode_chromosome
 from .decode import unzip_binary, decode_chromosome
 from .constants import FILTERS, KERNEL_SIZES, ACTIVATION_FUNCTIONS, POOLINGS, CONCATENATION
@@ -467,11 +467,11 @@ class Chromosome:
             - train_val_prop : (float) Proporción que se usará entre train y validation
 
             Argumentos adicionales para el dataset:
+            - data_path : (str) Ruta de los datos
+            - dataset_len : (int) Número de imágenes a cargar
             - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
                           entrenamiento (train y validation) y test
             - transform : (T.Compose) Transformaciones a aplicar a las imágenes
-            - data_path : (str) Ruta de los datos
-            - dataset_len : (int) Número de imágenes a cargar
 
         Returns
         -------
@@ -626,11 +626,11 @@ class Chromosome:
             - train_val_prop : (float) Proporción que se usará entre train y validation
 
             Argumentos adicionales para el dataset:
+            - data_path : (str) Ruta de los datos
+            - dataset_len : (int) Número de imágenes a cargar
             - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
                           entrenamiento (train y validation) y test
             - transform : (T.Compose) Transformaciones a aplicar a las imágenes
-            - data_path : (str) Ruta de los datos
-            - dataset_len : (int) Número de imágenes a cargar
 
         Returns
         -------
@@ -692,11 +692,11 @@ class Chromosome:
             - train_val_prop : (float) Proporción que se usará entre train y validation
 
             Argumentos adicionales para el dataset:
+            - data_path : (str) Ruta de los datos
+            - dataset_len : (int) Número de imágenes a cargar
             - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
                           entrenamiento (train y validation) y test
             - transform : (T.Compose) Transformaciones a aplicar a las imágenes
-            - data_path : (str) Ruta de los datos
-            - dataset_len : (int) Número de imágenes a cargar
 
         Returns
         -------
@@ -758,11 +758,11 @@ class Chromosome:
             - train_val_prop : (float) Proporción que se usará entre train y validation
 
             Argumentos adicionales para el dataset:
+            - data_path : (str) Ruta de los datos
+            - dataset_len : (int) Número de imágenes a cargar
             - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
                           entrenamiento (train y validation) y test
             - transform : (T.Compose) Transformaciones a aplicar a las imágenes
-            - data_path : (str) Ruta de los datos
-            - dataset_len : (int) Número de imágenes a cargar
         """
         if not self.__unet:
             self.set_unet()

@@ -4,13 +4,13 @@ Script para generar, entrenar y evaluar modelos de segmentación de imágenes
 import os
 import math
 
-import torch
 import pandas as pd
 from typing import Union, Optional
 import matplotlib.pyplot as plt
 
-from torch_utils import IMAGES_PATH, WIDTH, HEIGHT, CHANNELS
-from torch_utils import TorchDataLoader, Synflow, gradient_scorer_pytorch
+from utils import IMAGES_PATH, WIDTH, HEIGHT, CHANNELS
+from utils import OutOfMemoryError, TorchDataLoader, Synflow
+from utils import empty_cache, gradient_scorer_pytorch
 from codec import Chromosome
 
 
@@ -327,11 +327,11 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
         - train_val_prop : (float) Proporción que se usará entre train y validation
 
         Argumentos adicionales para el dataset:
+        - data_path : (str) Ruta de los datos
+        - length : (int) Número de imágenes a cargar
         - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
                       entrenamiento (train y validation) y test
         - transform : (T.Compose) Transformaciones a aplicar a las imágenes
-        - data_path : (str) Ruta de los datos
-        - length : (int) Número de imágenes a cargar
 
     Returns
     -------
@@ -398,7 +398,7 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
                 )
 
         c.set_unet()
-        torch.cuda.empty_cache()
+        empty_cache()
         time_seconds, last_epoch, metrics = c.train_unet(data_loader, **kwargs)
 
         scores_dict = {
@@ -461,7 +461,7 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
             )
 
         return True
-    except torch.OutOfMemoryError:
+    except OutOfMemoryError:
         log("ERROR:")
         log("  + Semilla: " + str(seed))
         log("  + Binary cod: " + c.get_binary(zip=True))
@@ -475,13 +475,14 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
         log("  + Binary cod: " + c.get_binary(zip=True))
         log("  - Error:" + str(e))
     finally:
-        torch.cuda.empty_cache()
+        empty_cache()
 
     return False
 
 
 def score_n_models(idx_start: int = None, num: int = None,
-                   chromosomes: Optional[list[Union[tuple, list[float], str]]] = None,
+                   chromosomes: Optional[list[Union[tuple,
+                                                    list[float], str]]] = None,
                    seeds: list[int] = None, dataset: str = "carvana",
                    **kwargs: Union[str, int, float, bool]):
     """
@@ -529,11 +530,11 @@ def score_n_models(idx_start: int = None, num: int = None,
         - train_val_prop : (float) Proporción que se usará entre train y validation
 
         Argumentos adicionales para el dataset:
+        - data_path : (str) Ruta de los datos
+        - length : (int) Número de imágenes a cargar
         - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
                       entrenamiento (train y validation) y test
         - transform : (T.Compose) Transformaciones a aplicar a las imágenes
-        - data_path : (str) Ruta de los datos
-        - length : (int) Número de imágenes a cargar
     """
     if chromosomes:
         for c in chromosomes:
