@@ -6,12 +6,19 @@ from torch import nn, Tensor
 from torchvision import transforms as T
 from torch.utils.data import DataLoader, Dataset, random_split
 
-from .torch_constants import TRANSFORM
 from .constants import (
-    CARVANA_DATASET_LENGTH, ROAD_DATASET_LENGTH, CAR_DATASET_LENGTH,
-    CARVANA_BATCH_SIZE, ROAD_BATCH_SIZE, CAR_BATCH_SIZE, SHOW_SIZE,
-    CARVANA_DATA_PATH, ROAD_DATA_PATH, CAR_DATA_PATH,
-    CHANNELS
+    COCO_PEOPLE_DATASET_LENGTH, COCO_CAR_DATASET_LENGTH, CARVANA_DATASET_LENGTH,
+    ROAD_DATASET_LENGTH, CAR_DATASET_LENGTH,
+
+    COCO_BATCH_SIZE, CARVANA_BATCH_SIZE,
+    ROAD_BATCH_SIZE, CAR_BATCH_SIZE, SHOW_SIZE,
+
+    COCO_PEOPLE_DATA_PATH, COCO_CAR_DATA_PATH, CARVANA_DATA_PATH,
+    ROAD_DATA_PATH, CAR_DATA_PATH,
+
+    WIDTH, HEIGHT, CHANNELS,
+
+    COCO_IDS
 )
 
 
@@ -24,9 +31,9 @@ class TorchDataset(Dataset):
         """
         Inicializa la estructura base del dataset.
         """
-        self.tensors = None
-        self.cache_path = None
         self.train = None
+        self.cache_path = None
+        self.tensors = None
 
     def __len__(self) -> int:
         """
@@ -54,13 +61,70 @@ class TorchDataset(Dataset):
             (Imagen, Máscara) si el dataset es de entrenamiento, (Imagen) si es de prueba.
         """
         tensor = torch.load(os.path.join(self.cache_path, self.tensors[idx]))
+        image = tensor[:3]
 
         if self.train:
-            image = tensor[:3]
             mask = tensor[3:]
             return image, mask
 
-        return tensor
+        return image
+
+
+class COCODataset(TorchDataset):
+    def __init__(self, train: bool, data_path: str, dataset_len: int, dataset_default_len: int,
+                 suffix_img: str, suffix_tensor: str, identifier: str, imgs_width: int = WIDTH,
+                 imgs_height: int = HEIGHT, **kwargs: str):
+        from .torch_functions import get_data
+
+        super().__init__()
+
+        kwargs.pop("suffix_mask", None)
+
+        if kwargs:
+            raise ValueError(f"Argumentos no válidos: {kwargs}")
+
+        self.train = train
+
+        if train:
+            self.cache_path = os.path.join(
+                data_path,
+                f"__cache_{imgs_width}x{imgs_height}__",
+                "train_val"
+            )
+            images_path = os.path.join(data_path, "train2017")
+            annotations_file = os.path.join(
+                data_path,
+                "annotations",
+                "instances_train2017.json"
+            )
+        else:
+            self.cache_path = os.path.join(
+                data_path,
+                f"__cache_{imgs_width}x{imgs_height}__",
+                "test"
+            )
+            images_path = os.path.join(data_path, "test2017")
+            annotations_file = os.path.join(
+                data_path,
+                "annotations",
+                "instances_test2017.json"
+            )
+
+        self.tensors = get_data(
+            train=train,
+            dataset_default_len=dataset_default_len,
+            identifier=identifier,
+            width=imgs_width,
+            height=imgs_height,
+            cache_path=self.cache_path,
+            suffix_tensor=suffix_tensor,
+            images_path=images_path,
+            suffix_img=suffix_img,
+            annotations_file=annotations_file
+        )
+
+        if train:
+            self.tensors = self.tensors[:dataset_len]
 
 
 class CarvanaDataset(TorchDataset):
@@ -68,8 +132,9 @@ class CarvanaDataset(TorchDataset):
     Clase para cargar el dataset de Carvana.
     """
 
-    def __init__(self, train: bool, data_path: str, dataset_len: int, postfix_img: str,
-                 postfix_mask: str, postfix_tensor: str, transform: T.Compose = TRANSFORM):
+    def __init__(self, train: bool, data_path: str, dataset_len: int, dataset_default_len: int,
+                 suffix_img: str, suffix_mask: str, suffix_tensor: str, identifier: str,
+                 imgs_width: int = WIDTH, imgs_height: int = HEIGHT):
         """
         Clase para cargar el dataset de Carvana
 
@@ -88,22 +153,37 @@ class CarvanaDataset(TorchDataset):
 
         super().__init__()
 
-        cache_path = os.path.join(data_path, "cache")
-        images_path = os.path.join(data_path, "train" if train else "test")
-        masks_path = os.path.join(data_path, "train_masks") if train else None
-        self.cache_path = os.path.join(
-            cache_path, "train_val" if train else "test")
         self.train = train
+
+        if train:
+            self.cache_path = os.path.join(
+                data_path,
+                f"__cache_{imgs_width}x{imgs_height}__",
+                "train_val"
+            )
+            images_path = os.path.join(data_path, "train")
+            masks_path = os.path.join(data_path, "train_masks")
+        else:
+            self.cache_path = os.path.join(
+                data_path,
+                f"__cache_{imgs_width}x{imgs_height}__",
+                "test"
+            )
+            images_path = os.path.join(data_path, "test")
+            masks_path = None
 
         self.tensors = get_data(
             train=train,
-            images_path=images_path,
-            masks_path=masks_path,
+            dataset_default_len=dataset_default_len,
+            identifier=identifier,
+            width=imgs_width,
+            height=imgs_height,
             cache_path=self.cache_path,
-            postfix_img=postfix_img,
-            postfix_mask=postfix_mask,
-            postfix_tensor=postfix_tensor,
-            transform=transform
+            suffix_tensor=suffix_tensor,
+            images_path=images_path,
+            suffix_img=suffix_img,
+            masks_path=masks_path,
+            suffix_mask=suffix_mask
         )
 
         if train:
@@ -118,9 +198,9 @@ class BasicDataset(TorchDataset):
         - masks
     """
 
-    def __init__(self, train: bool, data_path: str, dataset_len: int, postfix_img: str,
-                 postfix_mask: str, postfix_tensor: str, test_prop: float = 0.2,
-                 transform: T.Compose = TRANSFORM):
+    def __init__(self, train: bool, data_path: str, dataset_len: int, dataset_default_len: int,
+                 suffix_img: str, suffix_mask: str, suffix_tensor: str, identifier: str,
+                 test_prop: float = 0.2, imgs_width: int = WIDTH, imgs_height: int = HEIGHT):
         """
         Clase para cargar un dataset sencillo con el formato de directorios:
         - data_path
@@ -144,26 +224,30 @@ class BasicDataset(TorchDataset):
 
         super().__init__()
 
-        cache_path = os.path.join(data_path, "cache")
+        self.train = train
+        self.cache_path = os.path.join(
+            data_path,
+            f"__cache_{imgs_width}x{imgs_height}__",
+            "train_val_test"
+        )
         images_path = os.path.join(data_path, "images")
         masks_path = os.path.join(data_path, "masks")
 
         train_and_val_prop = 1 - test_prop
         split_index = int(dataset_len * train_and_val_prop)
 
-        self.train = train
-        self.cache_path = os.path.join(
-            cache_path, "train_val" if train else "test")
-
         self.tensors = get_data(
             train=train,
-            images_path=images_path,
-            masks_path=masks_path,
+            dataset_default_len=dataset_default_len,
+            identifier=identifier,
+            width=imgs_width,
+            height=imgs_height,
             cache_path=self.cache_path,
-            postfix_img=postfix_img,
-            postfix_mask=postfix_mask,
-            postfix_tensor=postfix_tensor,
-            transform=transform
+            suffix_tensor=suffix_tensor,
+            images_path=images_path,
+            suffix_img=suffix_img,
+            masks_path=masks_path,
+            suffix_mask=suffix_mask,
         )
 
         if train:
@@ -217,30 +301,46 @@ class TorchDataLoader:
         ValueError
             Si el nombre del dataset ingresado no es válido
         """
-        if dataset_class == "carvana" or dataset_class == "c":
+        if dataset_class == "coco-people" or dataset_class == COCO_IDS["people"]:
+            dataset_class = COCODataset
+            default_len = COCO_PEOPLE_DATASET_LENGTH
+            default_path = COCO_PEOPLE_DATA_PATH
+            default_batch_size = COCO_BATCH_SIZE
+            suffix_img = ".jpg"
+            suffix_mask = None
+            self.identifier = COCO_IDS["people"]  # cpp
+        elif dataset_class == "coco-car" or dataset_class == COCO_IDS["car"]:
+            dataset_class = COCODataset
+            default_len = COCO_CAR_DATASET_LENGTH
+            default_path = COCO_CAR_DATA_PATH
+            default_batch_size = COCO_BATCH_SIZE
+            suffix_img = ".jpg"
+            suffix_mask = None
+            self.identifier = COCO_IDS["car"]  # cca
+        elif dataset_class == "carvana" or dataset_class == "cvn":
             dataset_class = CarvanaDataset
             default_len = CARVANA_DATASET_LENGTH
             default_path = CARVANA_DATA_PATH
             default_batch_size = CARVANA_BATCH_SIZE
-            postfix_img = ".jpg"
-            postfix_mask = "_mask.gif"
-            self.identifier = "c"
-        elif dataset_class == "road" or dataset_class == "r":
+            suffix_img = ".jpg"
+            suffix_mask = "_mask.gif"
+            self.identifier = "cvn"
+        elif dataset_class == "road" or dataset_class == "rd":
             dataset_class = BasicDataset
             default_len = ROAD_DATASET_LENGTH
             default_path = ROAD_DATA_PATH
             default_batch_size = ROAD_BATCH_SIZE
-            postfix_img = ""
-            postfix_mask = ".png"
-            self.identifier = "r"
-        elif dataset_class == "car" or dataset_class == "ca":
+            suffix_img = ""
+            suffix_mask = ".png"
+            self.identifier = "rd"
+        elif dataset_class == "car" or dataset_class == "car":
             dataset_class = BasicDataset
             default_len = CAR_DATASET_LENGTH
             default_path = CAR_DATA_PATH
             default_batch_size = CAR_BATCH_SIZE
-            postfix_img = ".jpg"
-            postfix_mask = ".png"
-            self.identifier = "ca"
+            suffix_img = ".jpg"
+            suffix_mask = ".png"
+            self.identifier = "car"
         else:
             raise ValueError("Invalid dataset class")
 
@@ -256,18 +356,22 @@ class TorchDataLoader:
             train=True,
             data_path=dataset_path,
             dataset_len=dataset_len,
-            postfix_img=postfix_img,
-            postfix_mask=postfix_mask,
-            postfix_tensor=".pt",
+            dataset_default_len=default_len,
+            suffix_img=suffix_img,
+            suffix_mask=suffix_mask,
+            suffix_tensor=".pt",
+            identifier=self.identifier,
             **kwargs
         )
         test_dataset = dataset_class(
             train=False,
             data_path=dataset_path,
             dataset_len=dataset_len,
-            postfix_img=postfix_img,
-            postfix_mask=postfix_mask,
-            postfix_tensor=".pt",
+            dataset_default_len=default_len,
+            suffix_img=suffix_img,
+            suffix_mask=suffix_mask,
+            suffix_tensor=".pt",
+            identifier=self.identifier,
             **kwargs
         )
 

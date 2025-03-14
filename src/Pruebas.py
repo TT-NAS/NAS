@@ -2,20 +2,29 @@
 Archivo temporal para pruebas de código
 """
 # %% Prueba de DataLoader
-from utils import CARVANA_BATCH_SIZE, ROAD_BATCH_SIZE, CAR_BATCH_SIZE
+from utils import COCO_BATCH_SIZE, CARVANA_BATCH_SIZE, ROAD_BATCH_SIZE, CAR_BATCH_SIZE
+from utils import COCO_PEOPLE_DATA_PATH, COCO_CAR_DATA_PATH, CARVANA_DATA_PATH, ROAD_DATA_PATH, CAR_DATA_PATH
 from utils import TorchDataLoader
 from utils import plot_batch
 
 # Elige el dataset a cargar
-name = "carvana"
-data_path = "../data/carvana-dataset/"
-bs = CARVANA_BATCH_SIZE
+name = "coco-people"
+bs = COCO_BATCH_SIZE
+data_path = COCO_PEOPLE_DATA_PATH
+# name = "coco-car"
+# bs = COCO_BATCH_SIZE
+# data_path = COCO_CAR_DATA_PATH
+# name = "carvana"
+# bs = CARVANA_BATCH_SIZE
+# data_path = CARVANA_DATA_PATH
 # name = "road"
 # bs = ROAD_BATCH_SIZE
-# data_path = "../data/road-dataset/"
+# data_path = ROAD_DATA_PATH
 # name = "car"
 # bs = CAR_BATCH_SIZE
-# data_path = "../data/car-dataset/"
+# data_path = CAR_DATA_PATH
+
+data_path = "." + data_path
 
 data_loader = TorchDataLoader(name, data_path=data_path)
 imgs, masks = next(iter(data_loader.train))
@@ -153,37 +162,41 @@ c = Chromosome(
 # Mostramos la arquitectura a generar
 print(c.get_decoded())
 
-data_loader = "carvana"
-data_path = "../data/carvana-dataset/"
-data_loader_alternativo = "car"
-data_path_alternativo = "../data/car-dataset/"
-data_loader_alternativo2 = "road"
-data_path_alternativo2 = "../data/road-dataset/"
+# data_loader = "carvana"
+# data_path = "../data/carvana-dataset/"
+# data_loader = "coco-people"
+# data_path = "../data/coco-dataset-people/"
+data_loader = "coco-car"
+data_path = "../data/coco-dataset-car/"
+# data_loader_alternativo = "car"
+# data_path_alternativo = "../data/car-dataset/"
+# data_loader_alternativo2 = "road"
+# data_path_alternativo2 = "../data/road-dataset/"
 
 # Al entrenarla se generará el modelo UNet automáticamente
 c.train_unet(
     data_loader=data_loader,
     epochs=1,
     data_path=data_path,
-    dataset_len=2000
+    dataset_len=20_000
 )
 
 # Si no especificamos un DataLoader, se usará el dataloader con el que se entrenó
 c.show_results()
 # Aunque se haya entrenado con un DataLoader, podemos evaluar con otro
-c.show_results(data_loader_alternativo, data_path=data_path_alternativo)
-c.show_results(data_loader_alternativo2, data_path=data_path_alternativo2)
+# c.show_results(data_loader_alternativo, data_path=data_path_alternativo)
+# c.show_results(data_loader_alternativo2, data_path=data_path_alternativo2)
 
 # Tampoco es necesario especificar el DataLoader si ya se ha entrenado
-print("Aptitud para el DataLoader de entrenamiento:", c.get_aptitude())
-print("Aptitud para el otro DataLoader:", c.get_aptitude(
-    data_loader=data_loader_alternativo,
-    data_path=data_path_alternativo
-))
-print("Aptitud para el 3er DataLoader:", c.get_aptitude(
-    data_loader=data_loader_alternativo2,
-    data_path=data_path_alternativo2
-))
+print("Aptitud para el DataLoader de entrenamiento (Loss):", c.get_aptitude())
+# print("Aptitud para el otro DataLoader:", c.get_aptitude(
+#     data_loader=data_loader_alternativo,
+#     data_path=data_path_alternativo
+# ))
+# print("Aptitud para el 3er DataLoader:", c.get_aptitude(
+#     data_loader=data_loader_alternativo2,
+#     data_path=data_path_alternativo2
+# ))
 
 # # Guardamos los resultados
 # c.show_results(

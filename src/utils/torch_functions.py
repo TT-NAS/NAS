@@ -7,14 +7,17 @@ from torch import Tensor
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
+import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
 
+from pycocotools.coco import COCO
 from .torch_classes import UNet, TorchDataLoader
 from .torch_constants import CUDA
 from .constants import (
     SHOW_SIZE,
     IMAGES_PATH, MODELS_PATH,
+    COCO_IDS,
     LOGGER
 )
 
@@ -26,9 +29,23 @@ def empty_cache_torch():
     torch.cuda.empty_cache()
 
 
-def get_images_and_masks(train: bool, images_path: str,
-                         masks_path: str, postfix_img: str,
-                         postfix_mask: str) -> tuple[list[str], Optional[list[str]]]:
+def get_images(images_path: str, train: bool, dataset_default_len: int):
+    images = sorted(os.listdir(images_path))
+
+    if not train:
+        return images
+
+    if len(images) != dataset_default_len:
+        raise ValueError(
+            "El número de imágenes del dataset y de imágenes en el directorio no coincide"
+        )
+
+    return images
+
+
+def get_images_and_masks(images_path: str, masks_path: str, train: bool,
+                         dataset_default_len: int, identifier: str, suffix_img: str,
+                         suffix_mask: Optional[str] = None) -> tuple[list[str], Optional[list[str]]]:
     """
     Carga las imágenes y máscaras del dataset
 
@@ -40,9 +57,9 @@ def get_images_and_masks(train: bool, images_path: str,
         Ruta de las imágenes
     masks_path : str
         Ruta de las máscaras
-    postfix_img : str
+    suffix_img : str
         Postfijo a remover para obtener el nombre de un elemento a partir de la imagen
-    postfix_mask : str
+    suffix_mask : str
         Postfijo a colocar para obtener el nombre de la máscara a partir del elemento
 
     Returns
@@ -55,9 +72,13 @@ def get_images_and_masks(train: bool, images_path: str,
     ValueError
         Si las imágenes y máscaras no coinciden
     """
-    images = sorted(os.listdir(images_path))
+    images = get_images(
+        images_path=images_path,
+        train=train,
+        dataset_default_len=dataset_default_len
+    )
 
-    if not train:
+    if not train or identifier in COCO_IDS.values():
         return images, None
 
     masks = sorted(os.listdir(masks_path))
@@ -66,10 +87,10 @@ def get_images_and_masks(train: bool, images_path: str,
         raise ValueError("El número de imágenes y máscaras no coincide")
 
     for i, image in enumerate(images):
-        if postfix_img:
-            image_name = image.replace(postfix_img, postfix_mask)
+        if suffix_img:
+            image_name = image.replace(suffix_img, suffix_mask)
         else:
-            image_name = image + postfix_mask
+            image_name = image + suffix_mask
 
         if masks[i] != image_name:
             raise ValueError(
@@ -81,7 +102,7 @@ def get_images_and_masks(train: bool, images_path: str,
 
 
 def get_cache(images: list[str], cache_path: str,
-              postfix_img: str, postfix_tensor: str) -> Optional[list[str]]:
+              suffix_img: str, suffix_tensor: str) -> Optional[list[str]]:
     """
     Obtiene la lista de tensores en la caché
 
@@ -91,9 +112,9 @@ def get_cache(images: list[str], cache_path: str,
         Lista de imágenes
     cache_path : str
         Ruta de la caché
-    postfix_img : str
+    suffix_img : str
         Postfijo a remover para obtener el nombre de un elemento a partir de la imagen
-    postfix_tensor : str
+    suffix_tensor : str
         Postfijo a colocar para obtener el nombre del tensor a partir del elemento
 
     Returns
@@ -110,10 +131,10 @@ def get_cache(images: list[str], cache_path: str,
         return None
 
     for i, image in enumerate(images):
-        if postfix_img:
-            image_name = image.replace(postfix_img, postfix_tensor)
+        if suffix_img:
+            image_name = image.replace(suffix_img, suffix_tensor)
         else:
-            image_name = image + postfix_tensor
+            image_name = image + suffix_tensor
 
         if tensors[i] != image_name:
             return None
@@ -121,9 +142,10 @@ def get_cache(images: list[str], cache_path: str,
     return tensors
 
 
-def get_data(train: bool, images_path: str, masks_path: Optional[str], cache_path: str,
-             postfix_img: str, postfix_mask: str, postfix_tensor: str,
-             transform: T.Compose) -> list[str]:
+def get_data(train: bool, dataset_default_len, identifier: str, width: int, height: int,
+             cache_path: str, suffix_tensor: str, images_path: str, suffix_img: str,
+             masks_path: Optional[str] = None, suffix_mask: Optional[str] = None,
+             annotations_file: Optional[str] = None) -> list[str]:
     """
     Obtiene los datos del dataset en forma de una lista con los nombres de archivo de los tensores
 
@@ -137,11 +159,11 @@ def get_data(train: bool, images_path: str, masks_path: Optional[str], cache_pat
         Ruta de las máscaras
     cache_path : str
         Ruta de la caché
-    postfix_img : str
+    suffix_img : str
         Postfijo a remover para obtener el nombre de un elemento a partir de la imagen
-    postfix_mask : str
+    suffix_mask : str
         Postfijo a colocar para obtener el nombre de la máscara a partir del elemento
-    postfix_tensor : str
+    suffix_tensor : str
         Postfijo a colocar para obtener el nombre del tensor a partir del elemento
     transform : T.Compose
         Transformación a aplicar a las imágenes y máscaras
@@ -152,17 +174,19 @@ def get_data(train: bool, images_path: str, masks_path: Optional[str], cache_pat
         Lista con los nombres de archivo de los tensores
     """
     images, masks = get_images_and_masks(
-        train=train,
         images_path=images_path,
         masks_path=masks_path,
-        postfix_img=postfix_img,
-        postfix_mask=postfix_mask
+        train=train,
+        dataset_default_len=dataset_default_len,
+        identifier=identifier,
+        suffix_img=suffix_img,
+        suffix_mask=suffix_mask
     )
     tensors = get_cache(
         images=images,
         cache_path=cache_path,
-        postfix_img=postfix_img,
-        postfix_tensor=postfix_tensor
+        suffix_img=suffix_img,
+        suffix_tensor=suffix_tensor
     )
 
     if tensors:
@@ -176,11 +200,30 @@ def get_data(train: bool, images_path: str, masks_path: Optional[str], cache_pat
 
     os.makedirs(cache_path)
 
+    if identifier in COCO_IDS.values():
+        coco = COCO(annotations_file)
+        cat_id = 1 if identifier == "cpp" else 3
+        image_ids = sorted(
+            coco.getImgIds(catIds=[cat_id]),
+            key=lambda img_id: coco.loadImgs(img_id)[0]["file_name"]
+        )
+
+        if len(images) != len(image_ids):
+            raise ValueError(
+                "El número de imágenes del dataset y de imágenes en el directorio no coincide"
+            )
+
+        images = image_ids
+
+    transform = T.Compose([
+        T.Resize([width, height]),
+        T.ToTensor()
+    ])
     total = len(images)
     train_str = "Train" if train else "Test"
     progreso = 0
 
-    for i, image_str in enumerate(images):
+    for i, image in enumerate(images):
         progreso_actual = i / total
 
         if progreso_actual - progreso >= 0.001 or i == total - 1:
@@ -191,32 +234,60 @@ def get_data(train: bool, images_path: str, masks_path: Optional[str], cache_pat
             )
             progreso = progreso_actual
 
-        image_path = os.path.join(images_path, image_str)
-        image = Image.open(image_path)
-        image = transform(image)
+        if identifier in COCO_IDS.values():
+            image_object = coco.loadImgs(image)[0]
+            image_name = image_object["file_name"]
+        else:
+            image_name = image
+
+        image_path = os.path.join(images_path, image_name)
+        image_tensor = Image.open(image_path).convert("RGB")
+        image_tensor = transform(image_tensor)
 
         if train:
-            mask_path = os.path.join(masks_path, masks[i])
-            mask = Image.open(mask_path).convert("L")
-            mask = transform(mask)
-            mask /= mask.max()
+            if identifier in COCO_IDS.values():
+                ann_ids = coco.getAnnIds(
+                    imgIds=image_object["id"],
+                    catIds=[cat_id]
+                )
+                annotations = coco.loadAnns(ann_ids)
+                mask = np.zeros(
+                    (image_object["height"], image_object["width"]),
+                    dtype=np.float32
+                )
 
-            tensor = torch.cat((image, mask))
+                for ann in annotations:
+                    mask = np.maximum(mask, coco.annToMask(ann))
 
+                mask = Image.fromarray(mask).resize(
+                    (width, height), Image.NEAREST)
+                mask = torch.tensor(np.array(mask), dtype=torch.float32)
+                mask = mask.unsqueeze(0)
+            else:
+                mask_path = os.path.join(masks_path, masks[i])
+                mask = Image.open(mask_path).convert("L")
+                mask = transform(mask)
+                mask /= mask.max()
+
+            tensor = torch.cat((image_tensor, mask))
         else:
-            tensor = image
+            tensor = image_tensor
 
-        if postfix_img:
-            tensor_name = image_str.replace(postfix_img, postfix_tensor)
+        if suffix_img:
+            tensor_name = image_name.replace(suffix_img, suffix_tensor)
         else:
-            tensor_name = image_str + postfix_tensor
+            tensor_name = image_name + suffix_tensor
 
         torch.save(tensor, os.path.join(
             cache_path,
             tensor_name
         ))
 
-    print()
+    print(
+        f"\rPreprocesando imágenes ({train_str}), "
+        "este proceso solo se realiza una vez: "
+        "Completado!"
+    )
 
     return sorted(os.listdir(cache_path))
 

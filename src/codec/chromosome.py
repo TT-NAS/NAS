@@ -737,7 +737,7 @@ class Chromosome:
     def show_results(self, data_loader: Optional[Union[TorchDataLoader, str]] = None,
                      name: Optional[str] = None, **kwargs: Union[str, object]):
         """
-        Muestra los resultados del modelo UNet actual
+        Muestra los resultados del modelo UNet actual con el conjunto de test
 
         Parameters
         ----------
