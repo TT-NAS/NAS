@@ -252,7 +252,7 @@ def reg_results(chromosome: Chromosome, time_seconds: float, last_epoch: int,
         "seed": chromosome.seed if chromosome.seed is not None else "N",
         "binary codification": chromosome.get_binary(zip=True),
         "max convs per layer": chromosome.max_convs_per_layer,
-        "layers": chromosome.get_layers(),
+        "layers": chromosome.get_num_layers(),
         "training secs": time_seconds,
         "epochs": last_epoch + 1
     }

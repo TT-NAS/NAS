@@ -1,7 +1,13 @@
 import base64
-from typing import Union
+from typing import Union, Optional
 
-from .constants import FILTERS, KERNEL_SIZES, ACTIVATION_FUNCTIONS, POOLINGS, CONCATENATION
+from .constants import (
+    IDENTITY_CONV_REAL, IDENTITY_LAYER_REAL,
+    IDENTITY_CONV_BIN, IDENTITY_LAYER_BIN,
+
+    FILTERS, KERNEL_SIZES, ACTIVATION_FUNCTIONS,
+    POOLINGS, CONCATENATION
+)
 
 
 def zip_binary(binary: str) -> str:
@@ -70,7 +76,8 @@ def encode_gene(value: Union[int, bool, str], options: dict, real: bool) -> Unio
     raise ValueError(f"El valor {value} no está en las opciones")
 
 
-def encode_convs(convs: list[tuple[int, int, str]], real: bool) -> Union[list[float], str]:
+def encode_convs(convs: list[Optional[tuple[int, int, str]]],
+                 real: bool) -> Union[list[float], str]:
     """
     Codifica una lista de convoluciones
 
@@ -88,9 +95,18 @@ def encode_convs(convs: list[tuple[int, int, str]], real: bool) -> Union[list[fl
         - una lista de flotantes si `real=True`
         - un string si `real=False`
     """
-    encoded_convs = [] if real else ""
+    encoded_convs = [] if real else str()
 
-    for f, s, a in convs:
+    for conv in convs:
+        if conv is None:
+            if real:
+                encoded_convs.extend(IDENTITY_CONV_REAL)
+            else:
+                encoded_convs += IDENTITY_CONV_BIN
+
+            continue
+
+        f, s, a = conv
         encoded_conv = [
             encode_gene(
                 value=f,
@@ -120,11 +136,11 @@ def encode_convs(convs: list[tuple[int, int, str]], real: bool) -> Union[list[fl
 
 def encode_chromosome(
     decoded_chromosome:
-        tuple[list[tuple[tuple[list[tuple[int, int, str]],
-                               str],
-                         tuple[list[tuple[int, int, str]],
-                               bool]]],
-              list[tuple[int, int, str]]],
+        tuple[list[Optional[tuple[tuple[list[Optional[tuple[int, int, str]]],
+                                        str],
+                                  tuple[list[Optional[tuple[int, int, str]]],
+                                        bool]]]],
+              list[Optional[tuple[int, int, str]]]],
     real: bool
 ) -> Union[list[float], str]:
     """
@@ -146,7 +162,16 @@ def encode_chromosome(
     """
     encoded_chromosome = [] if real else str()
 
-    for encoder, decoder in decoded_chromosome[0]:
+    for layer in decoded_chromosome[0]:
+        if layer is None:
+            if real:
+                encoded_chromosome.extend(IDENTITY_LAYER_REAL)
+            else:
+                encoded_chromosome += IDENTITY_LAYER_BIN
+
+            continue
+
+        encoder, decoder = layer
         encoded_encoder = encode_convs(encoder[0], real=real)
         encoded_pooling = encode_gene(
             value=encoder[1],

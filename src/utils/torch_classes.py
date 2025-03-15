@@ -452,11 +452,11 @@ class UNet(nn.Module):
     def __init__(
         self,
         decoded_chromosome:
-            tuple[list[tuple[tuple[list[tuple[int, int, str]],
-                                   str],
-                             tuple[list[tuple[int, int, str]],
-                                   bool]]],
-                  list[tuple[int, int, str]]],
+            tuple[list[Optional[tuple[tuple[list[Optional[tuple[int, int, str]]],
+                                      str],
+                                tuple[list[Optional[tuple[int, int, str]]],
+                                      bool]]]],
+                  list[Optional[tuple[int, int, str]]]],
         in_channels: int = CHANNELS
     ):
         """
@@ -478,8 +478,11 @@ class UNet(nn.Module):
         # Encoder
         concats_sizes: list[int] = []
 
-        for encoder, _ in layers:
-            convs, pooling = encoder
+        for layer in layers:
+            if layer is None:
+                continue
+
+            (convs, pooling), _ = layer
             convs_layer, in_channels = self.build_convs(convs, in_channels)
             self.encoder.append(convs_layer)
             concats_sizes.append(in_channels)
@@ -502,8 +505,11 @@ class UNet(nn.Module):
         # Decoder
         self.concat_or_not = []
 
-        for _, decoder in layers[::-1]:
-            convs, concat = decoder
+        for layer in layers[::-1]:
+            if layer is None:
+                continue
+
+            _, (convs, concat) = layer
             concat_size = concats_sizes.pop()
 
             if concat:
@@ -529,7 +535,7 @@ class UNet(nn.Module):
             self.decoder.append(convs_layer)
             self.concat_or_not.append(concat)
 
-        # Add the last convolutional layer
+        # Ultima capa convolucional
         self.decoder.append(
             nn.Conv2d(
                 in_channels,
@@ -539,7 +545,7 @@ class UNet(nn.Module):
             )
         )
 
-    def build_convs(self, convs: list[tuple[int, int, str]],
+    def build_convs(self, convs: list[Optional[tuple[int, int, str]]],
                     in_channels: int) -> tuple[nn.Sequential, int]:
         """
         Construye una secuencia de convoluciones con batch normalization
@@ -558,7 +564,11 @@ class UNet(nn.Module):
         """
         convs_layer = nn.Sequential()
 
-        for i, (filters, kernel_size, activation) in enumerate(convs):
+        for i, conv in enumerate(convs):
+            if conv is None:
+                continue
+
+            filters, kernel_size, activation = conv
             padding = kernel_size // 2
             convs_layer.add_module(
                 f"conv_{filters}_{i}",

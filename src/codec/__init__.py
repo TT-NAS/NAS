@@ -78,19 +78,21 @@ Funciones para crear, evaluar y entrenar el modelo UNet
 """
 from .chromosome import Chromosome
 
-__all__ = [
-    "Chromosome"
-]
+__all__ = ["Chromosome"]
+
 
 # # ESTRUCTURA DE UN CROMOSOMA DECODIFICADO (solo para referencia)
-# tipo: tuple[list[tuple[tuple[list[tuple[int, int, str]],
-#                              str],
-#                        tuple[list[tuple[int, int, str]],
-#                              bool]]],
-#             list[tuple[int, int, str]]]
+# from typing import Optional
+
+# tipo: tuple[list[Optional[tuple[tuple[list[Optional[tuple[int, int, str]]],
+#                                       str],
+#                                 tuple[list[Optional[tuple[int, int, str]]],
+#                                       bool]]]],
+#             list[Optional[tuple[int, int, str]]]]
 # decoded = (
 #     # chromosome: [layers, bottleneck]
 #     [  # layers: [convs+deconvs, convs+deconvs, ...]
+#         None,  # Identity layer (always before the actual layers)
 #         (  # convs+deconvs: [nconvs+pooling, nconvs+concat]
 #             (  # nconvs+pooling: [nconvs, pooling]
 #                 [  # nconvs: [conv, conv, ...]
@@ -102,7 +104,7 @@ __all__ = [
 #             ),
 #             (  # nconvs+concat: [nconvs, concat]
 #                 [  # nconvs: [conv, conv, ...]
-#                     (3, 2, "a"),  # conv: [f, s, a]
+#                     None,  # Identity conv (always before the actual convs)
 #                     (3, 2, "a")
 #                 ],
 #                 # concat

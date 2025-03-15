@@ -7,7 +7,15 @@ from utils import UNet, TorchDataLoader
 from utils import plot_results, train_model, save_model, eval_model
 from .encode import zip_binary, encode_chromosome
 from .decode import unzip_binary, decode_chromosome
-from .constants import FILTERS, KERNEL_SIZES, ACTIVATION_FUNCTIONS, POOLINGS, CONCATENATION
+from .functions import get_num_layers, get_num_convs
+from .constants import (
+    MAX_LAYERS, MAX_CONVS_PER_LAYER,
+    REAL_POOLING_LEN, REAL_CONVS_LEN, REAL_LAYER_LEN, REAL_CHROMOSOME_LEN,
+    BIN_POOLING_LEN, BIN_CONVS_LEN, BIN_LAYER_LEN, BIN_CHROMOSOME_LEN,
+
+    FILTERS, KERNEL_SIZES, ACTIVATION_FUNCTIONS,
+    VALID_POOLINGS, CONCATENATION
+)
 
 
 class Chromosome:
@@ -15,8 +23,9 @@ class Chromosome:
     Clase que representa un cromosoma de una red UNet
     """
 
-    def __init__(self, max_layers: int, max_convs_per_layer: int, seed: Optional[int] = None,
-                 chromosome: Optional[Union[tuple, list, str]] = None):
+    def __init__(self, seed: Optional[int] = None,
+                 chromosome: Optional[Union[tuple, list, str]] = None,
+                 max_layers: int = MAX_LAYERS, max_convs_per_layer: int = MAX_CONVS_PER_LAYER):
         """
         Clase que representa un cromosoma de una red UNet
 
@@ -34,9 +43,19 @@ class Chromosome:
         chromosome : Optional[tuple or list or str], optional
             Cromosoma de un individuo a cargar, by default None
         """
+        if max_layers > MAX_LAYERS:
+            raise ValueError(
+                "El número máximo de capas supera el máximo permitido"
+            )
+
+        if max_convs_per_layer > MAX_CONVS_PER_LAYER:
+            raise ValueError(
+                "El número máximo de convoluciones por capa supera el máximo permitido"
+            )
+
+        self.seed = seed
         self.max_layers = max_layers
         self.max_convs_per_layer = max_convs_per_layer
-        self.seed = seed
 
         # __decoded será el cromosoma como tal, __real y __binary son solo auxiliares y caché
         self.data_loader = "0"
@@ -46,17 +65,8 @@ class Chromosome:
         self.__unet = None
         self.__real = []
         self.__binary = str()
-        self.num_layers = None
 
-        # 3 valores por convolución en encoding y decoding + 2 valores por pooling y concatenación
-        self.REAL_LAYER_LEN = 3 * self.max_convs_per_layer * 2 + 2
-        self.REAL_BOTTLENECK_LEN = 3 * self.max_convs_per_layer
-        # filters: 4 bits, kernel_size: 2 bits, activation: 4 bits = 10 bits
-        # pooling: 1 bit, concat: 1 bit = 2 bits
-        self.BIN_LAYER_LEN = 10 * self.max_convs_per_layer * 2 + 2
-        self.BIN_BOTTLENECK_LEN = 10 * self.max_convs_per_layer
-
-        if chromosome:
+        if chromosome is not None:
             if isinstance(chromosome, tuple):
                 self.__decoded = chromosome
             elif isinstance(chromosome, list):
@@ -100,8 +110,6 @@ class Chromosome:
         """
         return (
             "Chromosome("
-            f"max_layers={self.max_layers}, "
-            f"max_convs_per_layer={self.max_convs_per_layer}, "
             f"seed={self.seed}, "
             f"chromosome='{self.get_binary(zip=True)}'"
             ")"
@@ -116,7 +124,7 @@ class Chromosome:
         ValueError
             Si el cromosoma no cumple con las condiciones necesarias
         """
-        num_layers_real = num_layers_bin = None
+        num_layers = None
 
         # Si self.real está definido
         if self.__real:
@@ -125,32 +133,50 @@ class Chromosome:
                     "El cromosoma real no es una lista"
                 )
 
-            num_layers_real = (
-                (len(self.__real) - self.REAL_BOTTLENECK_LEN)
-                // self.REAL_LAYER_LEN
-            )
-
-            if self.num_layers is None:
-                self.num_layers = num_layers_real
-                print("num_layers ajustado según __real")
-
-            if self.num_layers != num_layers_real:
-                raise ValueError(
-                    "Las capas no coinciden entre el cromosoma real y el número de capas"
-                )
-
-            total_params = self.num_layers * self.REAL_LAYER_LEN + self.REAL_BOTTLENECK_LEN
-
-            if len(self.__real) != total_params:
+            if len(self.__real) != REAL_CHROMOSOME_LEN:
                 raise ValueError(
                     "El cromosoma real no tiene el tamaño correcto"
                 )
 
             if not all(0 <= v <= 1 for v in self.__real):
                 raise ValueError(
-                    "Los valores del cromosoma real se salen del rango [0, 1]"
+                    "Los valores del cromosoma real no están todos en el rango [0, 1]"
                 )
 
+            num_layers = get_num_layers(self.__real)
+
+            if num_layers > self.max_layers:
+                raise ValueError(
+                    "El número de capas supera al máximo del cromosoma"
+                )
+
+            for i in range(0, len(self.__real) - REAL_CONVS_LEN, REAL_LAYER_LEN):
+                capa = i // REAL_LAYER_LEN
+                encoder_convs = self.__real[i:i + REAL_CONVS_LEN]
+                decoder_convs = self.__real[
+                    i + REAL_CONVS_LEN + REAL_POOLING_LEN:
+                    i + REAL_CONVS_LEN + REAL_POOLING_LEN + REAL_CONVS_LEN
+                ]
+
+                if get_num_convs(encoder_convs, decoded=False) > self.max_convs_per_layer:
+                    raise ValueError(
+                        "El número de convoluciones en el encoder de la "
+                        f"capa real {capa} supera el máximo del cromosoma"
+                    )
+
+                if get_num_convs(decoder_convs, decoded=False) > self.max_convs_per_layer:
+                    raise ValueError(
+                        "El número de convoluciones en el decoder de la "
+                        f"capa real {capa} supera el máximo del cromosoma"
+                    )
+
+            bottleneck = self.__real[-REAL_CONVS_LEN:]
+
+            if get_num_convs(bottleneck, decoded=False) > self.max_convs_per_layer:
+                raise ValueError(
+                    "El número de convoluciones en el bottleneck "
+                    "real supera el máximo del cromosoma"
+                )
         # Si self.binary está definido
         if self.__binary:
             if not isinstance(self.__binary, str):
@@ -158,52 +184,115 @@ class Chromosome:
                     "El cromosoma binario no es un string"
                 )
 
-            num_layers_bin = (
-                (len(self.__binary) - self.BIN_BOTTLENECK_LEN)
-                // self.BIN_LAYER_LEN
-            )
-
-            if self.num_layers is None:
-                self.num_layers = num_layers_bin
-                print("num_layers ajustado según __binary")
-
-            if self.num_layers != num_layers_bin:
-                raise ValueError(
-                    "Las capas no coinciden entre el cromosoma binario y el número de capas"
-                )
-
-            total_params = self.num_layers * self.BIN_LAYER_LEN + self.BIN_BOTTLENECK_LEN
-
-            if len(self.__binary) != total_params:
+            if len(self.__binary) != BIN_CHROMOSOME_LEN:
                 raise ValueError(
                     "El cromosoma binario no tiene el tamaño correcto"
                 )
 
             if not all(v in ['0', '1'] for v in self.__binary):
                 raise ValueError(
-                    "Los valores del cromosoma binario no son 0 o 1"
+                    "Los valores del cromosoma binario no son todos 0 o 1"
                 )
 
-        if self.__decoded:
-            if self.num_layers is None:
-                self.num_layers = len(self.__decoded[0])
-                print("num_layers ajustado según __decoded")
+            num_layers_bin = get_num_layers(self.__binary)
 
-            if self.num_layers != len(self.__decoded[0]):
+            if num_layers is None:
+                num_layers = num_layers_bin
+
+            if num_layers_bin > self.max_layers:
+                raise ValueError(
+                    "El número de capas supera al máximo del cromosoma"
+                )
+
+            if num_layers_bin != num_layers:
+                raise ValueError(
+                    "Las capas no coinciden entre el cromosoma binario y el número de capas"
+                )
+
+            for i in range(0, len(self.__binary) - BIN_CONVS_LEN, BIN_LAYER_LEN):
+                capa = i // BIN_LAYER_LEN
+                encoder_convs = self.__binary[i:i + BIN_CONVS_LEN]
+                decoder_convs = self.__binary[
+                    i + BIN_CONVS_LEN + BIN_POOLING_LEN:
+                    i + BIN_CONVS_LEN + BIN_POOLING_LEN + BIN_CONVS_LEN
+                ]
+
+                if get_num_convs(encoder_convs) > self.max_convs_per_layer:
+                    raise ValueError(
+                        "El número de convoluciones en el encoder de la "
+                        f"capa binaria {capa} supera el máximo del cromosoma"
+                    )
+
+                if get_num_convs(decoder_convs) > self.max_convs_per_layer:
+                    raise ValueError(
+                        "El número de convoluciones en el decoder de la "
+                        f"capa binaria {capa} supera el máximo del cromosoma"
+                    )
+
+            bottleneck = self.__binary[-BIN_CONVS_LEN:]
+
+            if get_num_convs(bottleneck) > self.max_convs_per_layer:
+                raise ValueError(
+                    "El número de convoluciones en el bottleneck "
+                    "binario supera el máximo del cromosoma"
+                )
+        if self.__decoded:
+            if not isinstance(self.__decoded, tuple):
+                raise ValueError(
+                    "El cromosoma decodificado no es una tupla"
+                )
+
+            if len(self.__decoded) != 2:
+                raise ValueError(
+                    "El cromosoma decodificado no tiene el tamaño correcto"
+                )
+
+            if len(self.__decoded[0]) > MAX_LAYERS:
+                raise ValueError(
+                    "El número de capas supera al máximo permitido"
+                )
+
+            num_layers_decoded = get_num_layers(self.__decoded)
+
+            if num_layers is None:
+                num_layers = num_layers_decoded
+
+            if num_layers_decoded > self.max_layers:
+                raise ValueError(
+                    "El número de capas supera al máximo del cromosoma"
+                )
+
+            if num_layers_decoded != num_layers:
                 raise ValueError(
                     "Las capas no coinciden entre el cromosoma decodificado y el número de capas"
                 )
 
-            if (len(self.__decoded[1]) != self.max_convs_per_layer
-                    or len(self.__decoded[0][0][0][0]) != self.max_convs_per_layer):
-                raise ValueError(
-                    "El espacio para convoluciones no es compatible con el número máximo permitido"
-                )
-            # TODO: Crear función para contar convoluciones activas dentro de una capa y
-            # validar con max_convs_per_layer
+            for i, layer in enumerate(self.__decoded[0]):
+                if layer is None:
+                    continue
 
-        if self.num_layers is not None and self.num_layers > self.max_layers:
-            raise ValueError("El número de capas supera el máximo permitido")
+                encoder_convs, _ = layer[0]
+                decoder_convs, _ = layer[1]
+
+                if get_num_convs(encoder_convs, decoded=True) > self.max_convs_per_layer:
+                    raise ValueError(
+                        "El número de convoluciones en el encoder de la "
+                        f"capa decodificada {i} supera el máximo del cromosoma"
+                    )
+
+                if get_num_convs(decoder_convs, decoded=True) > self.max_convs_per_layer:
+                    raise ValueError(
+                        "El número de convoluciones en el decoder de la "
+                        f"capa decodificada {i} supera el máximo del cromosoma"
+                    )
+
+            bottleneck = self.__decoded[1]
+
+            if get_num_convs(bottleneck, decoded=True) > self.max_convs_per_layer:
+                raise ValueError(
+                    "El número de convoluciones en el bottleneck "
+                    "decodificado supera el máximo del cromosoma"
+                )
 
     def generate_random(self, seed: Optional[int] = None):
         """
@@ -224,49 +313,45 @@ class Chromosome:
         self.__binary = str()
 
         if seed is not None:
-            random.seed(
-                int(
-                    str(seed) +
-                    str(self.max_convs_per_layer)
-                )
-            )
+            random.seed(seed)
         elif self.seed is not None:
-            random.seed(
-                int(
-                    str(self.seed) +
-                    str(self.max_convs_per_layer)
-                )
-            )
+            random.seed(self.seed)
 
-        self.num_layers = random.randint(2, self.max_layers)
+        active_layers = random.randint(2, MAX_LAYERS)
+        layers = [None] * (MAX_LAYERS - active_layers)
 
-        layers = []
+        for _ in range(active_layers):
+            active_enc_convs = random.randint(1, MAX_CONVS_PER_LAYER)
+            encoder_convs = [None] * (MAX_CONVS_PER_LAYER - active_enc_convs)
 
-        for _ in range(self.num_layers):
-            encoder_convs = []
-            decoder_convs = []
-            pooling = random.choice(list(POOLINGS.values()))
-            concat = random.choice(list(CONCATENATION.values()))
-
-            for _ in range(self.max_convs_per_layer):
+            for _ in range(active_enc_convs):
                 conv = (
                     random.choice(list(FILTERS.values())),
                     random.choice(list(KERNEL_SIZES.values())),
                     random.choice(list(ACTIVATION_FUNCTIONS.values()))
                 )
+                encoder_convs.append(conv)
+
+            active_dec_convs = random.randint(1, MAX_CONVS_PER_LAYER)
+            decoder_convs = [None] * (MAX_CONVS_PER_LAYER - active_dec_convs)
+
+            for _ in range(active_dec_convs):
                 deconv = (
                     random.choice(list(FILTERS.values())),
                     random.choice(list(KERNEL_SIZES.values())),
                     random.choice(list(ACTIVATION_FUNCTIONS.values()))
                 )
-                encoder_convs.append(conv)
                 decoder_convs.append(deconv)
+
+            pooling = random.choice(list(VALID_POOLINGS.values()))
+            concat = random.choice(list(CONCATENATION.values()))
 
             layers.append(((encoder_convs, pooling), (decoder_convs, concat)))
 
-        bottleneck = []
+        active_btnk_convs = random.randint(1, MAX_CONVS_PER_LAYER)
+        bottleneck = [None] * (MAX_CONVS_PER_LAYER - active_btnk_convs)
 
-        for _ in range(self.max_convs_per_layer):
+        for _ in range(active_btnk_convs):
             conv = (
                 random.choice(list(FILTERS.values())),
                 random.choice(list(KERNEL_SIZES.values())),
@@ -281,7 +366,7 @@ class Chromosome:
     # ========================
     # NOTE: Setters
     # ========================
-    def set_decoded(self, decoded_chromosome: Optional[tuple[tuple, int]] = None, **kwargs: int):
+    def set_decoded(self, decoded_chromosome: Optional[tuple] = None, **kwargs: int):
         """
         Crea el cromosoma decodificado a partir de otro o a partir de los cromosomas real o binario
 
@@ -295,7 +380,7 @@ class Chromosome:
         """
         if decoded_chromosome:
             # === Si recibimos un cromosoma decodificado lo asignamos ===
-            self.__decoded, self.num_layers = decoded_chromosome
+            self.__decoded = decoded_chromosome
             # Limpiamos las caches caducadas, se volverán a generar cuando se necesiten
             self.data_loader = "0"
             self.data_loader_args = {}
@@ -311,13 +396,9 @@ class Chromosome:
         # Primero intenta decodificar a través de la codificación real
         if self.__real:
             chromosome = self.__real
-            layer_len = self.REAL_LAYER_LEN
-            bottleneck_len = self.REAL_BOTTLENECK_LEN
             real = True
         elif self.__binary:
             chromosome = self.__binary
-            layer_len = self.BIN_LAYER_LEN
-            bottleneck_len = self.BIN_BOTTLENECK_LEN
             real = False
         else:
             self.generate_random(**kwargs)
@@ -326,13 +407,11 @@ class Chromosome:
 
         self.__decoded = decode_chromosome(
             chromosome=chromosome,
-            layer_len=layer_len,
-            bottleneck_len=bottleneck_len,
             real=real
         )
         self.validate()
 
-    def set_real(self, real_chromosome: Optional[tuple[list[float], int]] = None, **kwargs: int):
+    def set_real(self, real_chromosome: Optional[list[float]] = None, **kwargs: int):
         """
         Crea el cromosoma real a partir de otro o a partir del cromosoma decodificado
 
@@ -346,7 +425,7 @@ class Chromosome:
         """
         if real_chromosome:
             # === Si recibimos un cromosoma real lo asignamos ===
-            self.__real, self.num_layers = real_chromosome
+            self.__real = real_chromosome
             # Limpiamos las caches caducadas
             self.data_loader = "0"
             self.data_loader_args = {}
@@ -373,7 +452,7 @@ class Chromosome:
         )
         self.validate()
 
-    def set_binary(self, binary_chromosome: Optional[tuple[str, int]] = None, **kwargs: int):
+    def set_binary(self, binary_chromosome: Optional[str] = None, **kwargs: int):
         """
         Crea el cromosoma binario a partir de otro o a partir del cromosoma decodificado
 
@@ -387,7 +466,7 @@ class Chromosome:
         """
         if binary_chromosome:
             # === Si recibimos un cromosoma binario lo asignamos ===
-            binary, self.num_layers = binary_chromosome
+            binary = binary_chromosome
             self.__binary = unzip_binary(binary)
             # Limpiamos las caches caducadas
             self.data_loader = "0"
@@ -428,6 +507,7 @@ class Chromosome:
             Argumentos adicionales para el modelo UNet
             - in_channels : (int) Número de canales de entrada
         """
+        # Limpiamos las caches caducadas (solo relacionadas con el modelo UNet)
         self.data_loader = "0"
         self.data_loader_args = {}
         self.aptitude = None
@@ -644,7 +724,7 @@ class Chromosome:
 
         return self.aptitude
 
-    def get_layers(self) -> int:
+    def get_num_layers(self, **kwargs: int) -> int:
         """
         Devuelve el número de capas de la red
 
@@ -653,10 +733,10 @@ class Chromosome:
         int
             Número de capas
         """
-        if not self.num_layers:
-            self.validate()
+        if not self.__decoded:
+            self.set_decoded(**kwargs)
 
-        return self.num_layers
+        return get_num_layers(self.__decoded)
 
     # ========================
     # NOTE: Funciones de la UNet

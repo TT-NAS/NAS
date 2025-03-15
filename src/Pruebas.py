@@ -61,6 +61,7 @@ unet_paper = (
         (  # convs+deconvs: [nconvs+pooling, nconvs+concat]
             (  # nconvs+pooling: [nconvs, pooling]
                 [  # nconvs: [conv, conv, ...]
+                    None,
                     (64, 3, "relu"),  # conv: [f, s, a]
                     (64, 3, "relu")
                 ],
@@ -68,6 +69,7 @@ unet_paper = (
             ),
             (  # nconvs+concat: [nconvs, concat]
                 [  # nconvs: [conv, conv, ...]
+                    None,
                     (64, 3, "relu"),  # conv: [f, s, a]
                     (64, 3, "relu")
                 ],
@@ -77,6 +79,7 @@ unet_paper = (
         (
             (
                 [
+                    None,
                     (128, 3, "relu"),
                     (128, 3, "relu")
                 ],
@@ -84,6 +87,7 @@ unet_paper = (
             ),
             (
                 [
+                    None,
                     (128, 3, "relu"),
                     (128, 3, "relu")
                 ],
@@ -93,6 +97,7 @@ unet_paper = (
         (
             (
                 [
+                    None,
                     (256, 3, "relu"),
                     (256, 3, "relu")
                 ],
@@ -100,6 +105,7 @@ unet_paper = (
             ),
             (
                 [
+                    None,
                     (256, 3, "relu"),
                     (256, 3, "relu")
                 ],
@@ -109,6 +115,7 @@ unet_paper = (
         (
             (
                 [
+                    None,
                     (512, 3, "relu"),
                     (512, 3, "relu")
                 ],
@@ -116,6 +123,7 @@ unet_paper = (
             ),
             (
                 [
+                    None,
                     (512, 3, "relu"),
                     (512, 3, "relu")
                 ],
@@ -124,29 +132,58 @@ unet_paper = (
         )
     ],
     [  # bottleneck: [conv, conv, ...]
+        None,
         (1024, 3, "relu"),  # conv: [f, s, a]
         (1024, 3, "relu")
     ]
 )
 
 c = Chromosome(
+    chromosome=unet_paper,
     max_layers=4,
-    max_convs_per_layer=2,
-    chromosome=unet_paper
+    max_convs_per_layer=2
 )
 
 print("Name:\n", c)
 print("Decoded:\n", c.get_decoded())
 print("Real:\n", c.get_real())
 print("Binary:\n", c.get_binary())
+print("Binary:\n", c.get_binary(zip=True))
 
 # Comprobamos que la decodificación y codificación sean correctas
 assert c.get_decoded() == unet_paper
 # Aunque tenga letras se trata de una codificación binaria
 # Solo está comprimida para que no sea tan larga
 assert (
-    c.get_binary(zip=True) == "AVCVCKRKRUIUISEKEPCHCFRDRD2R2RNI5I7UPUI_188"
+    c.get_binary(zip=True) ==
+    "AAAEIUIUABCFCGABRDRCQAMI4IYAGUOUKABVDVDAA6R6RIAHUPUMADSHSE_282"
 )
+
+c2 = Chromosome(chromosome=c.get_binary(zip=True))
+
+print("\n\nName:\n", c2)
+print("Decoded:\n", c2.get_decoded())
+print("Real:\n", c2.get_real())
+print("Binary:\n", c2.get_binary())
+print("Binary:\n", c2.get_binary(zip=True))
+
+assert c2.get_decoded() == unet_paper
+assert c2.get_real() == c.get_real()
+assert c2.get_binary() == c.get_binary()
+assert c2.get_binary(zip=True) == c.get_binary(zip=True)
+
+c3 = Chromosome(chromosome=c2.get_real())
+
+print("\n\nName:\n", c3)
+print("Decoded:\n", c3.get_decoded())
+print("Real:\n", c3.get_real())
+print("Binary:\n", c3.get_binary())
+print("Binary:\n", c3.get_binary(zip=True))
+
+assert c3.get_decoded() == unet_paper
+assert c3.get_real() == c.get_real()
+assert c3.get_binary() == c.get_binary()
+assert c3.get_binary(zip=True) == c.get_binary(zip=True)
 
 
 # %% Prueba de entrenamiento y evaluación
@@ -219,41 +256,45 @@ print("Aptitud para el DataLoader de entrenamiento (Loss):", c.get_aptitude())
 
 # %% Prueba de congruencia entre discretización y decodificación
 FILTERS = {
-    '0000': 2**0,  # 1
-    '0001': 2**1,  # 2
-    '0011': 2**2,  # 4
-    '0010': 2**3,  # 8
-    '0110': 2**4,  # 16
-    '0111': 2**5,  # 32
-    '0101': 2**6,  # 64
-    '0100': 2**7,  # 128
-    '1100': 2**8,  # 256
-    '1101': 2**9,  # 512
-    '1111': 2**10,  # 1024
+    "0000": None,  # No aplicar convoluciones
+    "0001": 1,
+    "0011": 2,
+    "0010": 4,
+    "0110": 8,
+    "0111": 16,
+    "0101": 32,
+    "0100": 64,
+    "1100": 128,
+    "1101": 256,
+    "1111": 512,
+    "1110": 1024,
 }
 KERNEL_SIZES = {
-    '00': 1,
-    '01': 3,
-    '11': 5,
+    "00": 1,
+    "01": 3,
+    "11": 5,
 }
 ACTIVATION_FUNCTIONS = {
-    '0000': 'linear',
-    '0001': 'relu',
-    '0011': 'softplus',
-    '0010': 'elu',
-    '0110': 'selu',
-    '0111': 'sigmoid',
-    '0101': 'tanh',
-    '0100': 'softsign',
-    '1100': 'softmax'
+    "0000": "linear",
+    "0001": "relu",
+    "0011": "softplus",
+    "0010": "elu",
+    "0110": "selu",
+    "0111": "sigmoid",
+    "0101": "tanh",
+    "0100": "softsign",
+    "1100": "softmax"
+}
+VALID_POOLINGS = {
+    "01": "max",
+    "11": "average",
 }
 POOLINGS = {
-    '0': 'max',
-    '1': 'average',
-}
+    "00": None  # No aplicar pooling
+} | VALID_POOLINGS
 CONCATENATION = {
-    '0': False,
-    '1': True,
+    "0": False,
+    "1": True,
 }
 
 
