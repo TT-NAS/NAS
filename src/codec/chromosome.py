@@ -2,8 +2,8 @@ import time
 import random
 from typing import Union, Optional
 
-from utils import CUDA
-from utils import UNet, TorchDataLoader
+from utils import CUDA, float16
+from utils import UNet, TorchDataLoader, autocast
 from utils import plot_results, train_model, save_model, eval_model
 from .encode import zip_binary, encode_chromosome
 from .decode import unzip_binary, decode_chromosome
@@ -13,7 +13,7 @@ from .constants import (
     REAL_POOLING_LEN, REAL_CONVS_LEN, REAL_LAYER_LEN, REAL_CHROMOSOME_LEN,
     BIN_POOLING_LEN, BIN_CONVS_LEN, BIN_LAYER_LEN, BIN_CHROMOSOME_LEN,
 
-    FILTERS, KERNEL_SIZES, ACTIVATION_FUNCTIONS,
+    VALID_FILTERS, KERNEL_SIZES, ACTIVATION_FUNCTIONS,
     VALID_POOLINGS, CONCATENATION
 )
 
@@ -317,27 +317,31 @@ class Chromosome:
         elif self.seed is not None:
             random.seed(self.seed)
 
-        active_layers = random.randint(2, MAX_LAYERS)
+        active_layers = random.randint(2, self.max_layers)
         layers = [None] * (MAX_LAYERS - active_layers)
 
         for _ in range(active_layers):
-            active_enc_convs = random.randint(1, MAX_CONVS_PER_LAYER)
-            encoder_convs = [None] * (MAX_CONVS_PER_LAYER - active_enc_convs)
+            active_enc_convs = random.randint(1, self.max_convs_per_layer)
+            encoder_convs = (
+                [None] * (MAX_CONVS_PER_LAYER - active_enc_convs)
+            )
 
             for _ in range(active_enc_convs):
                 conv = (
-                    random.choice(list(FILTERS.values())),
+                    random.choice(list(VALID_FILTERS.values())),
                     random.choice(list(KERNEL_SIZES.values())),
                     random.choice(list(ACTIVATION_FUNCTIONS.values()))
                 )
                 encoder_convs.append(conv)
 
-            active_dec_convs = random.randint(1, MAX_CONVS_PER_LAYER)
-            decoder_convs = [None] * (MAX_CONVS_PER_LAYER - active_dec_convs)
+            active_dec_convs = random.randint(1, self.max_convs_per_layer)
+            decoder_convs = (
+                [None] * (MAX_CONVS_PER_LAYER - active_dec_convs)
+            )
 
             for _ in range(active_dec_convs):
                 deconv = (
-                    random.choice(list(FILTERS.values())),
+                    random.choice(list(VALID_FILTERS.values())),
                     random.choice(list(KERNEL_SIZES.values())),
                     random.choice(list(ACTIVATION_FUNCTIONS.values()))
                 )
@@ -348,12 +352,12 @@ class Chromosome:
 
             layers.append(((encoder_convs, pooling), (decoder_convs, concat)))
 
-        active_btnk_convs = random.randint(1, MAX_CONVS_PER_LAYER)
+        active_btnk_convs = random.randint(1, self.max_convs_per_layer)
         bottleneck = [None] * (MAX_CONVS_PER_LAYER - active_btnk_convs)
 
         for _ in range(active_btnk_convs):
             conv = (
-                random.choice(list(FILTERS.values())),
+                random.choice(list(VALID_FILTERS.values())),
                 random.choice(list(KERNEL_SIZES.values())),
                 random.choice(list(ACTIVATION_FUNCTIONS.values()))
             )
@@ -578,16 +582,17 @@ class Chromosome:
                 **kwargs
             )
 
-        imgs = next(iter(data_loader.test))
+        imgs, masks = next(iter(data_loader.validation))
         imgs = imgs.to(CUDA)
         self.__unet = self.__unet.to(CUDA)
-
         self.__unet.eval()
-        output = self.__unet(imgs)
+
+        with autocast(device_type="cuda", dtype=float16):
+            output = self.__unet(imgs)
 
         self.aptitude = eval_model(
-            scores=output,
-            target=imgs,
+            scores=output.float(),
+            target=masks.float(),
             metrics=[metric],
             # Loss: True para minimización
             loss=True,

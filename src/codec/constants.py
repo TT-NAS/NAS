@@ -35,8 +35,7 @@ IDENTITY_LAYER_BIN = (
     IDENTITY_CONV_BIN * MAX_CONVS_PER_LAYER + "0"  # identity_convs + concat=False
 )
 
-FILTERS = {
-    "0000": None,  # No aplicar convoluciones
+VALID_FILTERS = {
     "0001": 1,
     "0011": 2,
     "0010": 4,
@@ -49,6 +48,9 @@ FILTERS = {
     "1111": 512,
     "1110": 1024,
 }
+FILTERS = {
+    "0000": None,
+} | VALID_FILTERS
 KERNEL_SIZES = {
     "00": 1,
     "01": 3,
@@ -65,6 +67,7 @@ ACTIVATION_FUNCTIONS = {
     "0100": "softsign",
     "1100": "softmax"
 }
+
 VALID_POOLINGS = {
     "01": "max",
     "11": "average",

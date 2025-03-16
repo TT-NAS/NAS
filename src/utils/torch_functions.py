@@ -7,8 +7,10 @@ from torch import Tensor
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
+from torch.amp import autocast, GradScaler
 import numpy as np
 from PIL import Image
+from colorama import Fore
 import matplotlib.pyplot as plt
 
 from pycocotools.coco import COCO
@@ -312,6 +314,9 @@ def plot_batch(imgs: Tensor, masks: Tensor, save: bool = False, show_size: int =
     path : str, optional
         Ruta donde se guardarán las imágenes, by default IMAGES_PATH
     """
+    imgs = imgs.clone().float()
+    masks = masks.clone().float()
+
     # Mostrar un batch de imágenes y máscaras
     cols = math.ceil(math.sqrt(show_size))
     rows = math.ceil(show_size / cols)
@@ -334,7 +339,7 @@ def plot_batch(imgs: Tensor, masks: Tensor, save: bool = False, show_size: int =
         plt.savefig(os.path.join(path, name))
 
         print(
-            f"Gráfico de prueba con el batch guardado en {os.path.join(path, name)}"
+            f"-> Gráfico de prueba con el batch guardado en {os.path.join(path, name)}"
         )
     else:
         plt.show()
@@ -365,7 +370,10 @@ def plot_results(model: UNet, test_loader: DataLoader, **kwargs: Union[bool, str
 
     with torch.no_grad():
         model.eval()
-        scores = model(imgs)
+
+        with autocast(device_type="cuda", dtype=torch.float16):
+            scores = model(imgs)
+
         result = (scores > 0.5).float()
 
     imgs = imgs.cpu()
@@ -593,6 +601,7 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
     early_stopping = epochs is None
     epochs = epochs if not early_stopping else 100
 
+    scaler = GradScaler("cuda")
     optimizer = torch.optim.SGD(
         model.parameters(),
         lr=lr,
@@ -625,6 +634,8 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
             three_phase=True
         )
 
+    train_loss_ant = torch.tensor(1.0)
+    val_loss_ant = torch.tensor(1.0)
     metrics_results = {
         "train_loss": [],
         "train_iou": [],
@@ -645,30 +656,35 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
         total_train_dice = 0
         total_train_dice_ce = 0
         total_train_acc = 0
+        loss_ant = torch.tensor(1.0)
         print(f"=== Epoch [{epoch + 1}/{epochs}] ===")
 
         for i, (images, masks) in enumerate(data_loader.train):
             images = images.to(CUDA)
             masks = masks.to(CUDA)
 
-            output = model(images)
-            loss = eval_model(
-                scores=output,
-                target=masks,
-                metrics=[metric],
-                clone=False
-            )[0]
             optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+
+            with autocast(device_type="cuda", dtype=torch.float16):
+                output = model(images)
+                loss = eval_model(
+                    scores=output,
+                    target=masks,
+                    metrics=[metric],
+                    clone=False
+                )[0]
+
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
 
             if not early_stopping:
                 scheduler.step()
 
             with torch.no_grad():
                 iou, dice, dice_ce, acc = eval_model(
-                    scores=output,
-                    target=masks,
+                    scores=output.float(),
+                    target=masks.float(),
                     metrics=["iou", "dice", "dice crossentropy", "accuracy"],
                     loss=False,
                     items=True
@@ -681,20 +697,34 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
             total_train_acc += acc
 
             if i == 0 or (i + 1) % print_every == 0 or i + 1 == len_data:
+                evol_loss = Fore.GREEN + "↓" if loss < loss_ant else Fore.RED + "↑"
+                evol_loss += Fore.RESET
+                loss_ant = loss
+
                 print(
-                    f"Batch [{i + 1}/{len_data}], Loss: {loss.item():.4f}, "
+                    f"\rBatch [{i + 1}/{len_data}], Loss: {loss.item():.4f}, "
                     f"IoU: {iou:.4f}, Dice: {dice:.4f}, "
-                    f"Dice CE: {dice_ce:.4f}, Acc: {acc:.4f}"
+                    f"Dice CE: {dice_ce:.4f}, Acc: {acc:.4f}, "
+                    f"Evolución Loss: {evol_loss}",
+                    end="     "
                 )
 
+        evol_train_loss = (
+            Fore.GREEN + "↓"
+            if total_train_loss / len_data < train_loss_ant
+            else Fore.RED + "↑"
+        )
+        evol_train_loss += Fore.RESET
+        train_loss_ant = total_train_loss
         print(
-            "- "
+            "\n-- "
             f"Loss: {total_train_loss / len_data:.4f}, "
             f"IoU: {total_train_iou / len_data:.4f}, "
             f"Dice: {total_train_dice / len_data:.4f}, "
             f"Dice CE: {total_train_dice_ce / len_data:.4f}, "
-            f"Acc: {total_train_acc / len_data:.4f}"
-            " -"
+            f"Acc: {total_train_acc / len_data:.4f}, "
+            f"Evolución Loss: {evol_train_loss}"
+            " --"
         )
         metrics_results["train_loss"].append(total_train_loss / len_data)
         metrics_results["train_iou"].append(total_train_iou / len_data)
@@ -719,18 +749,18 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
                 images = images.to(CUDA)
                 masks = masks.to(CUDA)
 
-                output = model(images)
-
-                loss = eval_model(
-                    scores=output,
-                    target=masks,
-                    metrics=[metric],
-                    items=True
-                )[0]
+                with autocast(device_type="cuda", dtype=torch.float16):
+                    output = model(images)
+                    loss = eval_model(
+                        scores=output.float(),
+                        target=masks.float(),
+                        metrics=[metric],
+                        items=True
+                    )[0]
 
                 iou, dice, dice_ce, acc = eval_model(
-                    scores=output,
-                    target=masks,
+                    scores=output.float(),
+                    target=masks.float(),
                     metrics=[
                         "iou", "dice",
                         "dice crossentropy", "accuracy"
@@ -750,13 +780,21 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
         avg_val_dice = total_val_dice / len_val
         avg_val_dice_ce = total_val_dice_ce / len_val
         avg_val_acc = total_val_acc / len_val
+        evol_val_loss = (
+            Fore.GREEN + "↓"
+            if avg_val_loss < val_loss_ant
+            else Fore.RED + "↑"
+        )
+        evol_val_loss += Fore.RESET
+        val_loss_ant = avg_val_loss
         print(
             "--- "
             f"Val Loss: {avg_val_loss:.4f}, "
             f"Val IoU: {avg_val_iou:.4f}, "
             f"Val Dice: {avg_val_dice:.4f}, "
             f"Val Dice CE: {avg_val_dice_ce:.4f}, "
-            f"Val Acc: {avg_val_acc:.4f}"
+            f"Val Acc: {avg_val_acc:.4f}, ",
+            f"Evolución Loss: {evol_val_loss}"
             " ---"
         )
         metrics_results["val_loss"].append(avg_val_loss)
@@ -835,4 +873,4 @@ def save_model(model: UNet, name: str, path: str = MODELS_PATH):
 
     torch.save(model.state_dict(), os.path.join(path, name))
 
-    print(f"Modelo guardado en {os.path.join(path, name)}")
+    print(f"-> Modelo guardado en {os.path.join(path, name)}")

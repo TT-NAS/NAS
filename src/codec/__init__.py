@@ -77,8 +77,13 @@ Funciones de la UNet
 Funciones para crear, evaluar y entrenar el modelo UNet
 """
 from .chromosome import Chromosome
+from .constants import MAX_LAYERS, MAX_CONVS_PER_LAYER
 
-__all__ = ["Chromosome"]
+__all__ = [
+    "Chromosome",
+
+    "MAX_LAYERS", "MAX_CONVS_PER_LAYER"
+]
 
 
 # # ESTRUCTURA DE UN CROMOSOMA DECODIFICADO (solo para referencia)

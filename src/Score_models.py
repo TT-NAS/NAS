@@ -11,15 +11,15 @@ import matplotlib.pyplot as plt
 from utils import RESULTS_PATH, IMAGES_PATH
 from utils import OutOfMemoryError, TorchDataLoader
 from utils import empty_cache_torch
-from codec import Chromosome
+from codec import Chromosome, MAX_LAYERS, MAX_CONVS_PER_LAYER
 
 
 RESULTS_FILE = os.path.join(RESULTS_PATH, "results.csv")
 LOG_FILE = os.path.join(RESULTS_PATH, "log.txt")
 
 
-def plot_learning_curve(metrics: dict[str, list[float]], save: bool = False,
-                        name: str = "learning curve.png", path: str = IMAGES_PATH):
+def plot_learning_curves(metrics: dict[str, list[float]], save: bool = False,
+                         name: str = "learning curves.png", path: str = IMAGES_PATH):
     """
     Genera gráficas para visualizar la evolución de métricas de entrenamiento y validación.
 
@@ -137,9 +137,30 @@ def plot_learning_curve(metrics: dict[str, list[float]], save: bool = False,
     plt.tight_layout()
 
     if save:
+        if not os.path.exists(path):
+            os.makedirs(path, exist_ok=True)
+
         plt.savefig(os.path.join(path, name))
         print(
-            f"Gráfico de curva de aprendizaje guardada en {os.path.join(path, name)}"
+            f"-> Gráfico de curva de aprendizaje guardado en {os.path.join(path, name)}"
+        )
+
+        df = pd.DataFrame()
+
+        len_data = len(metrics["train_loss"])
+        epochs = range(1, len_data + 1)
+        df["epoch"] = epochs
+
+        for key, values in metrics.items():
+            if not values:
+                values = [None] * len_data
+
+            df[key] = values
+
+        name = os.path.splitext(name)[0] + ".csv"
+        df.to_csv(os.path.join(path, name), index=False, lineterminator='\r\n')
+        print(
+            f"-> Datos de curva de aprendizaje guardados en {os.path.join(path, name)}"
         )
     else:
         plt.show()
@@ -221,8 +242,11 @@ def plot_scores_and_metrics(selected_columns: list[str], normalize: bool = True,
     plt.tight_layout()
 
     if save:
+        if not os.path.exists(path):
+            os.makedirs(path, exist_ok=True)
+
         plt.savefig(os.path.join(path, name))
-        print(f"Gráfico de scores guardada en {os.path.join(path, name)}")
+        print(f"-> Gráfico de scores guardado en {os.path.join(path, name)}")
     else:
         plt.show()
 
@@ -251,6 +275,7 @@ def reg_results(chromosome: Chromosome, time_seconds: float, last_epoch: int,
     row = {
         "seed": chromosome.seed if chromosome.seed is not None else "N",
         "binary codification": chromosome.get_binary(zip=True),
+        "max layers": chromosome.max_layers,
         "max convs per layer": chromosome.max_convs_per_layer,
         "layers": chromosome.get_num_layers(),
         "training secs": time_seconds,
@@ -261,8 +286,12 @@ def reg_results(chromosome: Chromosome, time_seconds: float, last_epoch: int,
 
     new_row = pd.DataFrame([row])
     new_row["seed"] = new_row["seed"].astype(object)
-    df = pd.concat([df, new_row], ignore_index=True)
-    df.to_csv(file, index=False)
+    df = df.dropna(axis=1, how='all')
+
+    if not new_row.dropna(how="all").empty:
+        df = pd.concat([df, new_row], ignore_index=True)
+
+    df.to_csv(file, index=False, lineterminator='\r\n')
 
 
 def log(message: str, file: str = LOG_FILE):
@@ -281,9 +310,10 @@ def log(message: str, file: str = LOG_FILE):
 
 
 def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = None,
-                seed: Optional[int] = None, max_layers: int = 3, max_convs_per_layer: int = 2,
+                seed: Optional[int] = None, max_layers: int = MAX_LAYERS,
+                max_convs_per_layer: int = MAX_CONVS_PER_LAYER,
                 alternative_datasets: Optional[list[str]] = None,
-                save_pretrained_results: bool = True,
+                save_pretrained_results: bool = False,
                 **kwargs: Union[str, int, float, bool, object]) -> bool:
     """
     Obiene los puntajes de distintas métricas de un modelo
@@ -347,17 +377,18 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
 
     if chromosome:
         c = Chromosome(
+            chromosome=chromosome,
             max_layers=max_layers,
-            max_convs_per_layer=max_convs_per_layer,
-            chromosome=chromosome
+            max_convs_per_layer=max_convs_per_layer
         )
     else:
         c = Chromosome(
+            seed=seed,
             max_layers=max_layers,
-            max_convs_per_layer=max_convs_per_layer,
-            seed=seed
+            max_convs_per_layer=max_convs_per_layer
         )
 
+    print("Modelo:", c.get_decoded())
     save_path = os.path.join(IMAGES_PATH, str(c))
 
     try:
@@ -413,14 +444,14 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
             last_epoch=last_epoch,
             scores=scores_dict
         )
-
-        c.save_unet()
-        plot_learning_curve(
+        plot_learning_curves(
             metrics,
             save=True,
-            name=f"learning curve {dataset} {last_epoch + 1}-epochs.png",
+            name=f"learning curves {dataset} {last_epoch + 1}-epochs.png",
             path=save_path
         )
+
+        c.save_unet()
         c.show_results(
             save=True,
             path=save_path,
@@ -466,7 +497,7 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
 def score_n_models(idx_start: int = None, num: int = None,
                    chromosomes: Optional[list[Union[tuple,
                                                     list[float], str]]] = None,
-                   seeds: list[int] = None, dataset: str = "carvana",
+                   seeds: list[int] = None, dataset: str = "coco-car",
                    **kwargs: Union[str, int, float, bool]):
     """
     Obtiene los puntajes de distintas métricas de varios modelos
@@ -548,18 +579,17 @@ def score_n_models(idx_start: int = None, num: int = None,
 if __name__ == "__main__":
     # UNet Paper
     # score_n_models(
-    #     chromosomes=["AVCVCKRKRUIUISEKEPCHCFRDRD2R2RNI5I7UPUI_188"],
-    #     dataset_len=1000,
-    #     alternative_datasets=["car"],
-    #     max_layers=4
+    #     chromosomes=[
+    #         "AAAEIUIUABCFCGABRDRCQAMI4IYAGUOUKABVDVDAA6R6RIAHUPUMADSHSE_282"
+    #     ],
+    #     alternative_datasets=["carvana", "car"]
     # )
     score_n_models(
         idx_start=0,
-        num=23,
-        dataset_len=1000,
-        alternative_datasets=["car"],
+        num=5,
+        alternative_datasets=["carvana", "car"]
     )
-    plot_scores_and_metrics(
-        selected_columns=["synflow", "gradient"],
-        save=True
-    )
+    # plot_scores_and_metrics(
+    #     selected_columns=["synflow", "gradient"],
+    #     save=True
+    # )

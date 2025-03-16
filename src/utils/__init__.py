@@ -26,7 +26,8 @@ Funciones
 - gradient_scorer_pytorch: No jala
 """
 
-from torch import OutOfMemoryError
+from torch.amp import autocast
+from torch import OutOfMemoryError, float16
 
 from .torch_classes import TorchDataLoader, UNet
 from .torch_functions import (
@@ -47,7 +48,8 @@ from .constants import (
 )
 
 __all__ = [
-    "OutOfMemoryError",
+    "autocast",
+    "OutOfMemoryError", "float16",
 
     "TorchDataLoader", "UNet",
 

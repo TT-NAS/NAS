@@ -8,9 +8,9 @@ from utils import TorchDataLoader
 from utils import plot_batch
 
 # Elige el dataset a cargar
-name = "coco-people"
-bs = COCO_BATCH_SIZE
-data_path = COCO_PEOPLE_DATA_PATH
+# name = "coco-people"
+# bs = COCO_BATCH_SIZE
+# data_path = COCO_PEOPLE_DATA_PATH
 # name = "coco-car"
 # bs = COCO_BATCH_SIZE
 # data_path = COCO_CAR_DATA_PATH
@@ -20,9 +20,9 @@ data_path = COCO_PEOPLE_DATA_PATH
 # name = "road"
 # bs = ROAD_BATCH_SIZE
 # data_path = ROAD_DATA_PATH
-# name = "car"
-# bs = CAR_BATCH_SIZE
-# data_path = CAR_DATA_PATH
+name = "car"
+bs = CAR_BATCH_SIZE
+data_path = CAR_DATA_PATH
 
 data_path = "." + data_path
 
@@ -138,11 +138,7 @@ unet_paper = (
     ]
 )
 
-c = Chromosome(
-    chromosome=unet_paper,
-    max_layers=4,
-    max_convs_per_layer=2
-)
+c = Chromosome(chromosome=unet_paper)
 
 print("Name:\n", c)
 print("Decoded:\n", c.get_decoded())
@@ -189,22 +185,20 @@ assert c3.get_binary(zip=True) == c.get_binary(zip=True)
 # %% Prueba de entrenamiento y evaluación
 from codec import Chromosome
 
-unet_paper = "AVCVCKRKRUIUISEKEPCHCFRDRD2R2RNI5I7UPUI_188"
-c = Chromosome(
-    max_layers=4,
-    max_convs_per_layer=2,
-    chromosome=unet_paper
-)
+unet_paper = "AAAEIUIUABCFCGABRDRCQAMI4IYAGUOUKABVDVDAA6R6RIAHUPUMADSHSE_282"
+c = Chromosome(chromosome=unet_paper)
 
 # Mostramos la arquitectura a generar
 print(c.get_decoded())
 
+data_loader = "car"
+data_path = "../data/car-dataset/"
 # data_loader = "carvana"
 # data_path = "../data/carvana-dataset/"
 # data_loader = "coco-people"
 # data_path = "../data/coco-dataset-people/"
-data_loader = "coco-car"
-data_path = "../data/coco-dataset-car/"
+# data_loader = "coco-car"
+# data_path = "../data/coco-dataset-car/"
 # data_loader_alternativo = "car"
 # data_path_alternativo = "../data/car-dataset/"
 # data_loader_alternativo2 = "road"
@@ -338,19 +332,5 @@ probarDic(KERNEL_SIZES, "KERNEL_SIZES")
 probarDic(ACTIVATION_FUNCTIONS, "ACTIVATION_FUNCTIONS")
 probarDic(POOLINGS, "POOLINGS")
 probarDic(CONCATENATION, "CONCATENATION")
-
-# %%
-from codec import Chromosome
-
-unet_tmp = "OG2DGZF2WEDVMCTBSMEAO_104"
-c = Chromosome(
-    max_layers=4,
-    max_convs_per_layer=2,
-    chromosome=unet_tmp
-)
-
-# Mostramos la arquitectura a generar
-print(c.get_decoded())
-
 
 # %%
