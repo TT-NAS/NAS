@@ -21,18 +21,20 @@ LOG_FILE = os.path.join(RESULTS_PATH, "log.txt")
 def plot_learning_curves(metrics: dict[str, list[float]], save: bool = False,
                          name: str = "learning curves.png", path: str = IMAGES_PATH):
     """
-    Genera gráficas para visualizar la evolución de métricas de entrenamiento y validación.
+    Genera gráficas para visualizar la evolución de métricas de entrenamiento y validación
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     metrics : dict[str, list[float]]
         Diccionario donde cada llave es una métrica y cada lista es la evolución
-        de esa métrica a lo largo de las épocas.
-        Para cada llave "train_{nombre_metrica}" puede existir "val_{nombre_metrica}".
-
-    Returns:
-    --------
-    None, muestra las gráficas generadas.
+        de esa métrica a lo largo de las épocas. Para cada llave `"train_{nombre_metrica}"`
+        puede existir `"val_{nombre_metrica}"`
+    save : bool, optional
+        Si guardar la gráfica, by default `False`
+    name : str, optional
+        Nombre del archivo donde se guardará la gráfica, by default `"learning curves.png"`
+    path : str, optional
+        Ruta donde se guardará la gráfica, by default `IMAGES_PATH`
     """
     train_metrics = {}
     val_metrics = {}
@@ -179,9 +181,15 @@ def plot_scores_and_metrics(selected_columns: list[str], normalize: bool = True,
     selected_columns : list
         Lista de nombres de columnas a incluir en todas las gráficas.
     normalize : bool, optional
-        Si se normalizan los valores de las métricas, by default True
+        Si se normalizan los valores de las métricas, by default `True`
     file : str, optional
-        Archivo en el que se encuentran los resultados, by default RESULTS_FILE
+        Archivo en el que se encuentran los resultados, by default `RESULTS_FILE`
+    save : bool, optional
+        Si guardar la gráfica, by default `False`
+    name : str, optional
+        Nombre del archivo donde se guardará la gráfica, by default `"scores.png"`
+    path : str, optional
+        Ruta donde se guardará la gráfica, by default `IMAGES_PATH`
     """
     df = pd.read_csv(file)
 
@@ -269,7 +277,7 @@ def reg_results(chromosome: Chromosome, time_seconds: float, last_epoch: int,
     scores : dict
         Puntajes de las métricas
     file : str, optional
-        Archivo en el que se registran los resultados, by default RESULTS_FILE
+        Archivo en el que se registran los resultados, by default `RESULTS_FILE`
     """
     df = pd.read_csv(file)
     row = {
@@ -303,18 +311,16 @@ def log(message: str, file: str = LOG_FILE):
     message : str
         Mensaje a registrar
     file : str, optional
-        Archivo en el que se registra el mensaje, by default LOG_FILE
+        Archivo en el que se registra el mensaje, by default `LOG_FILE`
     """
     with open(file, "a") as f:
         f.write(message + "\n")
 
 
 def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = None,
-                seed: Optional[int] = None, max_layers: int = MAX_LAYERS,
-                max_convs_per_layer: int = MAX_CONVS_PER_LAYER,
-                alternative_datasets: Optional[list[str]] = None,
+                seed: Optional[int] = None, alternative_datasets: Optional[list[str]] = None,
                 save_pretrained_results: bool = False,
-                **kwargs: Union[str, int, float, bool, object]) -> bool:
+                **kwargs: Union[str, int, float, bool]) -> bool:
     """
     Obiene los puntajes de distintas métricas de un modelo
 
@@ -324,22 +330,35 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
         Nombre del dataset a utilizar
 
         Opciones:
+            - "coco-people"
+            - "coco-car"
             - "carvana"
             - "road"
+            - "car"
     chromosome : tuple or list or str, optional
-        Cromosoma para asignar al modelo (hace que se ignore `seed`), by default None
+        Cromosoma para asignar al modelo (hace que se ignore `seed`), by default `None`
     seed : int, optional
-        Semilla para generar el cromosoma, by default None
-    max_layers : int, optional
-        Máximo número de capas para el modelo, by default 3
-    max_conv_per_layer : int, optional
-        Máximo número de convoluciones por capa, by default 2
+        Semilla para generar el cromosoma, by default `None`
     alternative_datasets : Optional[list], optional
         Lista de nombres de datasets con los que probar el modelo, además del
-        dataset principal, by default []
+        dataset principal, by default `None`
+
+        Opciones:
+            - "coco-people"
+            - "coco-car"
+            - "carvana"
+            - "road"
+            - "car"
     save_pretrained_results : bool, optional
-        Si entrenar una epoch del modelo y guardar los resultados, by default True
+        Si entrenar una epoch del modelo y guardar los resultados, by default `False`
     **kwargs : T.Compose or str or int or float or bool
+        Argumentos adicionales para la creación del cromosoma:
+        - max_layers : (int) Máximo número de capas de la red sin contar el bottleneck
+                       (`max_layers` no puede ser mayor que `codec.MAX_LAYERS`)
+        - max_convs_per_layer : (int) Máximo número de capas convolucionales por bloque
+                                (`max_convs_per_layer` no puede ser mayor que
+                                `codec.MAX_CONVS_PER_LAYER`)
+
         Argumentos adicionales para el entrenamiento:
         - metric : (str) Métrica a utilizar para calcular la pérdida
                    ("iou", "dice" o "dice crossentropy")
@@ -351,18 +370,18 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
         - stopping_threshold : (float) Umbral de rendimiento para la métrica de validación. Si se
                                alcanza o supera, el entrenamiento se detiene
         - show_val : (bool) Si mostrar los resultados de la validación en cada epoch
-        - print_every : (int) Cada cuántos pasos se imprime el resultado
 
         Argumentos adicionales para el DataLoader:
         - batch_size : (int) Tamaño del batch
         - train_val_prop : (float) Proporción que se usará entre train y validation
 
-        Argumentos adicionales para el dataset:
+        Argumentos adicionales para el Dataset:
         - data_path : (str) Ruta de los datos
         - length : (int) Número de imágenes a cargar
         - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
                       entrenamiento (train y validation) y test
-        - transform : (T.Compose) Transformaciones a aplicar a las imágenes
+        - img_width : (int) Ancho a redimensionar las imágenes
+        - img_height : (int) Alto a redimensionar las imágenes
 
     Returns
     -------
@@ -374,6 +393,12 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
 
     if alternative_datasets is None:
         alternative_datasets = []
+
+    max_layers = kwargs.pop("max_layers", MAX_LAYERS)
+    max_convs_per_layer = kwargs.pop(
+        "max_convs_per_layer",
+        MAX_CONVS_PER_LAYER
+    )
 
     if chromosome:
         c = Chromosome(
@@ -494,7 +519,7 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
     return False
 
 
-def score_n_models(idx_start: int = None, num: int = None,
+def score_n_models(idx_start: Optional[int] = None, num: Optional[int] = None,
                    chromosomes: Optional[list[Union[tuple,
                                                     list[float], str]]] = None,
                    seeds: list[int] = None, dataset: str = "coco-car",
@@ -504,27 +529,35 @@ def score_n_models(idx_start: int = None, num: int = None,
 
     Parameters
     ----------
-    start : int, optional
-        Índice de inicio (si no se especifica `chromosomes` o `seeds`), by default None
+    idx_start : Optional[int], optional
+        Índice de inicio (si no se especifica `chromosomes` o `seeds`), by default `None`
     num : int, optional
         Cantidad de modelos a evaluar
-        (si no se especifica `chromosomes` o `seeds`), by default None
+        (si no se especifica `chromosomes` o `seeds`), by default `None`
     chromosomes : Optional[list[Union[tuple, list[float], str]]], optional
-        Cromosomas para asignar a los modelos (hace que se ignore `seeds`), by default None
+        Cromosomas para asignar a los modelos (hace que se ignore `seeds`), by default `None`
     seeds : list[int], optional
-        Semillas para generar los cromosomas, by default None
+        Semillas para generar los cromosomas, by default `None`
     dataset : str, optional
-        Nombre del dataset a utilizar, by default "carvana"
+        Nombre del dataset a utilizar, by default `"coco-car"`
 
         Opciones:
+            - "coco-people"
+            - "coco-car"
             - "carvana"
             - "road"
+            - "car"
     **kwargs : str or int or float or bool
-        Argumentos para la función `score_model`:
-        - max_layers : (int) Máximo número de capas para el modelo
-        - max_conv_per_layer : (int) Máximo número de convoluciones por capa
+        Argumentos para la evaluación de cada modelo:
         - alternative_datasets : (list) Lista de nombres de datasets con los que probar el modelo,
                                  además del dataset principal
+
+        Argumentos adicionales para la creación de los cromosomas:
+        - max_layers : (int) Máximo número de capas de la red sin contar el bottleneck
+                       (`max_layers` no puede ser mayor que `codec.MAX_LAYERS`)
+        - max_convs_per_layer : (int) Máximo número de capas convolucionales por bloque
+                                (`max_convs_per_layer` no puede ser mayor que
+                                `codec.MAX_CONVS_PER_LAYER`)
 
         Argumentos adicionales para el entrenamiento:
         - metric : (str) Métrica a utilizar para calcular la pérdida
@@ -543,12 +576,13 @@ def score_n_models(idx_start: int = None, num: int = None,
         - batch_size : (int) Tamaño del batch
         - train_val_prop : (float) Proporción que se usará entre train y validation
 
-        Argumentos adicionales para el dataset:
+        Argumentos adicionales para el Dataset:
         - data_path : (str) Ruta de los datos
         - length : (int) Número de imágenes a cargar
         - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
                       entrenamiento (train y validation) y test
-        - transform : (T.Compose) Transformaciones a aplicar a las imágenes
+        - img_width : (int) Ancho a redimensionar las imágenes
+        - img_height : (int) Alto a redimensionar las imágenes
     """
     if chromosomes:
         for c in chromosomes:

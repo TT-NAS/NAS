@@ -29,19 +29,18 @@ class Chromosome:
         """
         Clase que representa un cromosoma de una red UNet
 
-        A tener en cuenta:
-        - El numero de convoluciones en el cuello de botella es el mismo que el max_convs_per_layer
-
         Parameters
         ----------
-        max_layers : int
-            Número máximo de capas de la red
-        max_convs_per_layer : int
-            Número máximo de capas convolucionales por bloque
         seed : Optional[int], optional
-            Semilla para la generación de números aleatorios, by default None
+            Semilla para la generación de números aleatorios, by default `None`
         chromosome : Optional[tuple or list or str], optional
-            Cromosoma de un individuo a cargar, by default None
+            Cromosoma de un individuo a cargar (decodificado, real o binario), by default `None`
+        max_layers : int, optional
+            Número máximo de capas de la red sin contar el bottleneck (`max_layers` no puede ser
+            mayor que `codec.MAX_LAYERS`), by default `MAX_LAYERS`
+        max_convs_per_layer : int
+            Número máximo de capas convolucionales por bloque (`max_convs_per_layer` no puede ser
+            mayor que `codec.MAX_CONVS_PER_LAYER`), by default `MAX_CONVS_PER_LAYER`
         """
         if max_layers > MAX_LAYERS:
             raise ValueError(
@@ -301,7 +300,7 @@ class Chromosome:
         Parameters
         ----------
         seed : Optional[int], optional
-            Semilla para la generación de números aleatorios, by default None
+            Semilla para la generación de números aleatorios, by default `None`
         """
         # Limpiamos las caches caducadas
         self.data_loader = "0"
@@ -377,7 +376,7 @@ class Chromosome:
         Parameters
         ----------
         decoded_chromosome : Optional[tuple], optional
-            (Cromosoma decodificado, número de capas), by default None
+            (Cromosoma decodificado, número de capas), by default `None`
         **kwargs : int
             Argumentos adicionales para la generación del cromosoma si se debe generar uno nuevo:
             - seed : (int) Semilla para la generación de números aleatorios
@@ -422,7 +421,7 @@ class Chromosome:
         Parameters
         ----------
         real_chromosome : Optional[tuple], optional
-            (Cromosoma real, número de capas), by default None
+            (Cromosoma real, número de capas), by default `None`
         **kwargs : int
             Argumentos adicionales para la generación del cromosoma si se debe generar uno nuevo:
             - seed : (int) Semilla para la generación de números aleatorios
@@ -463,7 +462,7 @@ class Chromosome:
         Parameters
         ----------
         binary_chromosome : Optional[tuple], optional
-            (Cromosoma binario, número de capas), by default None
+            (Cromosoma binario, número de capas), by default `None`
         **kwargs : int
             Argumentos adicionales para la generación del cromosoma si se debe generar uno nuevo:
             - seed : (int) Semilla para la generación de números aleatorios
@@ -529,7 +528,7 @@ class Chromosome:
         )
 
     def set_aptitude(self, data_loader: Optional[Union[TorchDataLoader, str]] = None,
-                     metric: str = "iou", **kwargs: Union[str, int, float, object]):
+                     metric: str = "iou", **kwargs: Union[str, int, float]):
         """
         Evalúa el modelo UNet
 
@@ -537,9 +536,16 @@ class Chromosome:
         ----------
         data_loader : TorchDataLoader or str
             DataLoader con las imágenes a evaluar, si no se proporciona se utiliza el DataLoader
-            con el que se entrenó el modelo, by default None
+            con el que se entrenó el modelo, by default `None`
+
+            Opciones (si se proporciona un string):
+                - "coco-people"
+                - "coco-car"
+                - "carvana"
+                - "road"
+                - "car"
         metric : str, optional
-            Métrica a utilizar para calcular la pérdida, by default "iou"
+            Métrica a utilizar para calcular la pérdida, by default `"iou"`
 
             Opciones:
                 - "iou"
@@ -550,12 +556,13 @@ class Chromosome:
             - batch_size : (int) Tamaño del batch
             - train_val_prop : (float) Proporción que se usará entre train y validation
 
-            Argumentos adicionales para el dataset:
+            Argumentos adicionales para el Dataset:
             - data_path : (str) Ruta de los datos
             - dataset_len : (int) Número de imágenes a cargar
             - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
                           entrenamiento (train y validation) y test
-            - transform : (T.Compose) Transformaciones a aplicar a las imágenes
+            - img_width : (int) Ancho a redimensionar las imágenes
+            - img_height : (int) Alto a redimensionar las imágenes
 
         Returns
         -------
@@ -653,7 +660,7 @@ class Chromosome:
         Parameters
         ----------
         zip : bool, optional
-            Si se devolverá el cromosoma binario comprimido, by default False
+            Si se devolverá el cromosoma binario comprimido, by default `False`
         **kwargs : int
             Argumentos adicionales para la generación del cromosoma si se debe generar uno nuevo:
             - seed : (int) Semilla para la generación de números aleatorios
@@ -694,15 +701,17 @@ class Chromosome:
 
         return self.__unet
 
-    def get_aptitude(self, **kwargs: Union[str, int, float, TorchDataLoader, object]) -> float:
+    def get_aptitude(self, **kwargs: Union[str, int, float, TorchDataLoader]) -> float:
         """
         Devuelve la aptitud del cromosoma
 
         Parameters
         ----------
         **kwargs : T.Compose or str or int or float
-            Argumentos adicionales para la función 'set_aptitude':
-            - data_loader : (TorchDataLoader) DataLoader con las imágenes a evaluar
+            Argumentos adicionales para la evaluación del modelo:
+            - data_loader : (TorchDataLoader or str) DataLoader con las imágenes a evaluar,
+                            si no se proporciona se utiliza el DataLoader con el que se entrenó el modelo
+                            ("coco-people", "coco-car", "carvana", "road", "car")
             - metric : (str) Métrica a utilizar para calcular la pérdida
                        ("iou", "dice" o "dice crossentropy")
 
@@ -710,12 +719,13 @@ class Chromosome:
             - batch_size : (int) Tamaño del batch
             - train_val_prop : (float) Proporción que se usará entre train y validation
 
-            Argumentos adicionales para el dataset:
+            Argumentos adicionales para el Dataset:
             - data_path : (str) Ruta de los datos
             - dataset_len : (int) Número de imágenes a cargar
             - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
                           entrenamiento (train y validation) y test
-            - transform : (T.Compose) Transformaciones a aplicar a las imágenes
+            - img_width : (int) Ancho a redimensionar las imágenes
+            - img_height : (int) Alto a redimensionar las imágenes
 
         Returns
         -------
@@ -731,12 +741,18 @@ class Chromosome:
 
     def get_num_layers(self, **kwargs: int) -> int:
         """
-        Devuelve el número de capas de la red
+        Devuelve el número de capas del cromosoma
+
+        Parameters
+        ----------
+        **kwargs : int
+            Argumentos adicionales para la generación del cromosoma si se debe generar uno nuevo:
+            - seed : (int) Semilla para la generación de números aleatorios
 
         Returns
         -------
         int
-            Número de capas
+            Número de capas del cromosoma
         """
         if not self.__decoded:
             self.set_decoded(**kwargs)
@@ -747,10 +763,10 @@ class Chromosome:
     # NOTE: Funciones de la UNet
     # ========================
     def train_unet(self, data_loader: Union[TorchDataLoader, str],
-                   **kwargs: Union[str, int, float, bool, object]) -> tuple[float,
-                                                                            int,
-                                                                            dict[str,
-                                                                                 list[float]]]:
+                   **kwargs: Union[str, int, float, bool]) -> tuple[float,
+                                                                    int,
+                                                                    dict[str,
+                                                                         list[float]]]:
         """
         Entrena el modelo UNet
 
@@ -758,6 +774,13 @@ class Chromosome:
         ----------
         data_loader : TorchDataLoader or str
             DataLoader con los datos de entrenamiento y validación
+
+            Opciones (si se proporciona un string):
+                - "coco-people"
+                - "coco-car"
+                - "carvana"
+                - "road"
+                - "car"
         **kwargs : T.Compose or str or int or float or bool
             Argumentos adicionales para el entrenamiento:
             - metric : (str) Métrica a utilizar para calcular la pérdida
@@ -770,18 +793,18 @@ class Chromosome:
             - stopping_threshold : (float) Umbral de rendimiento para la métrica de validación.
                                    Si se alcanza o supera, el entrenamiento se detiene
             - show_val : (bool) Si mostrar los resultados de la validación en cada epoch
-            - print_every : (int) Cada cuántos pasos se imprime el resultado
 
             Argumentos adicionales para el DataLoader:
             - batch_size : (int) Tamaño del batch
             - train_val_prop : (float) Proporción que se usará entre train y validation
 
-            Argumentos adicionales para el dataset:
+            Argumentos adicionales para el Dataset:
             - data_path : (str) Ruta de los datos
             - dataset_len : (int) Número de imágenes a cargar
             - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
                           entrenamiento (train y validation) y test
-            - transform : (T.Compose) Transformaciones a aplicar a las imágenes
+            - img_width : (int) Ancho a redimensionar las imágenes
+            - img_height : (int) Alto a redimensionar las imágenes
 
         Returns
         -------
@@ -820,7 +843,7 @@ class Chromosome:
         return time_seconds, last_epoch, metrics
 
     def show_results(self, data_loader: Optional[Union[TorchDataLoader, str]] = None,
-                     name: Optional[str] = None, **kwargs: Union[str, object]):
+                     name: Optional[str] = None, **kwargs: Union[str, int, float, bool]):
         """
         Muestra los resultados del modelo UNet actual con el conjunto de test
 
@@ -828,12 +851,19 @@ class Chromosome:
         ----------
         data_loader : TorchDataLoader or str, optional
             DataLoader con las imágenes a evaluar, si no se especifica se usará el DataLoader
-            con el que se entrenó, by default None
+            con el que se entrenó, by default `None`
+
+            Opciones (si se proporciona un string):
+                - "coco-people"
+                - "coco-car"
+                - "carvana"
+                - "road"
+                - "car"
         name : Optional[str], optional
             Nombre del archivo, si no se especifica el nombre será el hash del cromosoma
-            binario, by default None
+            binario, by default `None`
         **kwargs : T.Compose or str or int or float or bool
-            Argumentos adicionales para la función `plot_batch`:
+            Argumentos adicionales para la generación de la gráfica:
             - save : (bool) Si se guardan las imágenes o se muestran
             - show_size : (int) Número de imágenes a mostrar
             - path : (str) Ruta donde se guardarán las imágenes
@@ -842,12 +872,13 @@ class Chromosome:
             - batch_size : (int) Tamaño del batch
             - train_val_prop : (float) Proporción que se usará entre train y validation
 
-            Argumentos adicionales para el dataset:
+            Argumentos adicionales para el Dataset:
             - data_path : (str) Ruta de los datos
             - dataset_len : (int) Número de imágenes a cargar
             - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
                           entrenamiento (train y validation) y test
-            - transform : (T.Compose) Transformaciones a aplicar a las imágenes
+            - img_width : (int) Ancho a redimensionar las imágenes
+            - img_height : (int) Alto a redimensionar las imágenes
         """
         if not self.__unet:
             self.set_unet()
@@ -890,10 +921,10 @@ class Chromosome:
         ----------
         name : Optional[str], optional
             Nombre del archivo, si no se especifica el nombre será el hash del cromosoma
-            binario, by default None
+            binario, by default `None`
 
         **kwargs : str
-            Argumentos adicionales para la función `save_model`:
+            Argumentos adicionales para el guardado del modelo:
             - path : (str) Ruta donde se guardará el modelo
         """
         if not self.__unet:

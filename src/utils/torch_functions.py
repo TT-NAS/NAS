@@ -26,12 +26,34 @@ from .constants import (
 
 def empty_cache_torch():
     """
-    Limpia la memoria de la GPU
+    Limpia la memoria de la GPU de PyTorch
     """
     torch.cuda.empty_cache()
 
 
-def get_images(images_path: str, train: bool, dataset_default_len: int):
+def get_images(images_path: str, train: bool, dataset_default_len: int) -> list[str]:
+    """
+    Obtiene los nombres de archivo de todas las imágenes del dataset
+
+    Parameters
+    ----------
+    images_path : str
+        Ruta de las imágenes
+    train : bool
+        Si se cargan las imágenes de entrenamiento o de prueba
+    dataset_default_len : int
+        Número de imágenes en el dataset
+
+    Returns
+    -------
+    list
+        Lista de nombres de archivo de las imágenes
+
+    Raises
+    ------
+    ValueError
+        Si el número de imágenes del dataset y de imágenes en el directorio no coincide
+    """
     images = sorted(os.listdir(images_path))
 
     if not train:
@@ -49,30 +71,34 @@ def get_images_and_masks(images_path: str, masks_path: str, train: bool,
                          dataset_default_len: int, identifier: str, suffix_img: str,
                          suffix_mask: Optional[str] = None) -> tuple[list[str], Optional[list[str]]]:
     """
-    Carga las imágenes y máscaras del dataset
+    Carga los nombres de archivo de las imágenes y máscaras del dataset
 
     Parameters
     ----------
-    train : bool
-        Si se cargan las imágenes de entrenamiento o de prueba
     images_path : str
         Ruta de las imágenes
     masks_path : str
         Ruta de las máscaras
+    train : bool
+        Si se cargan las imágenes de entrenamiento o de prueba
+    dataset_default_len : int
+        Número de imágenes en el dataset
+    identifier : str
+        Identificador del dataset
     suffix_img : str
-        Postfijo a remover para obtener el nombre de un elemento a partir de la imagen
-    suffix_mask : str
-        Postfijo a colocar para obtener el nombre de la máscara a partir del elemento
+        Sufijo a remover para obtener el nombre de un elemento a partir de una imagen
+    suffix_mask : Optional[str], optional
+        Sufijo a colocar para obtener el nombre de una máscara a partir de un elemento, by default `None`
 
     Returns
     -------
     tuple
-        (Lista de imágenes, lista de máscaras)
+        (Lista de imágenes, lista de máscaras), la lista de máscaras puede ser None
 
     Raises
     ------
     ValueError
-        Si las imágenes y máscaras no coinciden
+        Si el número de imágenes y máscaras no coincide o si los nombres no coinciden
     """
     images = get_images(
         images_path=images_path,
@@ -106,18 +132,18 @@ def get_images_and_masks(images_path: str, masks_path: str, train: bool,
 def get_cache(images: list[str], cache_path: str,
               suffix_img: str, suffix_tensor: str) -> Optional[list[str]]:
     """
-    Obtiene la lista de tensores en la caché
+    Obtiene la lista de tensores de imágenes y máscaras de la caché si es válida
 
     Parameters
     ----------
     images : list
-        Lista de imágenes
+        Lista de nombres de archivo de las imágenes
     cache_path : str
         Ruta de la caché
     suffix_img : str
-        Postfijo a remover para obtener el nombre de un elemento a partir de la imagen
+        Sufijo a remover para obtener el nombre de un elemento a partir de una imagen
     suffix_tensor : str
-        Postfijo a colocar para obtener el nombre del tensor a partir del elemento
+        Sufijo a colocar para obtener el nombre de un tensor a partir de un elemento
 
     Returns
     -------
@@ -155,25 +181,38 @@ def get_data(train: bool, dataset_default_len, identifier: str, width: int, heig
     ----------
     train : bool
         Si se cargan los datos de entrenamiento o de prueba
-    images_path : str
-        Ruta de las imágenes
-    masks_path : Optional[str]
-        Ruta de las máscaras
+    dataset_default_len : int
+        Número de imágenes en el dataset
+    identifier : str
+        Identificador del dataset
+    width : int
+        Ancho a redimensionar las imágenes
+    height : int
+        Alto a redimensionar las imágenes
     cache_path : str
         Ruta de la caché
-    suffix_img : str
-        Postfijo a remover para obtener el nombre de un elemento a partir de la imagen
-    suffix_mask : str
-        Postfijo a colocar para obtener el nombre de la máscara a partir del elemento
     suffix_tensor : str
-        Postfijo a colocar para obtener el nombre del tensor a partir del elemento
-    transform : T.Compose
-        Transformación a aplicar a las imágenes y máscaras
+        Sufijo a colocar para obtener el nombre de un tensor a partir de un elemento
+    images_path : str
+        Ruta de las imágenes
+    suffix_img : str
+        Sufijo a remover para obtener el nombre de un elemento a partir de una imagen
+    masks_path : Optional[str], optional
+        Ruta de las máscaras, by default `None`
+    suffix_mask : Optional[str], optional
+        Sufijo a colocar para obtener el nombre de una máscara a partir de un elemento, by default `None`
+    annotations_file : Optional[str], optional
+        Archivo de anotaciones COCO, by default `None`
 
     Returns
     -------
     list
         Lista con los nombres de archivo de los tensores
+
+    Raises
+    ------
+    ValueError
+        Si el número de imágenes del dataset y de imágenes en el directorio no coincide
     """
     images, masks = get_images_and_masks(
         images_path=images_path,
@@ -306,13 +345,13 @@ def plot_batch(imgs: Tensor, masks: Tensor, save: bool = False, show_size: int =
     masks : Tensor
         Máscaras
     save : bool, optional
-        Si se guardan las imágenes o se muestran, by default False
+        Si se guardan las imágenes o se muestran, by default `False`
     show_size : int, optional
-        Número de imágenes a mostrar, by default SHOW_SIZE
+        Número de imágenes a mostrar, by default `SHOW_SIZE`
     name : str, optional
-        Nombre del archivo a guardar, by default "batch.png"
+        Nombre del archivo a guardar, by default `"batch.png"`
     path : str, optional
-        Ruta donde se guardarán las imágenes, by default IMAGES_PATH
+        Ruta donde se guardarán las imágenes, by default `IMAGES_PATH`
     """
     imgs = imgs.clone().float()
     masks = masks.clone().float()
@@ -358,7 +397,7 @@ def plot_results(model: UNet, test_loader: DataLoader, **kwargs: Union[bool, str
     test_loader : DataLoader
         DataLoader con las imágenes a evaluar
     **kwargs : bool or str
-        Argumentos adicionales para la función `plot_batch`:
+        Argumentos adicionales para la generación de la gráfica:
         - save : (bool) Si se guardan las imágenes o se muestran
         - show_size : (int) Número de imágenes a mostrar
         - name : (str) Nombre del archivo a guardar
@@ -503,11 +542,11 @@ def eval_model(scores: Tensor, target: Tensor, metrics: list[str],
     metrics : list
         Métricas a evaluar
     clone : bool, optional
-        Si se clonan los tensores, by default True
+        Si se clonan los tensores, by default `True`
     loss : bool, optional
-        Si se evalúa la pérdida, by default False
+        Si se evalúa la pérdida, by default `False`
     items : bool, optional
-        Si se devuelven los valores los items o los tensores, by default False
+        Si se devuelven los valores los items o los tensores, by default `False`
 
     Returns
     -------
@@ -552,9 +591,9 @@ def eval_model(scores: Tensor, target: Tensor, metrics: list[str],
 def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", lr: float = 0.01,
                 epochs: Optional[int] = None, early_stopping_patience: int = 5,
                 early_stopping_delta: float = 0.001, stopping_threshold: float = 0.05,
-                show_val: bool = False, print_every: int = 25) -> tuple[UNet,
-                                                                        int,
-                                                                        dict[str, list[float]]]:
+                show_val: bool = False) -> tuple[UNet,
+                                                 int,
+                                                 dict[str, list[float]]]:
     """
     Entrena un modelo UNet
 
@@ -565,27 +604,25 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
     data_loader : TorchDataLoader
         DataLoader con los datos de entrenamiento y validación
     metric : str, optional
-        Métrica a utilizar para calcular la pérdida, by default "iou"
+        Métrica a utilizar para calcular la pérdida, by default `"iou"`
 
         Opciones:
             - "iou"
             - "dice"
             - "dice crossentropy"
     lr : float, optional
-        Tasa de aprendizaje, by default 0.01
+        Tasa de aprendizaje, by default `0.01`
     epochs : Optional[int], optional
-        Número de épocas, si no se especifica, se activa el early stopping, by default None
+        Número de épocas, si no se especifica, se activa el early stopping, by default `None`
     early_stopping_patience : int, optional
-        Número de épocas a esperar sin mejora antes de detener el entrenamiento, by default 5
+        Número de épocas a esperar sin mejora antes de detener el entrenamiento, by default `5`
     early_stopping_delta : float, optional
-        Umbral mínimo de mejora para considerar un progreso, by default 0.001
+        Umbral mínimo de mejora para considerar un progreso, by default `0.001`
     stopping_threshold : float, optional
         Umbral de rendimiento para la métrica de validación. Si se alcanza o supera,
-        el entrenamiento se detiene, by default 0.05
+        el entrenamiento se detiene, by default `0.05`
     show_val : bool, optional
-        Si mostrar los resultados de la validación en cada epoch, by default False
-    print_every : int, optional
-        Cada cuántos pasos se imprime el resultado, by default 25
+        Si mostrar los resultados de la validación en cada epoch, by default `False`
 
     Returns
     -------
@@ -696,7 +733,7 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
             total_train_dice_ce += dice_ce
             total_train_acc += acc
 
-            if i == 0 or (i + 1) % print_every == 0 or i + 1 == len_data:
+            if i == 0 or (i + 1) % 5 == 0 or i + 1 == len_data:
                 evol_loss = Fore.GREEN + "↓" if loss < loss_ant else Fore.RED + "↑"
                 evol_loss += Fore.RESET
                 loss_ant = loss
@@ -723,7 +760,7 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
             f"Dice: {total_train_dice / len_data:.4f}, "
             f"Dice CE: {total_train_dice_ce / len_data:.4f}, "
             f"Acc: {total_train_acc / len_data:.4f}, "
-            f"Evolución Loss: {evol_train_loss}"
+            f"Evolución Train Loss: {evol_train_loss}"
             " --"
         )
         metrics_results["train_loss"].append(total_train_loss / len_data)
@@ -793,8 +830,8 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
             f"Val IoU: {avg_val_iou:.4f}, "
             f"Val Dice: {avg_val_dice:.4f}, "
             f"Val Dice CE: {avg_val_dice_ce:.4f}, "
-            f"Val Acc: {avg_val_acc:.4f}, ",
-            f"Evolución Loss: {evol_val_loss}"
+            f"Val Acc: {avg_val_acc:.4f}, "
+            f"Evolución Val Loss: {evol_val_loss}"
             " ---"
         )
         metrics_results["val_loss"].append(avg_val_loss)
@@ -866,7 +903,7 @@ def save_model(model: UNet, name: str, path: str = MODELS_PATH):
     name : str
         Nombre del archivo
     path : str, optional
-        Ruta donde se guardará el modelo, by default MODELS_PATH
+        Ruta donde se guardará el modelo, by default `MODELS_PATH`
     """
     if not os.path.exists(path):
         os.makedirs(path, exist_ok=True)

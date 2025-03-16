@@ -24,12 +24,12 @@ from .constants import (
 
 class TorchDataset(Dataset):
     """
-    Superclase para datasets en PyTorch que implementa los métodos __len__ y __getitem__.
+    Superclase para datasets en PyTorch que implementa los métodos __len__ y __getitem__
     """
 
     def __init__(self):
         """
-        Inicializa la estructura base del dataset.
+        Inicializa la estructura base del dataset
         """
         self.train = None
         self.cache_path = None
@@ -37,7 +37,7 @@ class TorchDataset(Dataset):
 
     def __len__(self) -> int:
         """
-        Devuelve el número de elementos en el dataset.
+        Devuelve el número de elementos en el dataset
 
         Returns
         -------
@@ -48,17 +48,17 @@ class TorchDataset(Dataset):
 
     def __getitem__(self, idx: int) -> Union[tuple[torch.Tensor, torch.Tensor], torch.Tensor]:
         """
-        Devuelve una imagen y su máscara si el dataset es de entrenamiento.
+        Devuelve una imagen y su máscara si el dataset es de entrenamiento
 
         Parameters
         ----------
         idx : int
-            Índice de la imagen a cargar.
+            Índice de la imagen a cargar
 
         Returns
         -------
         tuple or Tensor
-            (Imagen, Máscara) si el dataset es de entrenamiento, (Imagen) si es de prueba.
+            (Imagen, Máscara) si el dataset es de entrenamiento, Imagen si es de prueba
         """
         tensor = torch.load(os.path.join(self.cache_path, self.tensors[idx]))
         image = tensor[:3]
@@ -71,17 +71,33 @@ class TorchDataset(Dataset):
 
 
 class COCODataset(TorchDataset):
-    def __init__(self, train: bool, data_path: str, dataset_len: int, dataset_default_len: int,
-                 suffix_img: str, suffix_tensor: str, identifier: str, imgs_width: int = WIDTH,
-                 imgs_height: int = HEIGHT, **kwargs: str):
+    def __init__(self, train: bool, data_path: str, dataset_len: int,
+                 imgs_width: int = WIDTH, imgs_height: int = HEIGHT, **kwargs: str):
+        """
+        Clase para cargar un dataset de COCO
+
+        Parameters
+        ----------
+        train : bool
+            Si se cargan los datos de entrenamiento o de prueba
+        data_path : str
+            Ruta de los datos
+        dataset_len : int
+            Número de imágenes a cargar
+        imgs_width : int, optional
+            Ancho a redimensionar las imágenes, by default `WIDTH`
+        imgs_height : int, optional
+            Alto a redimensionar las imágenes, by default `HEIGHT`
+        **kwargs : str
+            Argumentos adicionales para el la carga de los datos:
+            - dataset_default_len : (int) Número de imágenes en el dataset
+            - identifier : (str) Identificador del dataset
+            - suffix_tensor : (str) Sufijo a colocar para obtener el nombre de un tensor a partir de un elemento
+            - suffix_img : (str) Sufijo a remover para obtener el nombre de un elemento a partir de una imagen
+        """
         from .torch_functions import get_data
 
         super().__init__()
-
-        kwargs.pop("suffix_mask", None)
-
-        if kwargs:
-            raise ValueError(f"Argumentos no válidos: {kwargs}")
 
         self.train = train
 
@@ -110,17 +126,15 @@ class COCODataset(TorchDataset):
                 "instances_test2017.json"
             )
 
+        kwargs.pop("suffix_mask", None)
         self.tensors = get_data(
             train=train,
-            dataset_default_len=dataset_default_len,
-            identifier=identifier,
             width=imgs_width,
             height=imgs_height,
             cache_path=self.cache_path,
-            suffix_tensor=suffix_tensor,
             images_path=images_path,
-            suffix_img=suffix_img,
-            annotations_file=annotations_file
+            annotations_file=annotations_file,
+            **kwargs
         )
 
         if train:
@@ -132,9 +146,8 @@ class CarvanaDataset(TorchDataset):
     Clase para cargar el dataset de Carvana.
     """
 
-    def __init__(self, train: bool, data_path: str, dataset_len: int, dataset_default_len: int,
-                 suffix_img: str, suffix_mask: str, suffix_tensor: str, identifier: str,
-                 imgs_width: int = WIDTH, imgs_height: int = HEIGHT):
+    def __init__(self, train: bool, data_path: str, dataset_len: int, imgs_width: int = WIDTH,
+                 imgs_height: int = HEIGHT, **kwargs: Union[int, str]):
         """
         Clase para cargar el dataset de Carvana
 
@@ -142,12 +155,21 @@ class CarvanaDataset(TorchDataset):
         ----------
         train : bool
             Si se cargan los datos de entrenamiento o de prueba
-        data_path : str, optional
-            Ruta de los datos, by default CARVANA_DATA_PATH
-        dataset_len : int, optional
-            Número de imágenes a cargar, by default CARVANA_DATASET_LENGTH
-        transform : T.Compose, optional
-            Transformaciones a aplicar a las imágenes, by default TRANSFORM
+        data_path : str
+            Ruta de los datos
+        dataset_len : int
+            Número de imágenes a cargar
+        imgs_width : int, optional
+            Ancho a redimensionar las imágenes, by default `WIDTH`
+        imgs_height : int, optional
+            Alto a redimensionar las imágenes, by default `HEIGHT`
+        **kwargs : int or str
+            Argumentos adicionales para el la carga de los datos:
+            - dataset_default_len : (int) Número de imágenes en el dataset
+            - identifier : (str) Identificador del dataset
+            - suffix_tensor : (str) Sufijo a colocar para obtener el nombre de un tensor a partir de un elemento
+            - suffix_img : (str) Sufijo a remover para obtener el nombre de un elemento a partir de una imagen
+            - suffix_mask : (str) Sufijo a colocar para obtener el nombre de una máscara a partir de un elemento
         """
         from .torch_functions import get_data
 
@@ -174,16 +196,12 @@ class CarvanaDataset(TorchDataset):
 
         self.tensors = get_data(
             train=train,
-            dataset_default_len=dataset_default_len,
-            identifier=identifier,
             width=imgs_width,
             height=imgs_height,
             cache_path=self.cache_path,
-            suffix_tensor=suffix_tensor,
             images_path=images_path,
-            suffix_img=suffix_img,
             masks_path=masks_path,
-            suffix_mask=suffix_mask
+            **kwargs
         )
 
         if train:
@@ -198,9 +216,8 @@ class BasicDataset(TorchDataset):
         - masks
     """
 
-    def __init__(self, train: bool, data_path: str, dataset_len: int, dataset_default_len: int,
-                 suffix_img: str, suffix_mask: str, suffix_tensor: str, identifier: str,
-                 test_prop: float = 0.2, imgs_width: int = WIDTH, imgs_height: int = HEIGHT):
+    def __init__(self, train: bool, data_path: str, dataset_len: int, test_prop: float = 0.2,
+                 imgs_width: int = WIDTH, imgs_height: int = HEIGHT, **kwargs: Union[int, str]):
         """
         Clase para cargar un dataset sencillo con el formato de directorios:
         - data_path
@@ -216,9 +233,18 @@ class BasicDataset(TorchDataset):
         dataset_len : int
             Número de imágenes a cargar
         test_prop : float, optional
-            Proporción de imágenes que se usarán para test, by default 0.2
-        transform : T.Compose, optional
-            Transformaciones a aplicar a las imágenes, by default TRANSFORM
+            Proporción de imágenes que se usarán para test, by default `0.2`
+        imgs_width : int, optional
+            Ancho a redimensionar las imágenes, by default `WIDTH`
+        imgs_height : int, optional
+            Alto a redimensionar las imágenes, by default `HEIGHT`
+        **kwargs : int or str
+            Argumentos adicionales para el la carga de los datos:
+            - dataset_default_len : (int) Número de imágenes en el dataset
+            - identifier : (str) Identificador del dataset
+            - suffix_tensor : (str) Sufijo a colocar para obtener el nombre de un tensor a partir de un elemento
+            - suffix_img : (str) Sufijo a remover para obtener el nombre de un elemento a partir de una imagen
+            - suffix_mask : (str) Sufijo a colocar para obtener el nombre de una máscara a partir de un elemento
         """
         from .torch_functions import get_data
 
@@ -238,16 +264,12 @@ class BasicDataset(TorchDataset):
 
         self.tensors = get_data(
             train=train,
-            dataset_default_len=dataset_default_len,
-            identifier=identifier,
             width=imgs_width,
             height=imgs_height,
             cache_path=self.cache_path,
-            suffix_tensor=suffix_tensor,
             images_path=images_path,
-            suffix_img=suffix_img,
             masks_path=masks_path,
-            suffix_mask=suffix_mask,
+            **kwargs
         )
 
         if train:
@@ -267,7 +289,8 @@ class TorchDataLoader:
         "data_path",
         "dataset_len",
         "test_prop",
-        "transform"
+        "img_width",
+        "img_height"
     ]
 
     def __init__(self, dataset_class: str, batch_size: Optional[int] = None,
@@ -281,20 +304,23 @@ class TorchDataLoader:
             Nombre del dataset a cargar
 
             Opciones:
+                - "coco-people"
+                - "coco-car"
                 - "carvana"
                 - "road"
                 - "car"
         batch_size : int, optional
-            Tamaño del batch, by default BATCH_SIZE
+            Tamaño del batch, by default `BATCH_SIZE`
         train_val_prop : float, optional
-            Proporción que se usará entre train y validation, by default 0.8
+            Proporción que se usará entre train y validation, by default `0.8`
         **kwargs : T.Compose or str or int
-            Argumentos adicionales para el dataset:
+            Argumentos adicionales para el Dataset:
             - data_path : (str) Ruta de los datos
             - dataset_len : (int) Número de imágenes a cargar
             - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
                           entrenamiento (train y validation) y test
-            - transform : (T.Compose) Transformaciones a aplicar a las imágenes
+            - img_width : (int) Ancho a redimensionar las imágenes
+            - img_height : (int) Alto a redimensionar las imágenes
 
         Raises
         ------
@@ -410,12 +436,18 @@ class TorchDataLoader:
                                                        Union[str, int, float, T.Compose, None]],
                                                   dict[str, any]]:
         """
-        Devuelve los argumentos necesarios para instanciar la clase
+        Obtiene los argumentos para el DataLoader y para el Dataset y los separa
+        de otros argumentos adicionales
+
+        Parameters
+        ----------
+        kwargs : any
+            Todos los argumentos ingresados
 
         Returns
         -------
         tuple
-            (Argumentos necesarios para instanciar la clase, argumentos restantes)
+            (Argumentos para el DataLoader, Argumentos adicionales)
         """
         data_loader_args = {}
 
@@ -468,9 +500,10 @@ class UNet(nn.Module):
         decoded_chromosome : tuple
             Cromosoma decodificado con la arquitectura deseada
         in_channels : int, optional
-            Número de canales de entrada, by default CHANNELS
+            Número de canales de entrada, by default `CHANNELS`
         """
         super().__init__()
+
         layers, bottleneck = decoded_chromosome
         self.encoder = nn.ModuleList()
         self.decoder = nn.ModuleList()

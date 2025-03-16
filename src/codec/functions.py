@@ -10,6 +10,19 @@ from .constants import (
 
 
 def get_num_layers(chromosome: Union[tuple, list, str]) -> int:
+    """
+    Obtiene el número de capas activas de un cromosoma
+
+    Parameters
+    ----------
+    chromosome : tuple or list or str
+        Cromosoma a evaluar (decodificado, real o binario)
+
+    Returns
+    -------
+    int
+        Número de capas activas
+    """
     num_layers = 0
 
     if isinstance(chromosome, tuple):  # decoded
@@ -29,6 +42,22 @@ def get_num_layers(chromosome: Union[tuple, list, str]) -> int:
 
 
 def get_num_convs(convs: Union[list, str], decoded: Optional[bool] = None) -> int:
+    """
+    Obtiene el número de convoluciones activas de una seríe de convoluciones
+
+    Parameters
+    ----------
+    convs : list or str
+        Convoluciones a evaluar (decodificadas, reales o binarias)
+    decoded : Optional[bool], optional
+        Indica si las convoluciones son decodificadas (puede deducirse si son binarias, pero
+        se necesita una flag para distinguir si son reales o decodificadas), by default `None`
+
+    Returns
+    -------
+    int
+        Número de convoluciones activas
+    """
     num_convs = 0
 
     if isinstance(convs, str):  # binary

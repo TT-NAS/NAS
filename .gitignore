@@ -2,6 +2,3 @@ Env/
 __pycache__/
 models/
 data/
-annotations/
-results_ant/
-coco-dataset full/
