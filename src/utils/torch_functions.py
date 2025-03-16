@@ -632,6 +632,7 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
     len_data = len(data_loader.train)
     len_val = len(data_loader.validation)
     model = model.to(CUDA)
+    model = torch.compile(model)
     best_val_loss = float('inf')
     counter = 0
     best_model_state = None

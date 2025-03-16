@@ -1,5 +1,5 @@
 MAX_LAYERS = 4
-MAX_CONVS_PER_LAYER = 3
+MAX_CONVS_PER_LAYER = 2
 
 # 3 valores por convolución (filters, kernel_size, activation)
 REAL_CONV_LEN = 3

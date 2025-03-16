@@ -313,7 +313,7 @@ def log(message: str, file: str = LOG_FILE):
     file : str, optional
         Archivo en el que se registra el mensaje, by default `LOG_FILE`
     """
-    with open(file, "a") as f:
+    with open(file, "a", newline="\r\n") as f:
         f.write(message + "\n")
 
 
@@ -612,17 +612,17 @@ def score_n_models(idx_start: Optional[int] = None, num: Optional[int] = None,
 
 if __name__ == "__main__":
     # UNet Paper
-    # score_n_models(
-    #     chromosomes=[
-    #         "AAAEIUIUABCFCGABRDRCQAMI4IYAGUOUKABVDVDAA6R6RIAHUPUMADSHSE_282"
-    #     ],
-    #     alternative_datasets=["carvana", "car"]
-    # )
     score_n_models(
-        idx_start=0,
-        num=5,
+        chromosomes=[
+            "IRIRKEKEPCHCFYRYR5I5IXKHKH5D5C7I7I7EPEI_192"
+        ],
         alternative_datasets=["carvana", "car"]
     )
+    # score_n_models(
+    #     idx_start=2,
+    #     num=5,
+    #     alternative_datasets=["carvana", "car"]
+    # )
     # plot_scores_and_metrics(
     #     selected_columns=["synflow", "gradient"],
     #     save=True

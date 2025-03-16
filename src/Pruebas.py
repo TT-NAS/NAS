@@ -61,7 +61,6 @@ unet_paper = (
         (  # convs+deconvs: [nconvs+pooling, nconvs+concat]
             (  # nconvs+pooling: [nconvs, pooling]
                 [  # nconvs: [conv, conv, ...]
-                    None,
                     (64, 3, "relu"),  # conv: [f, s, a]
                     (64, 3, "relu")
                 ],
@@ -69,7 +68,6 @@ unet_paper = (
             ),
             (  # nconvs+concat: [nconvs, concat]
                 [  # nconvs: [conv, conv, ...]
-                    None,
                     (64, 3, "relu"),  # conv: [f, s, a]
                     (64, 3, "relu")
                 ],
@@ -79,7 +77,6 @@ unet_paper = (
         (
             (
                 [
-                    None,
                     (128, 3, "relu"),
                     (128, 3, "relu")
                 ],
@@ -87,7 +84,6 @@ unet_paper = (
             ),
             (
                 [
-                    None,
                     (128, 3, "relu"),
                     (128, 3, "relu")
                 ],
@@ -97,7 +93,6 @@ unet_paper = (
         (
             (
                 [
-                    None,
                     (256, 3, "relu"),
                     (256, 3, "relu")
                 ],
@@ -105,7 +100,6 @@ unet_paper = (
             ),
             (
                 [
-                    None,
                     (256, 3, "relu"),
                     (256, 3, "relu")
                 ],
@@ -115,7 +109,6 @@ unet_paper = (
         (
             (
                 [
-                    None,
                     (512, 3, "relu"),
                     (512, 3, "relu")
                 ],
@@ -123,7 +116,6 @@ unet_paper = (
             ),
             (
                 [
-                    None,
                     (512, 3, "relu"),
                     (512, 3, "relu")
                 ],
@@ -132,7 +124,6 @@ unet_paper = (
         )
     ],
     [  # bottleneck: [conv, conv, ...]
-        None,
         (1024, 3, "relu"),  # conv: [f, s, a]
         (1024, 3, "relu")
     ]
@@ -152,7 +143,7 @@ assert c.get_decoded() == unet_paper
 # Solo está comprimida para que no sea tan larga
 assert (
     c.get_binary(zip=True) ==
-    "AAAEIUIUABCFCGABRDRCQAMI4IYAGUOUKABVDVDAA6R6RIAHUPUMADSHSE_282"
+    "IRIRKEKEPCHCFYRYR5I5IXKHKH5D5C7I7I7EPEI_192"
 )
 
 c2 = Chromosome(chromosome=c.get_binary(zip=True))
@@ -185,7 +176,7 @@ assert c3.get_binary(zip=True) == c.get_binary(zip=True)
 # %% Prueba de entrenamiento y evaluación
 from codec import Chromosome
 
-unet_paper = "AAAEIUIUABCFCGABRDRCQAMI4IYAGUOUKABVDVDAA6R6RIAHUPUMADSHSE_282"
+unet_paper = "IRIRKEKEPCHCFYRYR5I5IXKHKH5D5C7I7I7EPEI_192"
 c = Chromosome(chromosome=unet_paper)
 
 # Mostramos la arquitectura a generar

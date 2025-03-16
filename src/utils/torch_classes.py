@@ -415,17 +415,29 @@ class TorchDataLoader:
         self.train = DataLoader(
             dataset=train_dataset,
             batch_size=batch_size,
-            shuffle=True
+            shuffle=True,
+            num_workers=2,
+            pin_memory=True,
+            prefetch_factor=4,
+            persistent_workers=True
         )
         self.validation = DataLoader(
             dataset=val_dataset,
             batch_size=batch_size,
-            shuffle=False
+            shuffle=False,
+            num_workers=2,
+            pin_memory=True,
+            prefetch_factor=4,
+            persistent_workers=True
         )
         self.test = DataLoader(
             dataset=test_dataset,
             batch_size=SHOW_SIZE,
-            shuffle=False
+            shuffle=False,
+            num_workers=2,
+            pin_memory=True,
+            prefetch_factor=4,
+            persistent_workers=True
         )
 
     def __str__(self) -> str:
@@ -470,15 +482,15 @@ class UNet(nn.Module):
     """
 
     ACTIVATIONS = {
+        "linear": nn.Identity,
         "relu": nn.ReLU,
+        "softplus": nn.Softplus,
+        "elu": nn.ELU,
+        "selu": nn.SELU,
         "sigmoid": nn.Sigmoid,
         "tanh": nn.Tanh,
-        "softmax": nn.Softmax,
-        "softplus": nn.Softplus,
         "softsign": nn.Softsign,
-        "selu": nn.SELU,
-        "elu": nn.ELU,
-        "linear": nn.Identity,
+        "softmax": nn.Softmax
     }
 
     def __init__(
