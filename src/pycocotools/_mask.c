@@ -1254,7 +1254,7 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <stdio.h>
 
     /* Using NumPy API declarations from "numpy/__init__.cython-30.pxd" */
-    
+
 #include "numpy/arrayobject.h"
 #include "numpy/ndarrayobject.h"
 #include "numpy/ndarraytypes.h"
@@ -1582,7 +1582,7 @@ typedef struct {
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":730
  * # in Cython to enable them only on the right systems.
- * 
+ *
  * ctypedef npy_int8       int8_t             # <<<<<<<<<<<<<<
  * ctypedef npy_int16      int16_t
  * ctypedef npy_int32      int32_t
@@ -1590,7 +1590,7 @@ typedef struct {
 typedef npy_int8 __pyx_t_5numpy_int8_t;
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":731
- * 
+ *
  * ctypedef npy_int8       int8_t
  * ctypedef npy_int16      int16_t             # <<<<<<<<<<<<<<
  * ctypedef npy_int32      int32_t
@@ -1618,7 +1618,7 @@ typedef npy_int64 __pyx_t_5numpy_int64_t;
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":737
  * #ctypedef npy_int128     int128_t
- * 
+ *
  * ctypedef npy_uint8      uint8_t             # <<<<<<<<<<<<<<
  * ctypedef npy_uint16     uint16_t
  * ctypedef npy_uint32     uint32_t
@@ -1626,7 +1626,7 @@ typedef npy_int64 __pyx_t_5numpy_int64_t;
 typedef npy_uint8 __pyx_t_5numpy_uint8_t;
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":738
- * 
+ *
  * ctypedef npy_uint8      uint8_t
  * ctypedef npy_uint16     uint16_t             # <<<<<<<<<<<<<<
  * ctypedef npy_uint32     uint32_t
@@ -1654,7 +1654,7 @@ typedef npy_uint64 __pyx_t_5numpy_uint64_t;
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":744
  * #ctypedef npy_uint128    uint128_t
- * 
+ *
  * ctypedef npy_float32    float32_t             # <<<<<<<<<<<<<<
  * ctypedef npy_float64    float64_t
  * #ctypedef npy_float80    float80_t
@@ -1662,7 +1662,7 @@ typedef npy_uint64 __pyx_t_5numpy_uint64_t;
 typedef npy_float32 __pyx_t_5numpy_float32_t;
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":745
- * 
+ *
  * ctypedef npy_float32    float32_t
  * ctypedef npy_float64    float64_t             # <<<<<<<<<<<<<<
  * #ctypedef npy_float80    float80_t
@@ -1675,7 +1675,7 @@ typedef npy_float64 __pyx_t_5numpy_float64_t;
  * # numpy.int corresponds to 'l' and numpy.long to 'q'
  * ctypedef npy_long       int_t             # <<<<<<<<<<<<<<
  * ctypedef npy_longlong   longlong_t
- * 
+ *
  */
 typedef npy_long __pyx_t_5numpy_int_t;
 
@@ -1683,50 +1683,50 @@ typedef npy_long __pyx_t_5numpy_int_t;
  * # numpy.int corresponds to 'l' and numpy.long to 'q'
  * ctypedef npy_long       int_t
  * ctypedef npy_longlong   longlong_t             # <<<<<<<<<<<<<<
- * 
+ *
  * ctypedef npy_ulong      uint_t
  */
 typedef npy_longlong __pyx_t_5numpy_longlong_t;
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":757
  * ctypedef npy_longlong   longlong_t
- * 
+ *
  * ctypedef npy_ulong      uint_t             # <<<<<<<<<<<<<<
  * ctypedef npy_ulonglong  ulonglong_t
- * 
+ *
  */
 typedef npy_ulong __pyx_t_5numpy_uint_t;
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":758
- * 
+ *
  * ctypedef npy_ulong      uint_t
  * ctypedef npy_ulonglong  ulonglong_t             # <<<<<<<<<<<<<<
- * 
+ *
  * ctypedef npy_intp       intp_t
  */
 typedef npy_ulonglong __pyx_t_5numpy_ulonglong_t;
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":760
  * ctypedef npy_ulonglong  ulonglong_t
- * 
+ *
  * ctypedef npy_intp       intp_t             # <<<<<<<<<<<<<<
  * ctypedef npy_uintp      uintp_t
- * 
+ *
  */
 typedef npy_intp __pyx_t_5numpy_intp_t;
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":761
- * 
+ *
  * ctypedef npy_intp       intp_t
  * ctypedef npy_uintp      uintp_t             # <<<<<<<<<<<<<<
- * 
+ *
  * ctypedef npy_double     float_t
  */
 typedef npy_uintp __pyx_t_5numpy_uintp_t;
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":763
  * ctypedef npy_uintp      uintp_t
- * 
+ *
  * ctypedef npy_double     float_t             # <<<<<<<<<<<<<<
  * ctypedef npy_double     double_t
  * ctypedef npy_longdouble longdouble_t
@@ -1734,11 +1734,11 @@ typedef npy_uintp __pyx_t_5numpy_uintp_t;
 typedef npy_double __pyx_t_5numpy_float_t;
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":764
- * 
+ *
  * ctypedef npy_double     float_t
  * ctypedef npy_double     double_t             # <<<<<<<<<<<<<<
  * ctypedef npy_longdouble longdouble_t
- * 
+ *
  */
 typedef npy_double __pyx_t_5numpy_double_t;
 
@@ -1746,7 +1746,7 @@ typedef npy_double __pyx_t_5numpy_double_t;
  * ctypedef npy_double     float_t
  * ctypedef npy_double     double_t
  * ctypedef npy_longdouble longdouble_t             # <<<<<<<<<<<<<<
- * 
+ *
  * ctypedef npy_cfloat      cfloat_t
  */
 typedef npy_longdouble __pyx_t_5numpy_longdouble_t;
@@ -1783,7 +1783,7 @@ struct __pyx_obj_11pycocotools_5_mask_Masks;
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":767
  * ctypedef npy_longdouble longdouble_t
- * 
+ *
  * ctypedef npy_cfloat      cfloat_t             # <<<<<<<<<<<<<<
  * ctypedef npy_cdouble     cdouble_t
  * ctypedef npy_clongdouble clongdouble_t
@@ -1791,11 +1791,11 @@ struct __pyx_obj_11pycocotools_5_mask_Masks;
 typedef npy_cfloat __pyx_t_5numpy_cfloat_t;
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":768
- * 
+ *
  * ctypedef npy_cfloat      cfloat_t
  * ctypedef npy_cdouble     cdouble_t             # <<<<<<<<<<<<<<
  * ctypedef npy_clongdouble clongdouble_t
- * 
+ *
  */
 typedef npy_cdouble __pyx_t_5numpy_cdouble_t;
 
@@ -1803,16 +1803,16 @@ typedef npy_cdouble __pyx_t_5numpy_cdouble_t;
  * ctypedef npy_cfloat      cfloat_t
  * ctypedef npy_cdouble     cdouble_t
  * ctypedef npy_clongdouble clongdouble_t             # <<<<<<<<<<<<<<
- * 
+ *
  * ctypedef npy_cdouble     complex_t
  */
 typedef npy_clongdouble __pyx_t_5numpy_clongdouble_t;
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":771
  * ctypedef npy_clongdouble clongdouble_t
- * 
+ *
  * ctypedef npy_cdouble     complex_t             # <<<<<<<<<<<<<<
- * 
+ *
  * cdef inline object PyArray_MultiIterNew1(a):
  */
 typedef npy_cdouble __pyx_t_5numpy_complex_t;
@@ -3947,7 +3947,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 /* #### Code section: module_code ### */
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":245
- * 
+ *
  *         @property
  *         cdef inline PyObject* base(self) nogil:             # <<<<<<<<<<<<<<
  *             """Returns a borrowed reference to the object owning the data/memory.
@@ -3961,14 +3961,14 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_7ndarray_4base_base(PyArrayObject 
  *             """Returns a borrowed reference to the object owning the data/memory.
  *             """
  *             return PyArray_BASE(self)             # <<<<<<<<<<<<<<
- * 
+ *
  *         @property
  */
   __pyx_r = PyArray_BASE(__pyx_v_self);
   goto __pyx_L0;
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":245
- * 
+ *
  *         @property
  *         cdef inline PyObject* base(self) nogil:             # <<<<<<<<<<<<<<
  *             """Returns a borrowed reference to the object owning the data/memory.
@@ -3981,7 +3981,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_7ndarray_4base_base(PyArrayObject 
 }
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":251
- * 
+ *
  *         @property
  *         cdef inline dtype descr(self):             # <<<<<<<<<<<<<<
  *             """Returns an owned reference to the dtype of the array.
@@ -3998,7 +3998,7 @@ static CYTHON_INLINE PyArray_Descr *__pyx_f_5numpy_7ndarray_5descr_descr(PyArray
  *             """Returns an owned reference to the dtype of the array.
  *             """
  *             return <dtype>PyArray_DESCR(self)             # <<<<<<<<<<<<<<
- * 
+ *
  *         @property
  */
   __Pyx_XDECREF((PyObject *)__pyx_r);
@@ -4008,7 +4008,7 @@ static CYTHON_INLINE PyArray_Descr *__pyx_f_5numpy_7ndarray_5descr_descr(PyArray
   goto __pyx_L0;
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":251
- * 
+ *
  *         @property
  *         cdef inline dtype descr(self):             # <<<<<<<<<<<<<<
  *             """Returns an owned reference to the dtype of the array.
@@ -4023,7 +4023,7 @@ static CYTHON_INLINE PyArray_Descr *__pyx_f_5numpy_7ndarray_5descr_descr(PyArray
 }
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":257
- * 
+ *
  *         @property
  *         cdef inline int ndim(self) nogil:             # <<<<<<<<<<<<<<
  *             """Returns the number of dimensions in the array.
@@ -4037,14 +4037,14 @@ static CYTHON_INLINE int __pyx_f_5numpy_7ndarray_4ndim_ndim(PyArrayObject *__pyx
  *             """Returns the number of dimensions in the array.
  *             """
  *             return PyArray_NDIM(self)             # <<<<<<<<<<<<<<
- * 
+ *
  *         @property
  */
   __pyx_r = PyArray_NDIM(__pyx_v_self);
   goto __pyx_L0;
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":257
- * 
+ *
  *         @property
  *         cdef inline int ndim(self) nogil:             # <<<<<<<<<<<<<<
  *             """Returns the number of dimensions in the array.
@@ -4057,7 +4057,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_7ndarray_4ndim_ndim(PyArrayObject *__pyx
 }
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":263
- * 
+ *
  *         @property
  *         cdef inline npy_intp *shape(self) nogil:             # <<<<<<<<<<<<<<
  *             """Returns a pointer to the dimensions/shape of the array.
@@ -4071,14 +4071,14 @@ static CYTHON_INLINE npy_intp *__pyx_f_5numpy_7ndarray_5shape_shape(PyArrayObjec
  *             Can return NULL for 0-dimensional arrays.
  *             """
  *             return PyArray_DIMS(self)             # <<<<<<<<<<<<<<
- * 
+ *
  *         @property
  */
   __pyx_r = PyArray_DIMS(__pyx_v_self);
   goto __pyx_L0;
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":263
- * 
+ *
  *         @property
  *         cdef inline npy_intp *shape(self) nogil:             # <<<<<<<<<<<<<<
  *             """Returns a pointer to the dimensions/shape of the array.
@@ -4091,7 +4091,7 @@ static CYTHON_INLINE npy_intp *__pyx_f_5numpy_7ndarray_5shape_shape(PyArrayObjec
 }
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":271
- * 
+ *
  *         @property
  *         cdef inline npy_intp *strides(self) nogil:             # <<<<<<<<<<<<<<
  *             """Returns a pointer to the strides of the array.
@@ -4105,14 +4105,14 @@ static CYTHON_INLINE npy_intp *__pyx_f_5numpy_7ndarray_7strides_strides(PyArrayO
  *             The number of elements matches the number of dimensions of the array (ndim).
  *             """
  *             return PyArray_STRIDES(self)             # <<<<<<<<<<<<<<
- * 
+ *
  *         @property
  */
   __pyx_r = PyArray_STRIDES(__pyx_v_self);
   goto __pyx_L0;
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":271
- * 
+ *
  *         @property
  *         cdef inline npy_intp *strides(self) nogil:             # <<<<<<<<<<<<<<
  *             """Returns a pointer to the strides of the array.
@@ -4125,7 +4125,7 @@ static CYTHON_INLINE npy_intp *__pyx_f_5numpy_7ndarray_7strides_strides(PyArrayO
 }
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":278
- * 
+ *
  *         @property
  *         cdef inline npy_intp size(self) nogil:             # <<<<<<<<<<<<<<
  *             """Returns the total size (in number of elements) of the array.
@@ -4139,14 +4139,14 @@ static CYTHON_INLINE npy_intp __pyx_f_5numpy_7ndarray_4size_size(PyArrayObject *
  *             """Returns the total size (in number of elements) of the array.
  *             """
  *             return PyArray_SIZE(self)             # <<<<<<<<<<<<<<
- * 
+ *
  *         @property
  */
   __pyx_r = PyArray_SIZE(__pyx_v_self);
   goto __pyx_L0;
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":278
- * 
+ *
  *         @property
  *         cdef inline npy_intp size(self) nogil:             # <<<<<<<<<<<<<<
  *             """Returns the total size (in number of elements) of the array.
@@ -4159,7 +4159,7 @@ static CYTHON_INLINE npy_intp __pyx_f_5numpy_7ndarray_4size_size(PyArrayObject *
 }
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":284
- * 
+ *
  *         @property
  *         cdef inline char* data(self) nogil:             # <<<<<<<<<<<<<<
  *             """The pointer to the data buffer as a char*.
@@ -4173,14 +4173,14 @@ static CYTHON_INLINE char *__pyx_f_5numpy_7ndarray_4data_data(PyArrayObject *__p
  *             of `PyArray_DATA()` instead, which returns a 'void*'.
  *             """
  *             return PyArray_BYTES(self)             # <<<<<<<<<<<<<<
- * 
+ *
  *     ctypedef unsigned char      npy_bool
  */
   __pyx_r = PyArray_BYTES(__pyx_v_self);
   goto __pyx_L0;
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":284
- * 
+ *
  *         @property
  *         cdef inline char* data(self) nogil:             # <<<<<<<<<<<<<<
  *             """The pointer to the data buffer as a char*.
@@ -4194,10 +4194,10 @@ static CYTHON_INLINE char *__pyx_f_5numpy_7ndarray_4data_data(PyArrayObject *__p
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":773
  * ctypedef npy_cdouble     complex_t
- * 
+ *
  * cdef inline object PyArray_MultiIterNew1(a):             # <<<<<<<<<<<<<<
  *     return PyArray_MultiIterNew(1, <void*>a)
- * 
+ *
  */
 
 static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew1(PyObject *__pyx_v_a) {
@@ -4210,10 +4210,10 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew1(PyObject *__
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew1", 1);
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":774
- * 
+ *
  * cdef inline object PyArray_MultiIterNew1(a):
  *     return PyArray_MultiIterNew(1, <void*>a)             # <<<<<<<<<<<<<<
- * 
+ *
  * cdef inline object PyArray_MultiIterNew2(a, b):
  */
   __Pyx_XDECREF(__pyx_r);
@@ -4225,10 +4225,10 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew1(PyObject *__
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":773
  * ctypedef npy_cdouble     complex_t
- * 
+ *
  * cdef inline object PyArray_MultiIterNew1(a):             # <<<<<<<<<<<<<<
  *     return PyArray_MultiIterNew(1, <void*>a)
- * 
+ *
  */
 
   /* function exit code */
@@ -4244,10 +4244,10 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew1(PyObject *__
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":776
  *     return PyArray_MultiIterNew(1, <void*>a)
- * 
+ *
  * cdef inline object PyArray_MultiIterNew2(a, b):             # <<<<<<<<<<<<<<
  *     return PyArray_MultiIterNew(2, <void*>a, <void*>b)
- * 
+ *
  */
 
 static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew2(PyObject *__pyx_v_a, PyObject *__pyx_v_b) {
@@ -4260,10 +4260,10 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew2(PyObject *__
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew2", 1);
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":777
- * 
+ *
  * cdef inline object PyArray_MultiIterNew2(a, b):
  *     return PyArray_MultiIterNew(2, <void*>a, <void*>b)             # <<<<<<<<<<<<<<
- * 
+ *
  * cdef inline object PyArray_MultiIterNew3(a, b, c):
  */
   __Pyx_XDECREF(__pyx_r);
@@ -4275,10 +4275,10 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew2(PyObject *__
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":776
  *     return PyArray_MultiIterNew(1, <void*>a)
- * 
+ *
  * cdef inline object PyArray_MultiIterNew2(a, b):             # <<<<<<<<<<<<<<
  *     return PyArray_MultiIterNew(2, <void*>a, <void*>b)
- * 
+ *
  */
 
   /* function exit code */
@@ -4294,10 +4294,10 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew2(PyObject *__
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":779
  *     return PyArray_MultiIterNew(2, <void*>a, <void*>b)
- * 
+ *
  * cdef inline object PyArray_MultiIterNew3(a, b, c):             # <<<<<<<<<<<<<<
  *     return PyArray_MultiIterNew(3, <void*>a, <void*>b, <void*> c)
- * 
+ *
  */
 
 static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew3(PyObject *__pyx_v_a, PyObject *__pyx_v_b, PyObject *__pyx_v_c) {
@@ -4310,10 +4310,10 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew3(PyObject *__
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew3", 1);
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":780
- * 
+ *
  * cdef inline object PyArray_MultiIterNew3(a, b, c):
  *     return PyArray_MultiIterNew(3, <void*>a, <void*>b, <void*> c)             # <<<<<<<<<<<<<<
- * 
+ *
  * cdef inline object PyArray_MultiIterNew4(a, b, c, d):
  */
   __Pyx_XDECREF(__pyx_r);
@@ -4325,10 +4325,10 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew3(PyObject *__
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":779
  *     return PyArray_MultiIterNew(2, <void*>a, <void*>b)
- * 
+ *
  * cdef inline object PyArray_MultiIterNew3(a, b, c):             # <<<<<<<<<<<<<<
  *     return PyArray_MultiIterNew(3, <void*>a, <void*>b, <void*> c)
- * 
+ *
  */
 
   /* function exit code */
@@ -4344,10 +4344,10 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew3(PyObject *__
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":782
  *     return PyArray_MultiIterNew(3, <void*>a, <void*>b, <void*> c)
- * 
+ *
  * cdef inline object PyArray_MultiIterNew4(a, b, c, d):             # <<<<<<<<<<<<<<
  *     return PyArray_MultiIterNew(4, <void*>a, <void*>b, <void*>c, <void*> d)
- * 
+ *
  */
 
 static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew4(PyObject *__pyx_v_a, PyObject *__pyx_v_b, PyObject *__pyx_v_c, PyObject *__pyx_v_d) {
@@ -4360,10 +4360,10 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew4(PyObject *__
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew4", 1);
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":783
- * 
+ *
  * cdef inline object PyArray_MultiIterNew4(a, b, c, d):
  *     return PyArray_MultiIterNew(4, <void*>a, <void*>b, <void*>c, <void*> d)             # <<<<<<<<<<<<<<
- * 
+ *
  * cdef inline object PyArray_MultiIterNew5(a, b, c, d, e):
  */
   __Pyx_XDECREF(__pyx_r);
@@ -4375,10 +4375,10 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew4(PyObject *__
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":782
  *     return PyArray_MultiIterNew(3, <void*>a, <void*>b, <void*> c)
- * 
+ *
  * cdef inline object PyArray_MultiIterNew4(a, b, c, d):             # <<<<<<<<<<<<<<
  *     return PyArray_MultiIterNew(4, <void*>a, <void*>b, <void*>c, <void*> d)
- * 
+ *
  */
 
   /* function exit code */
@@ -4394,10 +4394,10 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew4(PyObject *__
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":785
  *     return PyArray_MultiIterNew(4, <void*>a, <void*>b, <void*>c, <void*> d)
- * 
+ *
  * cdef inline object PyArray_MultiIterNew5(a, b, c, d, e):             # <<<<<<<<<<<<<<
  *     return PyArray_MultiIterNew(5, <void*>a, <void*>b, <void*>c, <void*> d, <void*> e)
- * 
+ *
  */
 
 static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew5(PyObject *__pyx_v_a, PyObject *__pyx_v_b, PyObject *__pyx_v_c, PyObject *__pyx_v_d, PyObject *__pyx_v_e) {
@@ -4410,10 +4410,10 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew5(PyObject *__
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew5", 1);
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":786
- * 
+ *
  * cdef inline object PyArray_MultiIterNew5(a, b, c, d, e):
  *     return PyArray_MultiIterNew(5, <void*>a, <void*>b, <void*>c, <void*> d, <void*> e)             # <<<<<<<<<<<<<<
- * 
+ *
  * cdef inline tuple PyDataType_SHAPE(dtype d):
  */
   __Pyx_XDECREF(__pyx_r);
@@ -4425,10 +4425,10 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew5(PyObject *__
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":785
  *     return PyArray_MultiIterNew(4, <void*>a, <void*>b, <void*>c, <void*> d)
- * 
+ *
  * cdef inline object PyArray_MultiIterNew5(a, b, c, d, e):             # <<<<<<<<<<<<<<
  *     return PyArray_MultiIterNew(5, <void*>a, <void*>b, <void*>c, <void*> d, <void*> e)
- * 
+ *
  */
 
   /* function exit code */
@@ -4444,7 +4444,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew5(PyObject *__
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":788
  *     return PyArray_MultiIterNew(5, <void*>a, <void*>b, <void*>c, <void*> d, <void*> e)
- * 
+ *
  * cdef inline tuple PyDataType_SHAPE(dtype d):             # <<<<<<<<<<<<<<
  *     if PyDataType_HASSUBARRAY(d):
  *         return <tuple>d.subarray.shape
@@ -4457,7 +4457,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
   __Pyx_RefNannySetupContext("PyDataType_SHAPE", 1);
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":789
- * 
+ *
  * cdef inline tuple PyDataType_SHAPE(dtype d):
  *     if PyDataType_HASSUBARRAY(d):             # <<<<<<<<<<<<<<
  *         return <tuple>d.subarray.shape
@@ -4479,7 +4479,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
     goto __pyx_L0;
 
     /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":789
- * 
+ *
  * cdef inline tuple PyDataType_SHAPE(dtype d):
  *     if PyDataType_HASSUBARRAY(d):             # <<<<<<<<<<<<<<
  *         return <tuple>d.subarray.shape
@@ -4491,8 +4491,8 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
  *         return <tuple>d.subarray.shape
  *     else:
  *         return ()             # <<<<<<<<<<<<<<
- * 
- * 
+ *
+ *
  */
   /*else*/ {
     __Pyx_XDECREF(__pyx_r);
@@ -4503,7 +4503,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":788
  *     return PyArray_MultiIterNew(5, <void*>a, <void*>b, <void*>c, <void*> d, <void*> e)
- * 
+ *
  * cdef inline tuple PyDataType_SHAPE(dtype d):             # <<<<<<<<<<<<<<
  *     if PyDataType_HASSUBARRAY(d):
  *         return <tuple>d.subarray.shape
@@ -4518,7 +4518,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":968
  *     int _import_umath() except -1
- * 
+ *
  * cdef inline void set_array_base(ndarray arr, object base):             # <<<<<<<<<<<<<<
  *     Py_INCREF(base) # important to do this before stealing the reference below!
  *     PyArray_SetBaseObject(arr, base)
@@ -4531,11 +4531,11 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
   int __pyx_clineno = 0;
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":969
- * 
+ *
  * cdef inline void set_array_base(ndarray arr, object base):
  *     Py_INCREF(base) # important to do this before stealing the reference below!             # <<<<<<<<<<<<<<
  *     PyArray_SetBaseObject(arr, base)
- * 
+ *
  */
   Py_INCREF(__pyx_v_base);
 
@@ -4543,14 +4543,14 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
  * cdef inline void set_array_base(ndarray arr, object base):
  *     Py_INCREF(base) # important to do this before stealing the reference below!
  *     PyArray_SetBaseObject(arr, base)             # <<<<<<<<<<<<<<
- * 
+ *
  * cdef inline object get_array_base(ndarray arr):
  */
   __pyx_t_1 = PyArray_SetBaseObject(__pyx_v_arr, __pyx_v_base); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(2, 970, __pyx_L1_error)
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":968
  *     int _import_umath() except -1
- * 
+ *
  * cdef inline void set_array_base(ndarray arr, object base):             # <<<<<<<<<<<<<<
  *     Py_INCREF(base) # important to do this before stealing the reference below!
  *     PyArray_SetBaseObject(arr, base)
@@ -4565,7 +4565,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":972
  *     PyArray_SetBaseObject(arr, base)
- * 
+ *
  * cdef inline object get_array_base(ndarray arr):             # <<<<<<<<<<<<<<
  *     base = PyArray_BASE(arr)
  *     if base is NULL:
@@ -4579,7 +4579,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
   __Pyx_RefNannySetupContext("get_array_base", 1);
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":973
- * 
+ *
  * cdef inline object get_array_base(ndarray arr):
  *     base = PyArray_BASE(arr)             # <<<<<<<<<<<<<<
  *     if base is NULL:
@@ -4602,7 +4602,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
  *     if base is NULL:
  *         return None             # <<<<<<<<<<<<<<
  *     return <object>base
- * 
+ *
  */
     __Pyx_XDECREF(__pyx_r);
     __pyx_r = Py_None; __Pyx_INCREF(Py_None);
@@ -4621,7 +4621,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
  *     if base is NULL:
  *         return None
  *     return <object>base             # <<<<<<<<<<<<<<
- * 
+ *
  * # Versions of the import_* functions which are more suitable for
  */
   __Pyx_XDECREF(__pyx_r);
@@ -4631,7 +4631,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":972
  *     PyArray_SetBaseObject(arr, base)
- * 
+ *
  * cdef inline object get_array_base(ndarray arr):             # <<<<<<<<<<<<<<
  *     base = PyArray_BASE(arr)
  *     if base is NULL:
@@ -4712,7 +4712,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
  *         __pyx_import_array()
  *     except Exception:             # <<<<<<<<<<<<<<
  *         raise ImportError("numpy.core.multiarray failed to import")
- * 
+ *
  */
     __pyx_t_4 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(&((PyTypeObject*)PyExc_Exception)[0])));
     if (__pyx_t_4) {
@@ -4726,7 +4726,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
  *         __pyx_import_array()
  *     except Exception:
  *         raise ImportError("numpy.core.multiarray failed to import")             # <<<<<<<<<<<<<<
- * 
+ *
  * cdef inline int import_umath() except -1:
  */
       __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(2, 984, __pyx_L5_except_error)
@@ -4778,7 +4778,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":986
  *         raise ImportError("numpy.core.multiarray failed to import")
- * 
+ *
  * cdef inline int import_umath() except -1:             # <<<<<<<<<<<<<<
  *     try:
  *         _import_umath()
@@ -4801,7 +4801,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
   __Pyx_RefNannySetupContext("import_umath", 1);
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":987
- * 
+ *
  * cdef inline int import_umath() except -1:
  *     try:             # <<<<<<<<<<<<<<
  *         _import_umath()
@@ -4826,7 +4826,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
       __pyx_t_4 = _import_umath(); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(2, 988, __pyx_L3_error)
 
       /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":987
- * 
+ *
  * cdef inline int import_umath() except -1:
  *     try:             # <<<<<<<<<<<<<<
  *         _import_umath()
@@ -4844,7 +4844,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
  *         _import_umath()
  *     except Exception:             # <<<<<<<<<<<<<<
  *         raise ImportError("numpy.core.umath failed to import")
- * 
+ *
  */
     __pyx_t_4 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(&((PyTypeObject*)PyExc_Exception)[0])));
     if (__pyx_t_4) {
@@ -4858,7 +4858,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
  *         _import_umath()
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
- * 
+ *
  * cdef inline int import_ufunc() except -1:
  */
       __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(2, 990, __pyx_L5_except_error)
@@ -4870,7 +4870,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
     goto __pyx_L5_except_error;
 
     /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":987
- * 
+ *
  * cdef inline int import_umath() except -1:
  *     try:             # <<<<<<<<<<<<<<
  *         _import_umath()
@@ -4887,7 +4887,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":986
  *         raise ImportError("numpy.core.multiarray failed to import")
- * 
+ *
  * cdef inline int import_umath() except -1:             # <<<<<<<<<<<<<<
  *     try:
  *         _import_umath()
@@ -4910,7 +4910,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":992
  *         raise ImportError("numpy.core.umath failed to import")
- * 
+ *
  * cdef inline int import_ufunc() except -1:             # <<<<<<<<<<<<<<
  *     try:
  *         _import_umath()
@@ -4933,7 +4933,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
   __Pyx_RefNannySetupContext("import_ufunc", 1);
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":993
- * 
+ *
  * cdef inline int import_ufunc() except -1:
  *     try:             # <<<<<<<<<<<<<<
  *         _import_umath()
@@ -4958,7 +4958,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
       __pyx_t_4 = _import_umath(); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(2, 994, __pyx_L3_error)
 
       /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":993
- * 
+ *
  * cdef inline int import_ufunc() except -1:
  *     try:             # <<<<<<<<<<<<<<
  *         _import_umath()
@@ -4976,7 +4976,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
  *         _import_umath()
  *     except Exception:             # <<<<<<<<<<<<<<
  *         raise ImportError("numpy.core.umath failed to import")
- * 
+ *
  */
     __pyx_t_4 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(&((PyTypeObject*)PyExc_Exception)[0])));
     if (__pyx_t_4) {
@@ -4990,8 +4990,8 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
  *         _import_umath()
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
- * 
- * 
+ *
+ *
  */
       __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(2, 996, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_8);
@@ -5002,7 +5002,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
     goto __pyx_L5_except_error;
 
     /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":993
- * 
+ *
  * cdef inline int import_ufunc() except -1:
  *     try:             # <<<<<<<<<<<<<<
  *         _import_umath()
@@ -5019,7 +5019,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":992
  *         raise ImportError("numpy.core.umath failed to import")
- * 
+ *
  * cdef inline int import_ufunc() except -1:             # <<<<<<<<<<<<<<
  *     try:
  *         _import_umath()
@@ -5041,8 +5041,8 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
 }
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":999
- * 
- * 
+ *
+ *
  * cdef inline bint is_timedelta64_object(object obj):             # <<<<<<<<<<<<<<
  *     """
  *     Cython equivalent of `isinstance(obj, np.timedelta64)`
@@ -5055,15 +5055,15 @@ static CYTHON_INLINE int __pyx_f_5numpy_is_timedelta64_object(PyObject *__pyx_v_
  *     bool
  *     """
  *     return PyObject_TypeCheck(obj, &PyTimedeltaArrType_Type)             # <<<<<<<<<<<<<<
- * 
- * 
+ *
+ *
  */
   __pyx_r = PyObject_TypeCheck(__pyx_v_obj, (&PyTimedeltaArrType_Type));
   goto __pyx_L0;
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":999
- * 
- * 
+ *
+ *
  * cdef inline bint is_timedelta64_object(object obj):             # <<<<<<<<<<<<<<
  *     """
  *     Cython equivalent of `isinstance(obj, np.timedelta64)`
@@ -5075,8 +5075,8 @@ static CYTHON_INLINE int __pyx_f_5numpy_is_timedelta64_object(PyObject *__pyx_v_
 }
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":1014
- * 
- * 
+ *
+ *
  * cdef inline bint is_datetime64_object(object obj):             # <<<<<<<<<<<<<<
  *     """
  *     Cython equivalent of `isinstance(obj, np.datetime64)`
@@ -5089,15 +5089,15 @@ static CYTHON_INLINE int __pyx_f_5numpy_is_datetime64_object(PyObject *__pyx_v_o
  *     bool
  *     """
  *     return PyObject_TypeCheck(obj, &PyDatetimeArrType_Type)             # <<<<<<<<<<<<<<
- * 
- * 
+ *
+ *
  */
   __pyx_r = PyObject_TypeCheck(__pyx_v_obj, (&PyDatetimeArrType_Type));
   goto __pyx_L0;
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":1014
- * 
- * 
+ *
+ *
  * cdef inline bint is_datetime64_object(object obj):             # <<<<<<<<<<<<<<
  *     """
  *     Cython equivalent of `isinstance(obj, np.datetime64)`
@@ -5109,8 +5109,8 @@ static CYTHON_INLINE int __pyx_f_5numpy_is_datetime64_object(PyObject *__pyx_v_o
 }
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":1029
- * 
- * 
+ *
+ *
  * cdef inline npy_datetime get_datetime64_value(object obj) nogil:             # <<<<<<<<<<<<<<
  *     """
  *     returns the int64 value underlying scalar numpy datetime64 object
@@ -5123,15 +5123,15 @@ static CYTHON_INLINE npy_datetime __pyx_f_5numpy_get_datetime64_value(PyObject *
  *     also needed.  That can be found using `get_datetime64_unit`.
  *     """
  *     return (<PyDatetimeScalarObject*>obj).obval             # <<<<<<<<<<<<<<
- * 
- * 
+ *
+ *
  */
   __pyx_r = ((PyDatetimeScalarObject *)__pyx_v_obj)->obval;
   goto __pyx_L0;
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":1029
- * 
- * 
+ *
+ *
  * cdef inline npy_datetime get_datetime64_value(object obj) nogil:             # <<<<<<<<<<<<<<
  *     """
  *     returns the int64 value underlying scalar numpy datetime64 object
@@ -5143,8 +5143,8 @@ static CYTHON_INLINE npy_datetime __pyx_f_5numpy_get_datetime64_value(PyObject *
 }
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":1039
- * 
- * 
+ *
+ *
  * cdef inline npy_timedelta get_timedelta64_value(object obj) nogil:             # <<<<<<<<<<<<<<
  *     """
  *     returns the int64 value underlying scalar numpy timedelta64 object
@@ -5157,15 +5157,15 @@ static CYTHON_INLINE npy_timedelta __pyx_f_5numpy_get_timedelta64_value(PyObject
  *     returns the int64 value underlying scalar numpy timedelta64 object
  *     """
  *     return (<PyTimedeltaScalarObject*>obj).obval             # <<<<<<<<<<<<<<
- * 
- * 
+ *
+ *
  */
   __pyx_r = ((PyTimedeltaScalarObject *)__pyx_v_obj)->obval;
   goto __pyx_L0;
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":1039
- * 
- * 
+ *
+ *
  * cdef inline npy_timedelta get_timedelta64_value(object obj) nogil:             # <<<<<<<<<<<<<<
  *     """
  *     returns the int64 value underlying scalar numpy timedelta64 object
@@ -5177,8 +5177,8 @@ static CYTHON_INLINE npy_timedelta __pyx_f_5numpy_get_timedelta64_value(PyObject
 }
 
 /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":1046
- * 
- * 
+ *
+ *
  * cdef inline NPY_DATETIMEUNIT get_datetime64_unit(object obj) nogil:             # <<<<<<<<<<<<<<
  *     """
  *     returns the unit part of the dtype for a numpy datetime64 object.
@@ -5196,8 +5196,8 @@ static CYTHON_INLINE NPY_DATETIMEUNIT __pyx_f_5numpy_get_datetime64_unit(PyObjec
   goto __pyx_L0;
 
   /* "../../../../../usr/lib/python3/dist-packages/numpy/__init__.cython-30.pxd":1046
- * 
- * 
+ *
+ *
  * cdef inline NPY_DATETIMEUNIT get_datetime64_unit(object obj) nogil:             # <<<<<<<<<<<<<<
  *     """
  *     returns the unit part of the dtype for a numpy datetime64 object.
@@ -5210,7 +5210,7 @@ static CYTHON_INLINE NPY_DATETIMEUNIT __pyx_f_5numpy_get_datetime64_unit(PyObjec
 
 /* "pycocotools/_mask.pyx":60
  *     cdef siz _n
- * 
+ *
  *     def __cinit__(self, siz n =0):             # <<<<<<<<<<<<<<
  *         rlesInit(&self._R, n)
  *         self._n = n
@@ -5305,11 +5305,11 @@ static int __pyx_pf_11pycocotools_5_mask_4RLEs___cinit__(struct __pyx_obj_11pyco
   int __pyx_r;
 
   /* "pycocotools/_mask.pyx":61
- * 
+ *
  *     def __cinit__(self, siz n =0):
  *         rlesInit(&self._R, n)             # <<<<<<<<<<<<<<
  *         self._n = n
- * 
+ *
  */
   rlesInit((&__pyx_v_self->_R), __pyx_v_n);
 
@@ -5317,14 +5317,14 @@ static int __pyx_pf_11pycocotools_5_mask_4RLEs___cinit__(struct __pyx_obj_11pyco
  *     def __cinit__(self, siz n =0):
  *         rlesInit(&self._R, n)
  *         self._n = n             # <<<<<<<<<<<<<<
- * 
+ *
  *     # free the RLE array here
  */
   __pyx_v_self->_n = __pyx_v_n;
 
   /* "pycocotools/_mask.pyx":60
  *     cdef siz _n
- * 
+ *
  *     def __cinit__(self, siz n =0):             # <<<<<<<<<<<<<<
  *         rlesInit(&self._R, n)
  *         self._n = n
@@ -5336,7 +5336,7 @@ static int __pyx_pf_11pycocotools_5_mask_4RLEs___cinit__(struct __pyx_obj_11pyco
 }
 
 /* "pycocotools/_mask.pyx":65
- * 
+ *
  *     # free the RLE array here
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
  *         if self._R is not NULL:
@@ -5414,7 +5414,7 @@ static void __pyx_pf_11pycocotools_5_mask_4RLEs_2__dealloc__(struct __pyx_obj_11
   }
 
   /* "pycocotools/_mask.pyx":65
- * 
+ *
  *     # free the RLE array here
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
  *         if self._R is not NULL:
@@ -5472,7 +5472,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_4RLEs_4__getattr__(struct __pyx_o
  *         if key == 'n':
  *             return self._n             # <<<<<<<<<<<<<<
  *         raise AttributeError(key)
- * 
+ *
  */
     __Pyx_XDECREF(__pyx_r);
     __pyx_t_2 = __Pyx_PyInt_From_siz(__pyx_v_self->_n); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 72, __pyx_L1_error)
@@ -5494,7 +5494,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_4RLEs_4__getattr__(struct __pyx_o
  *         if key == 'n':
  *             return self._n
  *         raise AttributeError(key)             # <<<<<<<<<<<<<<
- * 
+ *
  * # python class to wrap Mask array in C
  */
   __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_builtin_AttributeError, __pyx_v_key); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 73, __pyx_L1_error)
@@ -5529,7 +5529,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_4RLEs_4__getattr__(struct __pyx_o
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_4RLEs_7__reduce_cython__(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_4RLEs_7__reduce_cython__(PyObject *__pyx_v_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -5537,7 +5537,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_4RLEs_7__reduce_cython__ = {"__reduce_cython__", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_4RLEs_7__reduce_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_4RLEs_7__reduce_cython__(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_4RLEs_7__reduce_cython__(PyObject *__pyx_v_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -5609,7 +5609,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_4RLEs_6__reduce_cython__(CYTHON_U
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_4RLEs_9__setstate_cython__(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_4RLEs_9__setstate_cython__(PyObject *__pyx_v_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -5617,7 +5617,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_4RLEs_9__setstate_cython__ = {"__setstate_cython__", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_4RLEs_9__setstate_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_4RLEs_9__setstate_cython__(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_4RLEs_9__setstate_cython__(PyObject *__pyx_v_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -5738,7 +5738,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_4RLEs_8__setstate_cython__(CYTHON
 
 /* "pycocotools/_mask.pyx":83
  *     cdef siz _n
- * 
+ *
  *     def __cinit__(self, h, w, n):             # <<<<<<<<<<<<<<
  *         self._mask = <byte*> malloc(h*w*n* sizeof(byte))
  *         self._h = h
@@ -5867,7 +5867,7 @@ static int __pyx_pf_11pycocotools_5_mask_5Masks___cinit__(struct __pyx_obj_11pyc
   __Pyx_RefNannySetupContext("__cinit__", 1);
 
   /* "pycocotools/_mask.pyx":84
- * 
+ *
  *     def __cinit__(self, h, w, n):
  *         self._mask = <byte*> malloc(h*w*n* sizeof(byte))             # <<<<<<<<<<<<<<
  *         self._h = h
@@ -5920,7 +5920,7 @@ static int __pyx_pf_11pycocotools_5_mask_5Masks___cinit__(struct __pyx_obj_11pyc
 
   /* "pycocotools/_mask.pyx":83
  *     cdef siz _n
- * 
+ *
  *     def __cinit__(self, h, w, n):             # <<<<<<<<<<<<<<
  *         self._mask = <byte*> malloc(h*w*n* sizeof(byte))
  *         self._h = h
@@ -5941,7 +5941,7 @@ static int __pyx_pf_11pycocotools_5_mask_5Masks___cinit__(struct __pyx_obj_11pyc
 }
 
 /* "pycocotools/_mask.pyx":93
- * 
+ *
  *     # called when passing into np.array() and return an np.ndarray in column-major order
  *     def __array__(self):             # <<<<<<<<<<<<<<
  *         cdef np.npy_intp shape[1]
@@ -5949,7 +5949,7 @@ static int __pyx_pf_11pycocotools_5_mask_5Masks___cinit__(struct __pyx_obj_11pyc
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_5Masks_3__array__(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_5Masks_3__array__(PyObject *__pyx_v_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -5957,7 +5957,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_5Masks_3__array__ = {"__array__", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_5Masks_3__array__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_5Masks_3__array__(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_5Masks_3__array__(PyObject *__pyx_v_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -6063,7 +6063,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_5Masks_2__array__(struct __pyx_ob
  *         # The _mask allocated by Masks is now handled by ndarray
  *         PyArray_ENABLEFLAGS(ndarray, np.NPY_OWNDATA)             # <<<<<<<<<<<<<<
  *         return ndarray
- * 
+ *
  */
   if (!(likely(((__pyx_v_ndarray) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_ndarray, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 99, __pyx_L1_error)
   PyArray_ENABLEFLAGS(((PyArrayObject *)__pyx_v_ndarray), NPY_OWNDATA);
@@ -6072,7 +6072,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_5Masks_2__array__(struct __pyx_ob
  *         # The _mask allocated by Masks is now handled by ndarray
  *         PyArray_ENABLEFLAGS(ndarray, np.NPY_OWNDATA)
  *         return ndarray             # <<<<<<<<<<<<<<
- * 
+ *
  * # internal conversion from Python RLEs object to compressed RLE format
  */
   __Pyx_XDECREF(__pyx_r);
@@ -6081,7 +6081,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_5Masks_2__array__(struct __pyx_ob
   goto __pyx_L0;
 
   /* "pycocotools/_mask.pyx":93
- * 
+ *
  *     # called when passing into np.array() and return an np.ndarray in column-major order
  *     def __array__(self):             # <<<<<<<<<<<<<<
  *         cdef np.npy_intp shape[1]
@@ -6111,7 +6111,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_5Masks_2__array__(struct __pyx_ob
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_5Masks_5__reduce_cython__(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_5Masks_5__reduce_cython__(PyObject *__pyx_v_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -6119,7 +6119,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_5Masks_5__reduce_cython__ = {"__reduce_cython__", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_5Masks_5__reduce_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_5Masks_5__reduce_cython__(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_5Masks_5__reduce_cython__(PyObject *__pyx_v_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -6191,7 +6191,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_5Masks_4__reduce_cython__(CYTHON_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_5Masks_7__setstate_cython__(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_5Masks_7__setstate_cython__(PyObject *__pyx_v_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -6199,7 +6199,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_5Masks_7__setstate_cython__ = {"__setstate_cython__", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_5Masks_7__setstate_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_5Masks_7__setstate_cython__(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_5Masks_7__setstate_cython__(PyObject *__pyx_v_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -6319,7 +6319,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_5Masks_6__setstate_cython__(CYTHO
 }
 
 /* "pycocotools/_mask.pyx":103
- * 
+ *
  * # internal conversion from Python RLEs object to compressed RLE format
  * def _toString(RLEs Rs):             # <<<<<<<<<<<<<<
  *     cdef siz n = Rs.n
@@ -6327,7 +6327,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_5Masks_6__setstate_cython__(CYTHO
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_1_toString(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_1_toString(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -6335,7 +6335,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_1_toString = {"_toString", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_1_toString, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_1_toString(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_1_toString(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -6554,7 +6554,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask__toString(CYTHON_UNUSED PyObject 
  *         })
  *         free(c_string)             # <<<<<<<<<<<<<<
  *     return objs
- * 
+ *
  */
     free(__pyx_v_c_string);
   }
@@ -6563,7 +6563,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask__toString(CYTHON_UNUSED PyObject 
  *         })
  *         free(c_string)
  *     return objs             # <<<<<<<<<<<<<<
- * 
+ *
  * # internal conversion from compressed RLE format to Python RLEs object
  */
   __Pyx_XDECREF(__pyx_r);
@@ -6572,7 +6572,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask__toString(CYTHON_UNUSED PyObject 
   goto __pyx_L0;
 
   /* "pycocotools/_mask.pyx":103
- * 
+ *
  * # internal conversion from Python RLEs object to compressed RLE format
  * def _toString(RLEs Rs):             # <<<<<<<<<<<<<<
  *     cdef siz n = Rs.n
@@ -6596,7 +6596,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask__toString(CYTHON_UNUSED PyObject 
 }
 
 /* "pycocotools/_mask.pyx":119
- * 
+ *
  * # internal conversion from compressed RLE format to Python RLEs object
  * def _frString(rleObjs):             # <<<<<<<<<<<<<<
  *     cdef siz n = len(rleObjs)
@@ -6604,7 +6604,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask__toString(CYTHON_UNUSED PyObject 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_3_frString(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_3_frString(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -6612,7 +6612,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_3_frString = {"_frString", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_3_frString, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_3_frString(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_3_frString(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -7000,7 +7000,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_2_frString(CYTHON_UNUSED PyObject
  *         c_string = py_string
  *         rleFrString( <RLE*> &Rs._R[i], <char*> c_string, obj['size'][0], obj['size'][1] )             # <<<<<<<<<<<<<<
  *     return Rs
- * 
+ *
  */
     __pyx_t_13 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_13 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 132, __pyx_L1_error)
     __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_size); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 132, __pyx_L1_error)
@@ -7034,7 +7034,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_2_frString(CYTHON_UNUSED PyObject
  *         c_string = py_string
  *         rleFrString( <RLE*> &Rs._R[i], <char*> c_string, obj['size'][0], obj['size'][1] )
  *     return Rs             # <<<<<<<<<<<<<<
- * 
+ *
  * # encode mask to RLEs objects
  */
   __Pyx_XDECREF(__pyx_r);
@@ -7043,7 +7043,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_2_frString(CYTHON_UNUSED PyObject
   goto __pyx_L0;
 
   /* "pycocotools/_mask.pyx":119
- * 
+ *
  * # internal conversion from compressed RLE format to Python RLEs object
  * def _frString(rleObjs):             # <<<<<<<<<<<<<<
  *     cdef siz n = len(rleObjs)
@@ -7080,7 +7080,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_2_frString(CYTHON_UNUSED PyObject
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_5encode(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_5encode(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -7088,7 +7088,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_5encode = {"encode", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_5encode, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_5encode(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_5encode(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -7260,7 +7260,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_4encode(CYTHON_UNUSED PyObject *_
  *     rleEncode(Rs._R,<byte*>mask.data,h,w,n)
  *     objs = _toString(Rs)             # <<<<<<<<<<<<<<
  *     return objs
- * 
+ *
  */
   __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_toString); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
@@ -7293,7 +7293,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_4encode(CYTHON_UNUSED PyObject *_
  *     rleEncode(Rs._R,<byte*>mask.data,h,w,n)
  *     objs = _toString(Rs)
  *     return objs             # <<<<<<<<<<<<<<
- * 
+ *
  * # decode mask from compressed list of RLE string or RLEs object
  */
   __Pyx_XDECREF(__pyx_r);
@@ -7334,7 +7334,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_4encode(CYTHON_UNUSED PyObject *_
 }
 
 /* "pycocotools/_mask.pyx":145
- * 
+ *
  * # decode mask from compressed list of RLE string or RLEs object
  * def decode(rleObjs):             # <<<<<<<<<<<<<<
  *     cdef RLEs Rs = _frString(rleObjs)
@@ -7342,7 +7342,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_4encode(CYTHON_UNUSED PyObject *_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_7decode(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_7decode(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -7350,7 +7350,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_7decode = {"decode", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_7decode, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_7decode(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_7decode(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -7542,7 +7542,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_6decode(CYTHON_UNUSED PyObject *_
  *     masks = Masks(h, w, n)
  *     rleDecode(<RLE*>Rs._R, masks._mask, n);             # <<<<<<<<<<<<<<
  *     return np.array(masks)
- * 
+ *
  */
   rleDecode(((RLE *)__pyx_v_Rs->_R), __pyx_v_masks->_mask, __pyx_v_n);
 
@@ -7550,7 +7550,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_6decode(CYTHON_UNUSED PyObject *_
  *     masks = Masks(h, w, n)
  *     rleDecode(<RLE*>Rs._R, masks._mask, n);
  *     return np.array(masks)             # <<<<<<<<<<<<<<
- * 
+ *
  * def merge(rleObjs, intersect=0):
  */
   __Pyx_XDECREF(__pyx_r);
@@ -7586,7 +7586,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_6decode(CYTHON_UNUSED PyObject *_
   goto __pyx_L0;
 
   /* "pycocotools/_mask.pyx":145
- * 
+ *
  * # decode mask from compressed list of RLE string or RLEs object
  * def decode(rleObjs):             # <<<<<<<<<<<<<<
  *     cdef RLEs Rs = _frString(rleObjs)
@@ -7611,14 +7611,14 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_6decode(CYTHON_UNUSED PyObject *_
 
 /* "pycocotools/_mask.pyx":152
  *     return np.array(masks)
- * 
+ *
  * def merge(rleObjs, intersect=0):             # <<<<<<<<<<<<<<
  *     cdef RLEs Rs = _frString(rleObjs)
  *     cdef RLEs R = RLEs(1)
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_9merge(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_9merge(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -7626,7 +7626,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_9merge = {"merge", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_9merge, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_9merge(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_9merge(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -7746,7 +7746,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_8merge(CYTHON_UNUSED PyObject *__
   __Pyx_RefNannySetupContext("merge", 1);
 
   /* "pycocotools/_mask.pyx":153
- * 
+ *
  * def merge(rleObjs, intersect=0):
  *     cdef RLEs Rs = _frString(rleObjs)             # <<<<<<<<<<<<<<
  *     cdef RLEs R = RLEs(1)
@@ -7807,7 +7807,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_8merge(CYTHON_UNUSED PyObject *__
  *     rleMerge(<RLE*>Rs._R, <RLE*> R._R, <siz> Rs._n, intersect)
  *     obj = _toString(R)[0]             # <<<<<<<<<<<<<<
  *     return obj
- * 
+ *
  */
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_toString); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 156, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -7843,7 +7843,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_8merge(CYTHON_UNUSED PyObject *__
  *     rleMerge(<RLE*>Rs._R, <RLE*> R._R, <siz> Rs._n, intersect)
  *     obj = _toString(R)[0]
  *     return obj             # <<<<<<<<<<<<<<
- * 
+ *
  * def area(rleObjs):
  */
   __Pyx_XDECREF(__pyx_r);
@@ -7853,7 +7853,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_8merge(CYTHON_UNUSED PyObject *__
 
   /* "pycocotools/_mask.pyx":152
  *     return np.array(masks)
- * 
+ *
  * def merge(rleObjs, intersect=0):             # <<<<<<<<<<<<<<
  *     cdef RLEs Rs = _frString(rleObjs)
  *     cdef RLEs R = RLEs(1)
@@ -7877,14 +7877,14 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_8merge(CYTHON_UNUSED PyObject *__
 
 /* "pycocotools/_mask.pyx":159
  *     return obj
- * 
+ *
  * def area(rleObjs):             # <<<<<<<<<<<<<<
  *     cdef RLEs Rs = _frString(rleObjs)
  *     cdef uint* _a = <uint*> malloc(Rs._n* sizeof(uint))
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_11area(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_11area(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -7892,7 +7892,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_11area = {"area", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_11area, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_11area(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_11area(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -7998,7 +7998,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_10area(CYTHON_UNUSED PyObject *__
   __Pyx_RefNannySetupContext("area", 1);
 
   /* "pycocotools/_mask.pyx":160
- * 
+ *
  * def area(rleObjs):
  *     cdef RLEs Rs = _frString(rleObjs)             # <<<<<<<<<<<<<<
  *     cdef uint* _a = <uint*> malloc(Rs._n* sizeof(uint))
@@ -8117,7 +8117,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_10area(CYTHON_UNUSED PyObject *__
  *     a = np.PyArray_SimpleNewFromData(1, shape, np.NPY_UINT32, _a)
  *     PyArray_ENABLEFLAGS(a, np.NPY_OWNDATA)             # <<<<<<<<<<<<<<
  *     return a
- * 
+ *
  */
   if (!(likely(((__pyx_v_a) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_a, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 167, __pyx_L1_error)
   PyArray_ENABLEFLAGS(((PyArrayObject *)__pyx_v_a), NPY_OWNDATA);
@@ -8126,7 +8126,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_10area(CYTHON_UNUSED PyObject *__
  *     a = np.PyArray_SimpleNewFromData(1, shape, np.NPY_UINT32, _a)
  *     PyArray_ENABLEFLAGS(a, np.NPY_OWNDATA)
  *     return a             # <<<<<<<<<<<<<<
- * 
+ *
  * # iou computation. support function overload (RLEs-RLEs and bbox-bbox).
  */
   __Pyx_XDECREF(__pyx_r);
@@ -8136,7 +8136,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_10area(CYTHON_UNUSED PyObject *__
 
   /* "pycocotools/_mask.pyx":159
  *     return obj
- * 
+ *
  * def area(rleObjs):             # <<<<<<<<<<<<<<
  *     cdef RLEs Rs = _frString(rleObjs)
  *     cdef uint* _a = <uint*> malloc(Rs._n* sizeof(uint))
@@ -8160,7 +8160,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_10area(CYTHON_UNUSED PyObject *__
 }
 
 /* "pycocotools/_mask.pyx":171
- * 
+ *
  * # iou computation. support function overload (RLEs-RLEs and bbox-bbox).
  * def iou( dt, gt, pyiscrowd ):             # <<<<<<<<<<<<<<
  *     def _preproc(objs):
@@ -8168,7 +8168,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_10area(CYTHON_UNUSED PyObject *__
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_13iou(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_13iou(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -8176,7 +8176,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_13iou = {"iou", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_13iou, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_13iou(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_13iou(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -8302,7 +8302,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_3iou_1_preproc(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_3iou_1_preproc(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -8310,7 +8310,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_3iou_1_preproc = {"_preproc", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_3iou_1_preproc, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_3iou_1_preproc(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_3iou_1_preproc(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -9217,7 +9217,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_3iou__preproc(CYTHON_UNUSED PyObj
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_3iou_3_rleIou(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_3iou_3_rleIou(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -9225,7 +9225,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_3iou_3_rleIou = {"_rleIou", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_3iou_3_rleIou, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_3iou_3_rleIou(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_3iou_3_rleIou(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -9478,7 +9478,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_3iou_2_rleIou(CYTHON_UNUSED PyObj
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_3iou_5_bbIou(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_3iou_5_bbIou(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -9486,7 +9486,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_3iou_5_bbIou = {"_bbIou", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_3iou_5_bbIou, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_3iou_5_bbIou(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_3iou_5_bbIou(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -9769,7 +9769,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_3iou_4_bbIou(CYTHON_UNUSED PyObje
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_3iou_7_len(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_3iou_7_len(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -9777,7 +9777,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_3iou_7_len = {"_len", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_3iou_7_len, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_3iou_7_len(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_3iou_7_len(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -10008,7 +10008,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_3iou_6_len(CYTHON_UNUSED PyObject
 }
 
 /* "pycocotools/_mask.pyx":171
- * 
+ *
  * # iou computation. support function overload (RLEs-RLEs and bbox-bbox).
  * def iou( dt, gt, pyiscrowd ):             # <<<<<<<<<<<<<<
  *     def _preproc(objs):
@@ -10241,7 +10241,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_12iou(CYTHON_UNUSED PyObject *__p
  *         return []
  *     if not type(dt) == type(gt):             # <<<<<<<<<<<<<<
  *         raise Exception('The dt and gt should have the same data type, either RLEs, list or np.ndarray')
- * 
+ *
  */
   __pyx_t_5 = PyObject_RichCompare(((PyObject *)Py_TYPE(__pyx_v_dt)), ((PyObject *)Py_TYPE(__pyx_v_gt)), Py_EQ); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 220, __pyx_L1_error)
   __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely((__pyx_t_8 < 0))) __PYX_ERR(0, 220, __pyx_L1_error)
@@ -10253,7 +10253,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_12iou(CYTHON_UNUSED PyObject *__p
  *         return []
  *     if not type(dt) == type(gt):
  *         raise Exception('The dt and gt should have the same data type, either RLEs, list or np.ndarray')             # <<<<<<<<<<<<<<
- * 
+ *
  *     # define local variables
  */
     __pyx_t_5 = __Pyx_PyObject_Call(((PyObject *)(&((PyTypeObject*)PyExc_Exception)[0])), __pyx_tuple__15, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 221, __pyx_L1_error)
@@ -10267,12 +10267,12 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_12iou(CYTHON_UNUSED PyObject *__p
  *         return []
  *     if not type(dt) == type(gt):             # <<<<<<<<<<<<<<
  *         raise Exception('The dt and gt should have the same data type, either RLEs, list or np.ndarray')
- * 
+ *
  */
   }
 
   /* "pycocotools/_mask.pyx":224
- * 
+ *
  *     # define local variables
  *     cdef double* _iou = <double*> 0             # <<<<<<<<<<<<<<
  *     cdef np.npy_intp shape[1]
@@ -10446,7 +10446,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_12iou(CYTHON_UNUSED PyObject *__p
  *     PyArray_ENABLEFLAGS(iou, np.NPY_OWNDATA)
  *     _iouFun(dt, gt, iscrowd, m, n, iou)             # <<<<<<<<<<<<<<
  *     return iou.reshape((m,n), order='F')
- * 
+ *
  */
   __pyx_t_1 = __Pyx_PyInt_From_siz(__pyx_v_m); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 238, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -10483,7 +10483,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_12iou(CYTHON_UNUSED PyObject *__p
  *     PyArray_ENABLEFLAGS(iou, np.NPY_OWNDATA)
  *     _iouFun(dt, gt, iscrowd, m, n, iou)
  *     return iou.reshape((m,n), order='F')             # <<<<<<<<<<<<<<
- * 
+ *
  * def toBbox( rleObjs ):
  */
   __Pyx_XDECREF(__pyx_r);
@@ -10519,7 +10519,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_12iou(CYTHON_UNUSED PyObject *__p
   goto __pyx_L0;
 
   /* "pycocotools/_mask.pyx":171
- * 
+ *
  * # iou computation. support function overload (RLEs-RLEs and bbox-bbox).
  * def iou( dt, gt, pyiscrowd ):             # <<<<<<<<<<<<<<
  *     def _preproc(objs):
@@ -10561,14 +10561,14 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_12iou(CYTHON_UNUSED PyObject *__p
 
 /* "pycocotools/_mask.pyx":241
  *     return iou.reshape((m,n), order='F')
- * 
+ *
  * def toBbox( rleObjs ):             # <<<<<<<<<<<<<<
  *     cdef RLEs Rs = _frString(rleObjs)
  *     cdef siz n = Rs.n
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_15toBbox(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_15toBbox(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -10576,7 +10576,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_15toBbox = {"toBbox", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_15toBbox, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_15toBbox(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_15toBbox(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -10684,7 +10684,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_14toBbox(CYTHON_UNUSED PyObject *
   __Pyx_RefNannySetupContext("toBbox", 1);
 
   /* "pycocotools/_mask.pyx":242
- * 
+ *
  * def toBbox( rleObjs ):
  *     cdef RLEs Rs = _frString(rleObjs)             # <<<<<<<<<<<<<<
  *     cdef siz n = Rs.n
@@ -10855,7 +10855,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_14toBbox(CYTHON_UNUSED PyObject *
  *     bb = np.PyArray_SimpleNewFromData(1, shape, np.NPY_DOUBLE, _bb).reshape((n, 4))
  *     PyArray_ENABLEFLAGS(bb, np.NPY_OWNDATA)             # <<<<<<<<<<<<<<
  *     return bb
- * 
+ *
  */
   if (!(likely(((__pyx_v_bb) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_bb, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 250, __pyx_L1_error)
   PyArray_ENABLEFLAGS(((PyArrayObject *)__pyx_v_bb), NPY_OWNDATA);
@@ -10864,7 +10864,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_14toBbox(CYTHON_UNUSED PyObject *
  *     bb = np.PyArray_SimpleNewFromData(1, shape, np.NPY_DOUBLE, _bb).reshape((n, 4))
  *     PyArray_ENABLEFLAGS(bb, np.NPY_OWNDATA)
  *     return bb             # <<<<<<<<<<<<<<
- * 
+ *
  * def frBbox(np.ndarray[np.double_t, ndim=2] bb, siz h, siz w ):
  */
   __Pyx_XDECREF(__pyx_r);
@@ -10874,7 +10874,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_14toBbox(CYTHON_UNUSED PyObject *
 
   /* "pycocotools/_mask.pyx":241
  *     return iou.reshape((m,n), order='F')
- * 
+ *
  * def toBbox( rleObjs ):             # <<<<<<<<<<<<<<
  *     cdef RLEs Rs = _frString(rleObjs)
  *     cdef siz n = Rs.n
@@ -10899,14 +10899,14 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_14toBbox(CYTHON_UNUSED PyObject *
 
 /* "pycocotools/_mask.pyx":253
  *     return bb
- * 
+ *
  * def frBbox(np.ndarray[np.double_t, ndim=2] bb, siz h, siz w ):             # <<<<<<<<<<<<<<
  *     cdef siz n = bb.shape[0]
  *     Rs = RLEs(n)
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_17frBbox(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_17frBbox(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -10914,7 +10914,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_17frBbox = {"frBbox", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_17frBbox, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_17frBbox(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_17frBbox(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -11065,7 +11065,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_16frBbox(CYTHON_UNUSED PyObject *
   __pyx_pybuffernd_bb.diminfo[0].strides = __pyx_pybuffernd_bb.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_bb.diminfo[0].shape = __pyx_pybuffernd_bb.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_bb.diminfo[1].strides = __pyx_pybuffernd_bb.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_bb.diminfo[1].shape = __pyx_pybuffernd_bb.rcbuffer->pybuffer.shape[1];
 
   /* "pycocotools/_mask.pyx":254
- * 
+ *
  * def frBbox(np.ndarray[np.double_t, ndim=2] bb, siz h, siz w ):
  *     cdef siz n = bb.shape[0]             # <<<<<<<<<<<<<<
  *     Rs = RLEs(n)
@@ -11104,7 +11104,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_16frBbox(CYTHON_UNUSED PyObject *
  *     rleFrBbox( <RLE*> Rs._R, <const BB> bb.data, h, w, n )
  *     objs = _toString(Rs)             # <<<<<<<<<<<<<<
  *     return objs
- * 
+ *
  */
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_toString); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 257, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -11137,7 +11137,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_16frBbox(CYTHON_UNUSED PyObject *
  *     rleFrBbox( <RLE*> Rs._R, <const BB> bb.data, h, w, n )
  *     objs = _toString(Rs)
  *     return objs             # <<<<<<<<<<<<<<
- * 
+ *
  * def frPoly( poly, siz h, siz w ):
  */
   __Pyx_XDECREF(__pyx_r);
@@ -11147,7 +11147,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_16frBbox(CYTHON_UNUSED PyObject *
 
   /* "pycocotools/_mask.pyx":253
  *     return bb
- * 
+ *
  * def frBbox(np.ndarray[np.double_t, ndim=2] bb, siz h, siz w ):             # <<<<<<<<<<<<<<
  *     cdef siz n = bb.shape[0]
  *     Rs = RLEs(n)
@@ -11179,14 +11179,14 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_16frBbox(CYTHON_UNUSED PyObject *
 
 /* "pycocotools/_mask.pyx":260
  *     return objs
- * 
+ *
  * def frPoly( poly, siz h, siz w ):             # <<<<<<<<<<<<<<
  *     cdef np.ndarray[np.double_t, ndim=1] np_poly
  *     n = len(poly)
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_19frPoly(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_19frPoly(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -11194,7 +11194,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_19frPoly = {"frPoly", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_19frPoly, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_19frPoly(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_19frPoly(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -11528,7 +11528,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_18frPoly(CYTHON_UNUSED PyObject *
  *         rleFrPoly( <RLE*>&Rs._R[i], <const double*> np_poly.data, int(len(p)/2), h, w )
  *     objs = _toString(Rs)             # <<<<<<<<<<<<<<
  *     return objs
- * 
+ *
  */
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_toString); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 267, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -11561,7 +11561,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_18frPoly(CYTHON_UNUSED PyObject *
  *         rleFrPoly( <RLE*>&Rs._R[i], <const double*> np_poly.data, int(len(p)/2), h, w )
  *     objs = _toString(Rs)
  *     return objs             # <<<<<<<<<<<<<<
- * 
+ *
  * def frUncompressedRLE(ucRles, siz h, siz w):
  */
   __Pyx_XDECREF(__pyx_r);
@@ -11571,7 +11571,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_18frPoly(CYTHON_UNUSED PyObject *
 
   /* "pycocotools/_mask.pyx":260
  *     return objs
- * 
+ *
  * def frPoly( poly, siz h, siz w ):             # <<<<<<<<<<<<<<
  *     cdef np.ndarray[np.double_t, ndim=1] np_poly
  *     n = len(poly)
@@ -11610,14 +11610,14 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_18frPoly(CYTHON_UNUSED PyObject *
 
 /* "pycocotools/_mask.pyx":270
  *     return objs
- * 
+ *
  * def frUncompressedRLE(ucRles, siz h, siz w):             # <<<<<<<<<<<<<<
  *     cdef np.ndarray[np.uint32_t, ndim=1] cnts
  *     cdef RLE R
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_21frUncompressedRLE(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_21frUncompressedRLE(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -11625,7 +11625,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_21frUncompressedRLE = {"frUncompressedRLE", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_21frUncompressedRLE, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_21frUncompressedRLE(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_21frUncompressedRLE(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -11980,7 +11980,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_20frUncompressedRLE(CYTHON_UNUSED
  *         Rs._R[0] = R
  *         objs.append(_toString(Rs)[0])             # <<<<<<<<<<<<<<
  *     return objs
- * 
+ *
  */
     __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_toString); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 285, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
@@ -12017,7 +12017,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_20frUncompressedRLE(CYTHON_UNUSED
  *         Rs._R[0] = R
  *         objs.append(_toString(Rs)[0])
  *     return objs             # <<<<<<<<<<<<<<
- * 
+ *
  * def frPyObjects(pyobj, h, w):
  */
   __Pyx_XDECREF(__pyx_r);
@@ -12027,7 +12027,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_20frUncompressedRLE(CYTHON_UNUSED
 
   /* "pycocotools/_mask.pyx":270
  *     return objs
- * 
+ *
  * def frUncompressedRLE(ucRles, siz h, siz w):             # <<<<<<<<<<<<<<
  *     cdef np.ndarray[np.uint32_t, ndim=1] cnts
  *     cdef RLE R
@@ -12062,14 +12062,14 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_20frUncompressedRLE(CYTHON_UNUSED
 
 /* "pycocotools/_mask.pyx":288
  *     return objs
- * 
+ *
  * def frPyObjects(pyobj, h, w):             # <<<<<<<<<<<<<<
  *     # encode rle from a list of python objects
  *     if type(pyobj) == np.ndarray:
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11pycocotools_5_mask_23frPyObjects(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_23frPyObjects(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -12077,7 +12077,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static PyMethodDef __pyx_mdef_11pycocotools_5_mask_23frPyObjects = {"frPyObjects", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11pycocotools_5_mask_23frPyObjects, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11pycocotools_5_mask_23frPyObjects(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11pycocotools_5_mask_23frPyObjects(PyObject *__pyx_self,
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -12776,7 +12776,7 @@ static PyObject *__pyx_pf_11pycocotools_5_mask_22frPyObjects(CYTHON_UNUSED PyObj
 
   /* "pycocotools/_mask.pyx":288
  *     return objs
- * 
+ *
  * def frPyObjects(pyobj, h, w):             # <<<<<<<<<<<<<<
  *     # encode rle from a list of python objects
  *     if type(pyobj) == np.ndarray:
@@ -13274,7 +13274,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *         __pyx_import_array()
  *     except Exception:
  *         raise ImportError("numpy.core.multiarray failed to import")             # <<<<<<<<<<<<<<
- * 
+ *
  * cdef inline int import_umath() except -1:
  */
   __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_numpy_core_multiarray_failed_to); if (unlikely(!__pyx_tuple_)) __PYX_ERR(2, 984, __pyx_L1_error)
@@ -13285,7 +13285,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *         _import_umath()
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
- * 
+ *
  * cdef inline int import_ufunc() except -1:
  */
   __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_s_numpy_core_umath_failed_to_impor); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(2, 990, __pyx_L1_error)
@@ -13396,7 +13396,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *         return []
  *     if not type(dt) == type(gt):
  *         raise Exception('The dt and gt should have the same data type, either RLEs, list or np.ndarray')             # <<<<<<<<<<<<<<
- * 
+ *
  *     # define local variables
  */
   __pyx_tuple__15 = PyTuple_Pack(1, __pyx_kp_s_The_dt_and_gt_should_have_the_sa); if (unlikely(!__pyx_tuple__15)) __PYX_ERR(0, 221, __pyx_L1_error)
@@ -13446,7 +13446,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_codeobj__22 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__21, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__22)) __PYX_ERR(1, 3, __pyx_L1_error)
 
   /* "pycocotools/_mask.pyx":93
- * 
+ *
  *     # called when passing into np.array() and return an np.ndarray in column-major order
  *     def __array__(self):             # <<<<<<<<<<<<<<
  *         cdef np.npy_intp shape[1]
@@ -13473,7 +13473,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_codeobj__26 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__21, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__26)) __PYX_ERR(1, 3, __pyx_L1_error)
 
   /* "pycocotools/_mask.pyx":103
- * 
+ *
  * # internal conversion from Python RLEs object to compressed RLE format
  * def _toString(RLEs Rs):             # <<<<<<<<<<<<<<
  *     cdef siz n = Rs.n
@@ -13485,7 +13485,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__27, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_pycocotools__mask_pyx, __pyx_n_s_toString, 103, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(0, 103, __pyx_L1_error)
 
   /* "pycocotools/_mask.pyx":119
- * 
+ *
  * # internal conversion from compressed RLE format to Python RLEs object
  * def _frString(rleObjs):             # <<<<<<<<<<<<<<
  *     cdef siz n = len(rleObjs)
@@ -13509,7 +13509,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_codeobj__32 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__31, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_pycocotools__mask_pyx, __pyx_n_s_encode, 137, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__32)) __PYX_ERR(0, 137, __pyx_L1_error)
 
   /* "pycocotools/_mask.pyx":145
- * 
+ *
  * # decode mask from compressed list of RLE string or RLEs object
  * def decode(rleObjs):             # <<<<<<<<<<<<<<
  *     cdef RLEs Rs = _frString(rleObjs)
@@ -13522,7 +13522,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
   /* "pycocotools/_mask.pyx":152
  *     return np.array(masks)
- * 
+ *
  * def merge(rleObjs, intersect=0):             # <<<<<<<<<<<<<<
  *     cdef RLEs Rs = _frString(rleObjs)
  *     cdef RLEs R = RLEs(1)
@@ -13537,7 +13537,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
   /* "pycocotools/_mask.pyx":159
  *     return obj
- * 
+ *
  * def area(rleObjs):             # <<<<<<<<<<<<<<
  *     cdef RLEs Rs = _frString(rleObjs)
  *     cdef uint* _a = <uint*> malloc(Rs._n* sizeof(uint))
@@ -13548,7 +13548,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_codeobj__39 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__38, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_pycocotools__mask_pyx, __pyx_n_s_area, 159, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__39)) __PYX_ERR(0, 159, __pyx_L1_error)
 
   /* "pycocotools/_mask.pyx":171
- * 
+ *
  * # iou computation. support function overload (RLEs-RLEs and bbox-bbox).
  * def iou( dt, gt, pyiscrowd ):             # <<<<<<<<<<<<<<
  *     def _preproc(objs):
@@ -13561,7 +13561,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
   /* "pycocotools/_mask.pyx":241
  *     return iou.reshape((m,n), order='F')
- * 
+ *
  * def toBbox( rleObjs ):             # <<<<<<<<<<<<<<
  *     cdef RLEs Rs = _frString(rleObjs)
  *     cdef siz n = Rs.n
@@ -13573,7 +13573,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
   /* "pycocotools/_mask.pyx":253
  *     return bb
- * 
+ *
  * def frBbox(np.ndarray[np.double_t, ndim=2] bb, siz h, siz w ):             # <<<<<<<<<<<<<<
  *     cdef siz n = bb.shape[0]
  *     Rs = RLEs(n)
@@ -13585,7 +13585,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
   /* "pycocotools/_mask.pyx":260
  *     return objs
- * 
+ *
  * def frPoly( poly, siz h, siz w ):             # <<<<<<<<<<<<<<
  *     cdef np.ndarray[np.double_t, ndim=1] np_poly
  *     n = len(poly)
@@ -13597,7 +13597,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
   /* "pycocotools/_mask.pyx":270
  *     return objs
- * 
+ *
  * def frUncompressedRLE(ucRles, siz h, siz w):             # <<<<<<<<<<<<<<
  *     cdef np.ndarray[np.uint32_t, ndim=1] cnts
  *     cdef RLE R
@@ -13609,7 +13609,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
   /* "pycocotools/_mask.pyx":288
  *     return objs
- * 
+ *
  * def frPyObjects(pyobj, h, w):             # <<<<<<<<<<<<<<
  *     # encode rle from a list of python objects
  *     if type(pyobj) == np.ndarray:
@@ -13741,7 +13741,7 @@ static int __Pyx_modinit_type_import_code(void) {
   /*--- Type import code ---*/
   __pyx_t_1 = PyImport_ImportModule(__Pyx_BUILTIN_MODULE_NAME); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 9, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_ptype_7cpython_4type_type = __Pyx_ImportType_3_0_12(__pyx_t_1, __Pyx_BUILTIN_MODULE_NAME, "type", 
+  __pyx_ptype_7cpython_4type_type = __Pyx_ImportType_3_0_12(__pyx_t_1, __Pyx_BUILTIN_MODULE_NAME, "type",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
   sizeof(PyTypeObject), __PYX_GET_STRUCT_ALIGNMENT_3_0_12(PyTypeObject),
   #elif CYTHON_COMPILING_IN_LIMITED_API
@@ -14075,19 +14075,19 @@ if (!__Pyx_RefNanny) {
 
   /* "pycocotools/_mask.pyx":11
  * #**************************************************************************
- * 
+ *
  * __author__ = 'tsungyi'             # <<<<<<<<<<<<<<
- * 
+ *
  * import sys
  */
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_author, __pyx_n_s_tsungyi) < 0) __PYX_ERR(0, 11, __pyx_L1_error)
 
   /* "pycocotools/_mask.pyx":13
  * __author__ = 'tsungyi'
- * 
+ *
  * import sys             # <<<<<<<<<<<<<<
  * PYTHON_VERSION = sys.version_info[0]
- * 
+ *
  */
   __pyx_t_2 = __Pyx_ImportDottedModule(__pyx_n_s_sys, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 13, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -14095,10 +14095,10 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "pycocotools/_mask.pyx":14
- * 
+ *
  * import sys
  * PYTHON_VERSION = sys.version_info[0]             # <<<<<<<<<<<<<<
- * 
+ *
  * # import both Python-level and C-level symbols of Numpy
  */
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_sys); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 14, __pyx_L1_error)
@@ -14125,10 +14125,10 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "pycocotools/_mask.pyx":23
- * 
+ *
  * # intialized Numpy. must do.
  * np.import_array()             # <<<<<<<<<<<<<<
- * 
+ *
  * # import numpy C function
  */
   __pyx_t_4 = __pyx_f_5numpy_import_array(); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(0, 23, __pyx_L1_error)
@@ -14155,7 +14155,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "pycocotools/_mask.pyx":93
- * 
+ *
  *     # called when passing into np.array() and return an np.ndarray in column-major order
  *     def __array__(self):             # <<<<<<<<<<<<<<
  *         cdef np.npy_intp shape[1]
@@ -14189,7 +14189,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "pycocotools/_mask.pyx":103
- * 
+ *
  * # internal conversion from Python RLEs object to compressed RLE format
  * def _toString(RLEs Rs):             # <<<<<<<<<<<<<<
  *     cdef siz n = Rs.n
@@ -14201,7 +14201,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "pycocotools/_mask.pyx":119
- * 
+ *
  * # internal conversion from compressed RLE format to Python RLEs object
  * def _frString(rleObjs):             # <<<<<<<<<<<<<<
  *     cdef siz n = len(rleObjs)
@@ -14225,7 +14225,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "pycocotools/_mask.pyx":145
- * 
+ *
  * # decode mask from compressed list of RLE string or RLEs object
  * def decode(rleObjs):             # <<<<<<<<<<<<<<
  *     cdef RLEs Rs = _frString(rleObjs)
@@ -14238,7 +14238,7 @@ if (!__Pyx_RefNanny) {
 
   /* "pycocotools/_mask.pyx":152
  *     return np.array(masks)
- * 
+ *
  * def merge(rleObjs, intersect=0):             # <<<<<<<<<<<<<<
  *     cdef RLEs Rs = _frString(rleObjs)
  *     cdef RLEs R = RLEs(1)
@@ -14251,7 +14251,7 @@ if (!__Pyx_RefNanny) {
 
   /* "pycocotools/_mask.pyx":159
  *     return obj
- * 
+ *
  * def area(rleObjs):             # <<<<<<<<<<<<<<
  *     cdef RLEs Rs = _frString(rleObjs)
  *     cdef uint* _a = <uint*> malloc(Rs._n* sizeof(uint))
@@ -14262,7 +14262,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "pycocotools/_mask.pyx":171
- * 
+ *
  * # iou computation. support function overload (RLEs-RLEs and bbox-bbox).
  * def iou( dt, gt, pyiscrowd ):             # <<<<<<<<<<<<<<
  *     def _preproc(objs):
@@ -14275,7 +14275,7 @@ if (!__Pyx_RefNanny) {
 
   /* "pycocotools/_mask.pyx":241
  *     return iou.reshape((m,n), order='F')
- * 
+ *
  * def toBbox( rleObjs ):             # <<<<<<<<<<<<<<
  *     cdef RLEs Rs = _frString(rleObjs)
  *     cdef siz n = Rs.n
@@ -14287,7 +14287,7 @@ if (!__Pyx_RefNanny) {
 
   /* "pycocotools/_mask.pyx":253
  *     return bb
- * 
+ *
  * def frBbox(np.ndarray[np.double_t, ndim=2] bb, siz h, siz w ):             # <<<<<<<<<<<<<<
  *     cdef siz n = bb.shape[0]
  *     Rs = RLEs(n)
@@ -14299,7 +14299,7 @@ if (!__Pyx_RefNanny) {
 
   /* "pycocotools/_mask.pyx":260
  *     return objs
- * 
+ *
  * def frPoly( poly, siz h, siz w ):             # <<<<<<<<<<<<<<
  *     cdef np.ndarray[np.double_t, ndim=1] np_poly
  *     n = len(poly)
@@ -14311,7 +14311,7 @@ if (!__Pyx_RefNanny) {
 
   /* "pycocotools/_mask.pyx":270
  *     return objs
- * 
+ *
  * def frUncompressedRLE(ucRles, siz h, siz w):             # <<<<<<<<<<<<<<
  *     cdef np.ndarray[np.uint32_t, ndim=1] cnts
  *     cdef RLE R
@@ -14323,7 +14323,7 @@ if (!__Pyx_RefNanny) {
 
   /* "pycocotools/_mask.pyx":288
  *     return objs
- * 
+ *
  * def frPyObjects(pyobj, h, w):             # <<<<<<<<<<<<<<
  *     # encode rle from a list of python objects
  *     if type(pyobj) == np.ndarray:
@@ -14336,7 +14336,7 @@ if (!__Pyx_RefNanny) {
   /* "pycocotools/_mask.pyx":1
  * # distutils: language = c             # <<<<<<<<<<<<<<
  * # distutils: sources = ../common/maskApi.c
- * 
+ *
  */
   __pyx_t_2 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -15719,7 +15719,7 @@ static PyObject* __Pyx_PyInt_AddObjC(PyObject *op1, PyObject *op2, long intval, 
         const long b = intval;
         long x;
         long a = PyInt_AS_LONG(op1);
-        
+
             x = (long)((unsigned long)a + (unsigned long)b);
             if (likely((x^a) >= 0 || (x^b) >= 0))
                 return PyInt_FromLong(x);
@@ -15819,8 +15819,8 @@ static PyObject* __Pyx_PyInt_AddObjC(PyObject *op1, PyObject *op2, long intval, 
                 llx = lla + llb;
             return PyLong_FromLongLong(llx);
 #endif
-        
-        
+
+
     }
     #endif
     if (PyFloat_CheckExact(op1)) {
@@ -15831,7 +15831,7 @@ static PyObject* __Pyx_PyInt_AddObjC(PyObject *op1, PyObject *op2, long intval, 
         double a = PyFloat_AS_DOUBLE(op1);
 #endif
             double result;
-            
+
             PyFPE_START_PROTECT("add", return NULL)
             result = ((double)a) + (double)b;
             PyFPE_END_PROTECT(result)

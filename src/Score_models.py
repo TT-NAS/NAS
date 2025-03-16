@@ -160,7 +160,7 @@ def plot_learning_curves(metrics: dict[str, list[float]], save: bool = False,
             df[key] = values
 
         name = os.path.splitext(name)[0] + ".csv"
-        df.to_csv(os.path.join(path, name), index=False, lineterminator='\r\n')
+        df.to_csv(os.path.join(path, name), index=False)
         print(
             f"-> Datos de curva de aprendizaje guardados en {os.path.join(path, name)}"
         )
@@ -299,7 +299,7 @@ def reg_results(chromosome: Chromosome, time_seconds: float, last_epoch: int,
     if not new_row.dropna(how="all").empty:
         df = pd.concat([df, new_row], ignore_index=True)
 
-    df.to_csv(file, index=False, lineterminator='\r\n')
+    df.to_csv(file, index=False)
 
 
 def log(message: str, file: str = LOG_FILE):
@@ -313,7 +313,7 @@ def log(message: str, file: str = LOG_FILE):
     file : str, optional
         Archivo en el que se registra el mensaje, by default `LOG_FILE`
     """
-    with open(file, "a", newline="\r\n") as f:
+    with open(file, "a") as f:
         f.write(message + "\n")
 
 
