@@ -1,1 +1,2 @@
 seed,binary codification,max layers,max convs per layer,layers,training secs,epochs,loss,iou,dice,dice crossentropy,accuracy
+N,IRIRKEKEPCHCFYRYR5I5IXKHKH5D5C7I7I7EPEI_192,4,2,4,12342.792745418,46,0.540464663388873,0.459535336611127,0.5927549306953517,0.49342070182034864,0.9602452683798836

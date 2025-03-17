@@ -279,7 +279,6 @@ def reg_results(chromosome: Chromosome, time_seconds: float, last_epoch: int,
     file : str, optional
         Archivo en el que se registran los resultados, by default `RESULTS_FILE`
     """
-    df = pd.read_csv(file)
     row = {
         "seed": chromosome.seed if chromosome.seed is not None else "N",
         "binary codification": chromosome.get_binary(zip=True),
@@ -289,12 +288,19 @@ def reg_results(chromosome: Chromosome, time_seconds: float, last_epoch: int,
         "training secs": time_seconds,
         "epochs": last_epoch + 1
     }
-
     row.update(scores)
+
+    if not os.path.exists(file):
+        encabezado = list(row.keys())
+
+        with open(file, "w") as f:
+            f.write(",".join(encabezado) + "\n")
+
+    df = pd.read_csv(file)
+    df = df.dropna(axis=1, how='all')
 
     new_row = pd.DataFrame([row])
     new_row["seed"] = new_row["seed"].astype(object)
-    df = df.dropna(axis=1, how='all')
 
     if not new_row.dropna(how="all").empty:
         df = pd.concat([df, new_row], ignore_index=True)
@@ -313,13 +319,17 @@ def log(message: str, file: str = LOG_FILE):
     file : str, optional
         Archivo en el que se registra el mensaje, by default `LOG_FILE`
     """
+    if not os.path.exists(file):
+        with open(file, "w") as f:
+            f.write("")
+
     with open(file, "a") as f:
         f.write(message + "\n")
 
 
 def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = None,
                 seed: Optional[int] = None, alternative_datasets: Optional[list[str]] = None,
-                save_pretrained_results: bool = False,
+                save_pretrained_results: bool = True,
                 **kwargs: Union[str, int, float, bool]) -> bool:
     """
     Obiene los puntajes de distintas métricas de un modelo
@@ -350,7 +360,7 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
             - "road"
             - "car"
     save_pretrained_results : bool, optional
-        Si entrenar una epoch del modelo y guardar los resultados, by default `False`
+        Si entrenar una epoch del modelo y guardar los resultados, by default `True`
     **kwargs : T.Compose or str or int or float or bool
         Argumentos adicionales para la creación del cromosoma:
         - max_layers : (int) Máximo número de capas de la red sin contar el bottleneck
@@ -550,7 +560,9 @@ def score_n_models(idx_start: Optional[int] = None, num: Optional[int] = None,
     **kwargs : str or int or float or bool
         Argumentos para la evaluación de cada modelo:
         - alternative_datasets : (list) Lista de nombres de datasets con los que probar el modelo,
-                                 además del dataset principal
+                                 además del dataset principal ("coco-people", "coco-car",
+                                 "carvana", "road", "car")
+        - save_pretrained_results : (bool) Si entrenar una epoch del modelo y guardar los resultados
 
         Argumentos adicionales para la creación de los cromosomas:
         - max_layers : (int) Máximo número de capas de la red sin contar el bottleneck
@@ -570,7 +582,6 @@ def score_n_models(idx_start: Optional[int] = None, num: Optional[int] = None,
         - stopping_threshold : (float) Umbral de rendimiento para la métrica de validación. Si se
                                alcanza o supera, el entrenamiento se detiene
         - show_val : (bool) Si mostrar los resultados de la validación en cada epoch
-        - print_every : (int) Cada cuántos pasos se imprime el resultado
 
         Argumentos adicionales para el DataLoader:
         - batch_size : (int) Tamaño del batch
@@ -612,17 +623,25 @@ def score_n_models(idx_start: Optional[int] = None, num: Optional[int] = None,
 
 if __name__ == "__main__":
     # UNet Paper
-    score_n_models(
-        chromosomes=[
-            "IRIRKEKEPCHCFYRYR5I5IXKHKH5D5C7I7I7EPEI_192"
-        ],
-        alternative_datasets=["carvana", "car"]
-    )
     # score_n_models(
-    #     idx_start=2,
+    #     chromosomes=[
+    #         "IRIRKEKEPCHCFYRYR5I5IXKHKH5D5C7I7I7EPEI_192"
+    #     ],
+    #     alternative_datasets=["carvana", "car"]
+    # )
+    # score_n_models(
+    #     idx_start=0,
     #     num=5,
     #     alternative_datasets=["carvana", "car"]
     # )
+    score_n_models(
+        idx_start=0,
+        num=5,
+        alternative_datasets=["carvana"],
+        dataset="car",
+        epochs=3,
+        save_pretrained_results=False
+    )
     # plot_scores_and_metrics(
     #     selected_columns=["synflow", "gradient"],
     #     save=True

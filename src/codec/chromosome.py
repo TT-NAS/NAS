@@ -1,13 +1,80 @@
+"""
+Módulo que contiene la clase Chromosome, la cual representa un cromosoma de una red UNet,
+una misma instancia engloba las 3 codificaciones posibles para el cromosoma:
+
+- Real
+- Binaria
+- Decodificada
+
+Aunque no todas están definidas desde que se crea el cromosoma, se crean cuando se necesitan.
+
+Para usar la clase basta con crear una instancia de Chromosome, asignarle un cromosoma si se quiere
+o una semilla si se quiere generar aleatoriamente, y luego usar los getters o metodos de la clase
+para entrenar el modelo, mostrar sus resultados, guardarlo, etc.
+
+# Miembros de la clase Chromosome:
+
+Variables
+----------
+- seed : Semilla para la generación de números aleatorios
+    - Se utiliza cuando el cromosoma se genera aleatoriamente
+- max_layers : Número máximo de capas de la red sin contar el bottleneck (`max_layers` no puede ser
+               mayor que `codec.MAX_LAYERS`)
+- max_conv_per_layer : Número máximo de capas convolucionales por bloque
+- data_loader : Identificador del DataLoader con el que se ha evaluado el cromosoma
+    - Es un identificador corto que indica el DataLoader utilizado ('cpp' para coco-people,
+      'cca' para coco-car, 'cvn' para carvana, 'rd' para road, 'car' para car y '0' para
+      no especificado)
+    - Se asigna solo al entrenar el modelo, después puede se utiliza para deducir el DataLoader
+      a ocupar en métodos como `get_aptitude` o `show_results` si no se proporciona uno
+- aptitude : Aptitud del cromosoma
+    - Es la pérdida del modelo UNet evaluado con el DataLoader especificado
+      o guardado en `data_loader`
+- __unet : Modelo UNet creado a partir del cromosoma decodificado
+- __decoded : Es el cromosoma en su forma más entendible, con listas y tuplas
+- __real : Es el cromosoma en su forma real, con valores entre 0 y 1
+- __binary : Es el cromosoma en su forma binaria, con 0s y 1s
+
+# Métodos de la clase Chromosome:
+
+Utils
+-----
+- __str__ : Representación en string de la clase
+- __repr__ : Representación en string de la clase para el debugger
+- validate : Valida que el cromosoma cumpla con las condiciones mínimas
+- generate_random : Genera un cromosoma decodificado aleatorio
+
+Setters
+-------
+Funciones para asignar el cromosoma a partir de otro, o para generarlos si no están definidos
+(`set_decoded`, `set_real`, `set_binary`, `set_unet`, `set_aptitude`)
+
+Getters
+-------
+Funciones para obtener el cromosoma en su forma decodificada, real, binaria, el modelo UNet,
+la aptitud del cromosoma o el número de capas de la red (`get_decoded`, `get_real`, `get_binary`,
+`get_unet`, `get_aptitude`, `get_num_layers`)
+
+Funciones de la UNet
+--------------------
+Funciones para entrenar, evaluar y guardad el modelo UNet
+"""
 import time
 import random
 from typing import Union, Optional
 
 from utils import CUDA, float16
 from utils import UNet, TorchDataLoader, autocast
-from utils import plot_results, train_model, save_model, eval_model
-from .encode import zip_binary, encode_chromosome
-from .decode import unzip_binary, decode_chromosome
-from .functions import get_num_layers, get_num_convs
+from utils import (
+    plot_results,
+    train_model, save_model, eval_model,
+    remove_checkpoints, set_current_net_binary
+)
+from .functions import (
+    get_num_layers, get_num_convs,
+    zip_binary, encode_chromosome,
+    unzip_binary, decode_chromosome
+)
 from .constants import (
     MAX_LAYERS, MAX_CONVS_PER_LAYER,
     REAL_POOLING_LEN, REAL_CONVS_LEN, REAL_LAYER_LEN, REAL_CHROMOSOME_LEN,
@@ -824,6 +891,7 @@ class Chromosome:
             )
 
         self.data_loader = str(data_loader)
+        set_current_net_binary(self.get_binary(zip=True))
 
         start = time.perf_counter()
 
@@ -939,3 +1007,4 @@ class Chromosome:
             name=name,
             **kwargs
         )
+        remove_checkpoints(self.get_binary(zip=True))

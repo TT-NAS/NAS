@@ -1,6 +1,8 @@
+# Restricciones para el tamaño de las redes
 MAX_LAYERS = 4
 MAX_CONVS_PER_LAYER = 2
 
+# Tamaños de las distintas partes de un cromosoma tanto en binario como en real
 # 3 valores por convolución (filters, kernel_size, activation)
 REAL_CONV_LEN = 3
 REAL_POOLING_LEN = 1
@@ -10,7 +12,6 @@ REAL_CONVS_LEN = REAL_CONV_LEN * MAX_CONVS_PER_LAYER
 REAL_LAYER_LEN = REAL_CONVS_LEN * 2 + REAL_POOLING_LEN + REAL_CONCAT_LEN
 # MAX_LAYERS capas + bottleneck
 REAL_CHROMOSOME_LEN = REAL_LAYER_LEN * MAX_LAYERS + REAL_CONVS_LEN
-
 # filters: 4 bits, kernel_size: 2 bits, activation: 4 bits = 10 bits
 BIN_CONV_LEN = 10
 BIN_POOLING_LEN = 2
@@ -20,6 +21,7 @@ BIN_LAYER_LEN = BIN_CONVS_LEN * 2 + 3
 # MAX_LAYERS capas + bottleneck
 BIN_CHROMOSOME_LEN = BIN_LAYER_LEN * MAX_LAYERS + BIN_CONVS_LEN
 
+# Valores que representan una capa de identidad en un cromosoma real y binario
 IDENTITY_CONV_REAL = [0.01, 0.01, 0.01]  # f=None + s=1 + a=linear
 IDENTITY_LAYER_REAL = (
     # identity_convs + p=None
@@ -35,6 +37,8 @@ IDENTITY_LAYER_BIN = (
     IDENTITY_CONV_BIN * MAX_CONVS_PER_LAYER + "0"  # identity_convs + concat=False
 )
 
+# Variables de decisión para un cromosoma binario,
+# la representación real se obtiene a partir de estas variables
 VALID_FILTERS = {
     "0001": 1,
     "0011": 2,
@@ -73,7 +77,7 @@ VALID_POOLINGS = {
     "11": "average",
 }
 POOLINGS = {
-    "00": None  # No aplicar pooling
+    "00": None
 } | VALID_POOLINGS
 CONCATENATION = {
     "0": False,
