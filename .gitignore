@@ -2,4 +2,4 @@ Env/
 __pycache__/
 models/
 data/
-__checkpoints/
+__checkpoints__/

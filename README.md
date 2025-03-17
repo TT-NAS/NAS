@@ -44,6 +44,17 @@ el código para que funcione.
 ## Instrucciones de uso
 
 Para empezar a entrenar se debe correr el script `Score_models.py`. Pero antes asegurense de ajustar los parámetros de la función `score_n_models`
-en el main para indicar desde que semilla se va a empezar a entrenar (`idx_start`), y cuantos modelos se van a entrenar (`n_models`). Los demás
-parámetros pueden dejarlos intactos. Luego simplemente corran el script y esperen a que termine. Los resultados se guardarán en la carpeta
+en el main para indicar desde que semilla se va a empezar a entrenar (`idx_start`), y cuantos modelos se van a entrenar (`num`).
+
+```python
+if __name__ == "__main__":
+    score_n_models(
+        idx_start=0,
+        num=10,
+        alternative_datasets=["carvana", "car"]
+    )
+```
+
+Los demás parámetros pueden dejarlos intactos. Luego simplemente corran el script y esperen a que termine. Los resultados se guardarán
+en la carpeta.
 `results/`,
