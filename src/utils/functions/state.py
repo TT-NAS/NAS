@@ -30,4 +30,3 @@ def set_current_net_binary(net_binary: str):
     global g
 
     g.CURRENT_NET_BINARY = net_binary
-    a=3

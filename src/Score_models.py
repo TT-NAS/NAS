@@ -3,9 +3,9 @@ Script para generar, entrenar y evaluar modelos de segmentación de imágenes
 """
 import os
 import math
+from typing import Union, Optional
 
 import pandas as pd
-from typing import Union, Optional
 import matplotlib.pyplot as plt
 
 from utils import RESULTS_PATH, IMAGES_PATH
