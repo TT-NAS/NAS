@@ -2,8 +2,8 @@
 
 ## Dependencias
 
-* [PyTorch](https://pytorch.org/get-started/locally/), instalar los 3 (torch, torchvision y torchaudio) con CUDA si es posible.
-* Otras dependencias:
+- [PyTorch](https://pytorch.org/get-started/locally/), instalar los 3 (torch, torchvision y torchaudio) con CUDA si es posible.
+- Otras dependencias:
 
 ```bash
 pip install numpy
@@ -16,7 +16,7 @@ pip install colorama
 ## Instrucciones previas
 
 Descargar la carpeta `data/` de [este link](https://mega.nz/file/e3hQzbTB#l60DJyVcBs1XezSv4sEJ7QIO1EKhp3QYIEPHUhPza70) y descomprimir en la
-carpeta data. La estructura final del directorio debería ser la siguiente:
+carpeta raíz. La estructura final del directorio debería ser la siguiente:
 
 ```bash
 - data/
@@ -36,8 +36,9 @@ carpeta data. La estructura final del directorio debería ser la siguiente:
 - README.md
 ```
 
-La carpeta `pycocotools/` contiene la api para trabajar con el dataset COCO. Es la forma que yo encontré para instalarla, porque no pude instalarla con pip. Si les da problemas borrenla, ponganla en el `.gitignore` e instalenla por su cuenta,
-[este es el link](https://github.com/cocodataset/cocoapi/) de la api. Sea como sea que la instalen, no deberían tener que modificar nada en
+La carpeta `pycocotools/` contiene la api para trabajar con el dataset COCO. Ponerla en el directorio `src/` es la única forma que yo encontré
+para instalarla, porque no pude instalarla con pip. Si les da problemas borrenla, ponganla en el `.gitignore` e instalenla por su cuenta,
+[este es el link de la api](https://github.com/cocodataset/cocoapi/). Sea como sea que la instalen, no deberían tener que modificar nada en
 el código para que funcione.
 
 ## Instrucciones de uso
