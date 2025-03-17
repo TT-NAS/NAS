@@ -10,13 +10,13 @@ carpeta data. La estructura final del directorio debería ser la siguiente:
   ├── coco-dataset-car/
   ├── coco-dataset-people/
   └── road-dataset/
+- results/
 - src/
   ├── codec/
   ├── pycocotools/
   ├── utils/
   ├── Pruebas.py
   └── Score_models.py
-- results/
 - .gitignore
 - README.md
 ```
