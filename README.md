@@ -56,5 +56,4 @@ if __name__ == "__main__":
 ```
 
 Los demás parámetros pueden dejarlos intactos. Luego simplemente corran el script y esperen a que termine. Los resultados se guardarán
-en la carpeta.
-`results/`,
+en la carpeta `results/`.
