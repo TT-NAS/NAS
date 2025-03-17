@@ -329,7 +329,7 @@ def log(message: str, file: str = LOG_FILE):
 
 def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = None,
                 seed: Optional[int] = None, alternative_datasets: Optional[list[str]] = None,
-                save_pretrained_results: bool = True,
+                save_pretrained_results: bool = False,
                 **kwargs: Union[str, int, float, bool]) -> bool:
     """
     Obiene los puntajes de distintas métricas de un modelo
@@ -360,7 +360,7 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
             - "road"
             - "car"
     save_pretrained_results : bool, optional
-        Si entrenar una epoch del modelo y guardar los resultados, by default `True`
+        Si entrenar una epoch del modelo y guardar los resultados, by default `False`
     **kwargs : T.Compose or str or int or float or bool
         Argumentos adicionales para la creación del cromosoma:
         - max_layers : (int) Máximo número de capas de la red sin contar el bottleneck
@@ -622,27 +622,8 @@ def score_n_models(idx_start: Optional[int] = None, num: Optional[int] = None,
 
 
 if __name__ == "__main__":
-    # UNet Paper
-    # score_n_models(
-    #     chromosomes=[
-    #         "IRIRKEKEPCHCFYRYR5I5IXKHKH5D5C7I7I7EPEI_192"
-    #     ],
-    #     alternative_datasets=["carvana", "car"]
-    # )
-    # score_n_models(
-    #     idx_start=0,
-    #     num=5,
-    #     alternative_datasets=["carvana", "car"]
-    # )
     score_n_models(
         idx_start=0,
-        num=5,
-        alternative_datasets=["carvana"],
-        dataset="car",
-        epochs=3,
-        save_pretrained_results=False
+        num=10,
+        alternative_datasets=["carvana", "car"]
     )
-    # plot_scores_and_metrics(
-    #     selected_columns=["synflow", "gradient"],
-    #     save=True
-    # )

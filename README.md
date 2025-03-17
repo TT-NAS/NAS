@@ -1,6 +1,6 @@
 # NAS Repo
 
-Descargar la carpeta data de [este link](https://mega.nz/file/e3hQzbTB#l60DJyVcBs1XezSv4sEJ7QIO1EKhp3QYIEPHUhPza70) y descomprimir en la
+Descargar la carpeta `data` de [este link](https://mega.nz/file/e3hQzbTB#l60DJyVcBs1XezSv4sEJ7QIO1EKhp3QYIEPHUhPza70) y descomprimir en la
 carpeta data. La estructura final del directorio debería ser la siguiente:
 
 ```bash
