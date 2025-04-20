@@ -164,7 +164,7 @@ class TorchDataLoader:
             dataset=train_dataset,
             batch_size=batch_size,
             shuffle=True,
-            num_workers=4,
+            num_workers=2,
             pin_memory=True,
             prefetch_factor=2,
             persistent_workers=True
@@ -173,7 +173,7 @@ class TorchDataLoader:
             dataset=val_dataset,
             batch_size=batch_size,
             shuffle=False,
-            num_workers=4,
+            num_workers=2,
             pin_memory=True,
             prefetch_factor=2,
             persistent_workers=True
@@ -182,7 +182,7 @@ class TorchDataLoader:
             dataset=test_dataset,
             batch_size=SHOW_SIZE,
             shuffle=False,
-            num_workers=4,
+            num_workers=2,
             pin_memory=True,
             prefetch_factor=2,
             persistent_workers=True
