@@ -14,11 +14,7 @@ from utils import empty_cache_torch
 from codec import Chromosome, MAX_LAYERS, MAX_CONVS_PER_LAYER
 
 
-<<<<<<< HEAD
-RESULTS_FILE = os.path.join(RESULTS_PATH, "results_jaime.csv")
-=======
 RESULTS_FILE = os.path.join(RESULTS_PATH, "results_kevin.csv")
->>>>>>> 1432f31aa8144f713b649b91ea264f880858f061
 LOG_FILE = os.path.join(RESULTS_PATH, "log.txt")
 
 
