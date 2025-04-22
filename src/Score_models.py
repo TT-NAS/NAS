@@ -14,7 +14,11 @@ from utils import empty_cache_torch
 from codec import Chromosome, MAX_LAYERS, MAX_CONVS_PER_LAYER
 
 
+<<<<<<< HEAD
 RESULTS_FILE = os.path.join(RESULTS_PATH, "results_jaime.csv")
+=======
+RESULTS_FILE = os.path.join(RESULTS_PATH, "results_kevin.csv")
+>>>>>>> 1432f31aa8144f713b649b91ea264f880858f061
 LOG_FILE = os.path.join(RESULTS_PATH, "log.txt")
 
 
@@ -623,8 +627,8 @@ def score_n_models(idx_start: Optional[int] = None, num: Optional[int] = None,
 
 if __name__ == "__main__":
     score_n_models(
-        idx_start=13,
-        num=7,
+        idx_start=0,
+        num=10,
         dataset="carvana",
         dataset_len=1000,
         alternative_datasets=["car"]
