@@ -329,7 +329,7 @@ def log(message: str, file: str = LOG_FILE):
 
 def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = None,
                 seed: Optional[int] = None, alternative_datasets: Optional[list[str]] = None,
-                save_pretrained_results: bool = False,
+                save_pretrained_results: bool = False, save_model: bool = False,
                 **kwargs: Union[str, int, float, bool]) -> bool:
     """
     Obiene los puntajes de distintas métricas de un modelo
@@ -361,6 +361,8 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
             - "car"
     save_pretrained_results : bool, optional
         Si entrenar una epoch del modelo y guardar los resultados, by default `False`
+    save_model : bool, optional
+        Si guardar el modelo entrenado, by default `False`
     **kwargs : T.Compose or str or int or float or bool
         Argumentos adicionales para la creación del cromosoma:
         - max_layers : (int) Máximo número de capas de la red sin contar el bottleneck
@@ -374,11 +376,13 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
                    ("iou", "dice" o "dice crossentropy")
         - lr : (float) Tasa de aprendizaje
         - epochs : (int) Número de épocas
+        - early_stopping : (bool) Si se debe usar el early stopping
         - early_stopping_patience : (int) Número de épocas a esperar sin mejora antes de detener
                                     el entrenamiento
         - early_stopping_delta : (float) Umbral mínimo de mejora para considerar un progreso
         - stopping_threshold : (float) Umbral de rendimiento para la métrica de validación. Si se
                                alcanza o supera, el entrenamiento se detiene
+        - infinite : (bool) Si el entrenamiento es infinito
         - show_val : (bool) Si mostrar los resultados de la validación en cada epoch
 
         Argumentos adicionales para el DataLoader:
@@ -486,7 +490,9 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
             path=save_path
         )
 
-        c.save_unet()
+        if save_model:
+            c.save_unet()
+
         c.show_results(
             save=True,
             path=save_path,
@@ -563,6 +569,7 @@ def score_n_models(idx_start: Optional[int] = None, num: Optional[int] = None,
                                  además del dataset principal ("coco-people", "coco-car",
                                  "carvana", "road", "car")
         - save_pretrained_results : (bool) Si entrenar una epoch del modelo y guardar los resultados
+        - save_model : (bool) Si guardar el modelo entrenado
 
         Argumentos adicionales para la creación de los cromosomas:
         - max_layers : (int) Máximo número de capas de la red sin contar el bottleneck
@@ -576,11 +583,13 @@ def score_n_models(idx_start: Optional[int] = None, num: Optional[int] = None,
                    ("iou", "dice" o "dice crossentropy")
         - lr : (float) Tasa de aprendizaje
         - epochs : (int) Número de épocas
+        - early_stopping : (bool) Si se debe usar el early stopping
         - early_stopping_patience : (int) Número de épocas a esperar sin mejora antes de detener el
                                     entrenamiento
         - early_stopping_delta : (float) Umbral mínimo de mejora para considerar un progreso
         - stopping_threshold : (float) Umbral de rendimiento para la métrica de validación. Si se
                                alcanza o supera, el entrenamiento se detiene
+        - infinite : (bool) Si el entrenamiento es infinito
         - show_val : (bool) Si mostrar los resultados de la validación en cada epoch
 
         Argumentos adicionales para el DataLoader:
@@ -624,7 +633,7 @@ def score_n_models(idx_start: Optional[int] = None, num: Optional[int] = None,
 if __name__ == "__main__":
     score_n_models(
         idx_start=0,
-        num=10,
+        num=100,
         dataset="carvana",
         dataset_len=1000,
         alternative_datasets=["car"]

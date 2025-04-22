@@ -7,7 +7,7 @@ Funciones
 - train_model: Entrena un modelo UNet con los datos de un DataLoader
 """
 import math
-from typing import Union, Optional
+from typing import Union
 
 import torch
 from torch import Tensor
@@ -81,11 +81,11 @@ def eval_model(scores: Tensor, target: Tensor, metrics: list[str],
 
 
 def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", lr: float = 0.01,
-                epochs: Optional[int] = None, early_stopping_patience: int = 5,
+                epochs: int = 15, early_stopping: bool = False, early_stopping_patience: int = 5,
                 early_stopping_delta: float = 0.001, stopping_threshold: float = 0.05,
-                show_val: bool = False) -> tuple[UNet,
-                                                 int,
-                                                 dict[str, list[float]]]:
+                infinite: bool = False, show_val: bool = True) -> tuple[UNet,
+                                                                        int,
+                                                                        dict[str, list[float]]]:
     """
     Entrena un modelo UNet
 
@@ -104,8 +104,10 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
             - "dice crossentropy"
     lr : float, optional
         Tasa de aprendizaje, by default `0.01`
-    epochs : Optional[int], optional
-        Número de épocas, si no se especifica, se activa el early stopping, by default `None`
+    epochs : int, optional
+        Número de épocas, by default `15`
+    early_stopping : bool, optional
+        Si usar early stopping, by default `False`
     early_stopping_patience : int, optional
         Número de épocas a esperar sin mejora antes de detener el entrenamiento, by default `5`
     early_stopping_delta : float, optional
@@ -113,8 +115,10 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
     stopping_threshold : float, optional
         Umbral de rendimiento para la métrica de validación. Si se alcanza o supera,
         el entrenamiento se detiene, by default `0.05`
+    infinite : bool, optional
+        Si el entrenamiento es infinito, by default `False`
     show_val : bool, optional
-        Si mostrar los resultados de la validación en cada epoch, by default `False`
+        Si mostrar los resultados de la validación en cada epoch, by default `True`
 
     Returns
     -------
@@ -126,11 +130,9 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
     len_data = len(data_loader.train)
     len_val = len(data_loader.validation)
 
-    best_val_loss = float('inf')
+    best_loss = float("inf")
     counter = 0
     best_model_state = None
-    early_stopping = epochs is None
-    epochs = epochs if not early_stopping else 100
 
     scaler = GradScaler("cuda")
     optimizer = torch.optim.SGD(
@@ -140,7 +142,7 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
         weight_decay=1e-4
     )
 
-    if early_stopping:
+    if infinite:
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
             optimizer,
             mode='min',
@@ -150,9 +152,8 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
             min_lr=1e-6,
         )
 
-        if not show_val:
-            LOGGER.warning("Show_val asignado a True para early stopping")
-            show_val = True
+        epochs = 100
+        early_stopping = True
     else:
         scheduler = torch.optim.lr_scheduler.OneCycleLR(
             optimizer,
@@ -164,6 +165,10 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
             final_div_factor=1000,
             three_phase=True
         )
+
+    if early_stopping and not show_val:
+        LOGGER.warning("Show_val asignado a True para early stopping")
+        show_val = True
 
     train_loss_ant = torch.tensor(1.0)
     val_loss_ant = torch.tensor(1.0)
@@ -211,7 +216,7 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
             scaler.step(optimizer)
             scaler.update()
 
-            if not early_stopping:
+            if not infinite:
                 scheduler.step()
 
             with torch.no_grad():
@@ -272,6 +277,10 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
 
         # Validación y early stopping
         if not show_val:
+            if total_train_loss / len_data < best_loss:
+                best_loss = total_train_loss / len_data
+                best_model_state = model.state_dict().copy()
+
             continue
 
         model.eval()
@@ -341,9 +350,14 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
         metrics_results["val_accuracy"].append(avg_val_acc)
 
         if not early_stopping:
+            if avg_val_loss < best_loss:
+                best_loss = avg_val_loss
+                best_model_state = model.state_dict().copy()
+
             continue
 
-        scheduler.step(avg_val_loss)
+        if infinite:
+            scheduler.step(avg_val_loss)
 
         if avg_val_loss < stopping_threshold:
             print(
@@ -359,12 +373,11 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
 
         LOGGER.info(
             "Comparación de métricas para early stopping: "
-            f"({avg_val_loss} < {best_val_loss - early_stopping_delta}) = "
-            f"{avg_val_loss < best_val_loss - early_stopping_delta}"
+            f"{avg_val_loss < best_loss - early_stopping_delta =}"
         )
 
-        if avg_val_loss < best_val_loss - early_stopping_delta:
-            best_val_loss = avg_val_loss
+        if avg_val_loss < best_loss - early_stopping_delta:
+            best_loss = avg_val_loss
             counter = 0
             best_model_state = model.state_dict().copy()
         else:
@@ -376,7 +389,7 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
         if counter >= early_stopping_patience:
             print(
                 "Early stopping activado por falta de mejora. "
-                f"La mejor pérdida fue: {best_val_loss:.4f}"
+                f"La mejor pérdida fue: {best_loss:.4f}"
             )
             if best_model_state is not None:
                 model.load_state_dict(best_model_state)

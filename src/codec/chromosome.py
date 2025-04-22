@@ -854,11 +854,13 @@ class Chromosome:
                        ("iou", "dice" o "dice crossentropy")
             - lr : (float) Tasa de aprendizaje
             - epochs : (int) Número de épocas
+            - early_stopping : (bool) Si se debe usar el early stopping
             - early_stopping_patience : (int) Número de épocas a esperar sin mejora antes de
                                         detener el entrenamiento
             - early_stopping_delta : (float) Umbral mínimo de mejora para considerar un progreso
             - stopping_threshold : (float) Umbral de rendimiento para la métrica de validación.
                                    Si se alcanza o supera, el entrenamiento se detiene
+            - infinite : (bool) Si el entrenamiento es infinito
             - show_val : (bool) Si mostrar los resultados de la validación en cada epoch
 
             Argumentos adicionales para el DataLoader:
