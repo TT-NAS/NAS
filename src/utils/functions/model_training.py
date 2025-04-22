@@ -373,7 +373,7 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
 
         LOGGER.info(
             "Comparación de métricas para early stopping: "
-            f"{avg_val_loss < best_loss - early_stopping_delta =}"
+            f"{avg_val_loss < best_loss - early_stopping_delta=}"
         )
 
         if avg_val_loss < best_loss - early_stopping_delta:
