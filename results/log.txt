@@ -1,0 +1,12 @@
+ERROR:
+  + Semilla: 13
+  + Binary cod: AAAAAAAADWPQNAA5TAAHC4ADWAAA5LQAHJKN7BY_192
+  - Error: CUDA se quedó sin memoria
+ERROR:
+  + Semilla: 78
+  + Binary cod: AAAAAAAAAAAAAAAAAAAH3MOPSKAA3HUKSDQABQY_192
+  - Error:DataLoader worker (pid(s) 108707) exited unexpectedly
+ERROR:
+  + Semilla: 92
+  + Binary cod: AAAAAAAADRTAFCA5TMZTZU25AYAB4FQAMC7DAVI_192
+  - Error: CUDA se quedó sin memoria
