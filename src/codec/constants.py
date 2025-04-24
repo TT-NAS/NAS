@@ -1,41 +1,11 @@
-# Restricciones para el tamaño de las redes
-MAX_LAYERS = 4
-MAX_CONVS_PER_LAYER = 2
+from enum import Enum
 
-# Tamaños de las distintas partes de un cromosoma tanto en binario como en real
-# 3 valores por convolución (filters, kernel_size, activation)
-REAL_CONV_LEN = 3
-REAL_POOLING_LEN = 1
-REAL_CONCAT_LEN = 1
-REAL_CONVS_LEN = REAL_CONV_LEN * MAX_CONVS_PER_LAYER
-# convoluciones tanto en encoding como en decoding + pooling + concatenación
-REAL_LAYER_LEN = REAL_CONVS_LEN * 2 + REAL_POOLING_LEN + REAL_CONCAT_LEN
-# MAX_LAYERS capas + bottleneck
-REAL_CHROMOSOME_LEN = REAL_LAYER_LEN * MAX_LAYERS + REAL_CONVS_LEN
-# filters: 4 bits, kernel_size: 2 bits, activation: 4 bits = 10 bits
-BIN_CONV_LEN = 10
-BIN_POOLING_LEN = 2
-BIN_CONCAT_LEN = 1
-BIN_CONVS_LEN = BIN_CONV_LEN * MAX_CONVS_PER_LAYER
-BIN_LAYER_LEN = BIN_CONVS_LEN * 2 + 3
-# MAX_LAYERS capas + bottleneck
-BIN_CHROMOSOME_LEN = BIN_LAYER_LEN * MAX_LAYERS + BIN_CONVS_LEN
 
-# Valores que representan una capa de identidad en un cromosoma real y binario
-IDENTITY_CONV_REAL = [0.01, 0.01, 0.01]  # f=None + s=1 + a=linear
-IDENTITY_LAYER_REAL = (
-    # identity_convs + p=None
-    IDENTITY_CONV_REAL * MAX_CONVS_PER_LAYER +
-    [0.01] +
-    # identity_convs + concat=False
-    IDENTITY_CONV_REAL * MAX_CONVS_PER_LAYER +
-    [0.01]
-)
-IDENTITY_CONV_BIN = "0000" + "00" + "0000"  # f=None + s=1 + a=linear
-IDENTITY_LAYER_BIN = (
-    IDENTITY_CONV_BIN * MAX_CONVS_PER_LAYER + "00" +  # identity_convs + p=None
-    IDENTITY_CONV_BIN * MAX_CONVS_PER_LAYER + "0"  # identity_convs + concat=False
-)
+class Encoding(Enum):
+    DECODED = "decoded"
+    REAL = "real"
+    BINARY = "binary"
+
 
 # Variables de decisión para un cromosoma binario,
 # la representación real se obtiene a partir de estas variables
@@ -83,3 +53,68 @@ CONCATENATION = {
     "0": False,
     "1": True,
 }
+
+# Restricciones para el tamaño de las redes
+MAX_LAYERS = 4
+MAX_CONVS_PER_LAYER = 2
+
+LEN_FILTERS_REAL = 1
+LEN_KERNEL_SIZE_REAL = 1
+LEN_ACTIVATION_REAL = 1
+LEN_POOLINGS_REAL = 1
+LEN_CONCAT_REAL = 1
+LEN_CONV_REAL = LEN_FILTERS_REAL + LEN_KERNEL_SIZE_REAL + LEN_ACTIVATION_REAL
+LEN_CONVS_REAL = MAX_CONVS_PER_LAYER * LEN_CONV_REAL
+LEN_LAYER_REAL = (
+    LEN_CONVS_REAL + LEN_POOLINGS_REAL +
+    LEN_CONVS_REAL + LEN_CONCAT_REAL
+)
+LEN_CHROMOSOME_REAL = (
+    MAX_LAYERS * LEN_LAYER_REAL + LEN_CONVS_REAL
+)
+
+LEN_FILTERS_BIN = 4
+LEN_KERNEL_SIZE_BIN = 2
+LEN_ACTIVATION_BIN = 4
+LEN_POOLINGS_BIN = 2
+LEN_CONCAT_BIN = 1
+LEN_CONV_BIN = LEN_FILTERS_BIN + LEN_KERNEL_SIZE_BIN + LEN_ACTIVATION_BIN
+LEN_CONVS_BIN = MAX_CONVS_PER_LAYER * LEN_CONV_BIN
+LEN_LAYER_BIN = (
+    LEN_CONVS_BIN + LEN_POOLINGS_BIN +
+    LEN_CONVS_BIN + LEN_CONCAT_BIN
+)
+LEN_CHROMOSOME_BIN = (
+    MAX_LAYERS * LEN_LAYER_BIN + LEN_CONVS_BIN
+)
+
+# Valores que representan una capa de identidad en un cromosoma real y binario
+IDENTITY_FILTERS_REAL = [1 / len(FILTERS)]  # f=None
+IDENTITY_KERNEL_SIZE_REAL = [1 / len(KERNEL_SIZES)]  # s=1
+IDENTITY_ACTIVATION_REAL = [1 / len(ACTIVATION_FUNCTIONS)]  # a=linear
+IDENTITY_POOLING_REAL = [1 / len(POOLINGS)]  # p=None
+IDENTITY_CONCAT_REAL = [1 / len(CONCATENATION)]  # concat=False
+IDENTITY_CONV_REAL = (
+    IDENTITY_FILTERS_REAL +
+    IDENTITY_KERNEL_SIZE_REAL +
+    IDENTITY_ACTIVATION_REAL
+)
+IDENTITY_LAYER_REAL = (
+    MAX_CONVS_PER_LAYER * IDENTITY_CONV_REAL + IDENTITY_POOLING_REAL +
+    MAX_CONVS_PER_LAYER * IDENTITY_CONV_REAL + IDENTITY_CONCAT_REAL
+)
+
+IDENTITY_FILTERS_BIN = "0000"  # f=None
+IDENTITY_KERNEL_SIZE_BIN = "00"  # s=1
+IDENTITY_ACTIVATION_BIN = "0000"  # a=linear
+IDENTITY_POOLING_BIN = "00"  # p=None
+IDENTITY_CONCAT_BIN = "0"  # concat=False
+IDENTITY_CONV_BIN = (
+    IDENTITY_FILTERS_BIN +
+    IDENTITY_KERNEL_SIZE_BIN +
+    IDENTITY_ACTIVATION_BIN
+)
+IDENTITY_LAYER_BIN = (
+    MAX_CONVS_PER_LAYER * IDENTITY_CONV_BIN + IDENTITY_POOLING_BIN +
+    MAX_CONVS_PER_LAYER * IDENTITY_CONV_BIN + IDENTITY_CONCAT_BIN
+)

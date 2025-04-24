@@ -51,6 +51,8 @@ class UNet(nn.Module):
         in_channels : int, optional
             Número de canales de entrada, by default `CHANNELS`
         """
+        from codec import layer_is_identity
+
         super().__init__()
 
         layers, bottleneck = decoded_chromosome
@@ -61,7 +63,7 @@ class UNet(nn.Module):
         concats_sizes: list[int] = []
 
         for layer in layers:
-            if layer is None:
+            if layer_is_identity(layer, "decoded"):
                 continue
 
             (convs, pooling), _ = layer
@@ -69,13 +71,13 @@ class UNet(nn.Module):
             self.encoder.append(convs_layer)
             concats_sizes.append(in_channels)
 
-            if pooling == "max":
+            if pooling == "average":
                 self.encoder.append(
-                    nn.MaxPool2d(kernel_size=2, stride=2)
+                    nn.AvgPool2d(kernel_size=2, stride=2)
                 )
             else:
                 self.encoder.append(
-                    nn.AvgPool2d(kernel_size=2, stride=2)
+                    nn.MaxPool2d(kernel_size=2, stride=2)
                 )
 
         # Bottleneck
@@ -88,7 +90,7 @@ class UNet(nn.Module):
         self.concat_or_not = []
 
         for layer in layers[::-1]:
-            if layer is None:
+            if layer_is_identity(layer, "decoded"):
                 continue
 
             _, (convs, concat) = layer
@@ -144,10 +146,12 @@ class UNet(nn.Module):
         tuple
             (Secuencia de convoluciones, Número de canales de entrada actualizado)
         """
+        from codec import conv_is_identity
+
         convs_layer = nn.Sequential()
 
         for i, conv in enumerate(convs):
-            if conv is None:
+            if conv_is_identity(conv, "decoded"):
                 continue
 
             filters, kernel_size, activation = conv

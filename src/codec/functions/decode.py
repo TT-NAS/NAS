@@ -13,17 +13,18 @@ import base64
 from typing import Union, Optional
 
 from ..constants import (
-    BIN_POOLING_LEN, BIN_CONCAT_LEN,
-    BIN_CONVS_LEN, BIN_LAYER_LEN,
-    REAL_POOLING_LEN, REAL_CONCAT_LEN,
-    REAL_CONVS_LEN, REAL_LAYER_LEN,
+    LEN_POOLINGS_BIN, LEN_CONCAT_BIN,
+    LEN_CONVS_BIN, LEN_LAYER_BIN,
+    LEN_POOLINGS_REAL, LEN_CONCAT_REAL,
+    LEN_CONVS_REAL, LEN_LAYER_REAL,
 
-    IDENTITY_CONV_REAL, IDENTITY_LAYER_REAL,
-    IDENTITY_CONV_BIN, IDENTITY_LAYER_BIN,
+    IDENTITY_CONV_REAL,
+    IDENTITY_CONV_BIN,
 
     FILTERS, KERNEL_SIZES, ACTIVATION_FUNCTIONS,
     POOLINGS, CONCATENATION
 )
+from .chromosome_utils import layer_is_identity, conv_is_identity
 
 
 def unzip_binary(binary: str) -> str:
@@ -125,25 +126,28 @@ def decode_convs(convs: Union[list[float], str],
         Lista de convoluciones decodificadas
     """
     decoded_convs = []
+    len_conv = len(IDENTITY_CONV_REAL) if real else len(IDENTITY_CONV_BIN)
 
-    for i in range(0, len(convs), 3 if real else 10):
-        if ((real and convs[i:i + 3] == IDENTITY_CONV_REAL)
-                or (not real and convs[i:i + 10] == IDENTITY_CONV_BIN)):
+    for i in range(0, len(convs), len_conv):
+        if conv_is_identity(
+            convs[i:i + len_conv],
+            "real" if real else "binary"
+        ):
             decoded_convs.append(None)
         else:
             decoded_convs.append(
                 (
-                    decode_gene(  # f
+                    decode_gene(  # filters (f)
                         value=convs[i] if real else convs[i:i + 4],
                         options=FILTERS,
                         real=real
                     ),
-                    decode_gene(  # s
+                    decode_gene(  # kernel_size (s)
                         value=convs[i + 1] if real else convs[i + 4:i + 6],
                         options=KERNEL_SIZES,
                         real=real
                     ),
-                    decode_gene(  # a
+                    decode_gene(  # activation func (a)
                         value=convs[i + 2] if real else convs[i + 6:i + 10],
                         options=ACTIVATION_FUNCTIONS,
                         real=real
@@ -174,18 +178,17 @@ def decode_layer(layer: Union[list[float], str],
     tuple
         Capa decodificada
     """
-    if ((real and layer == IDENTITY_LAYER_REAL)
-            or (not real and layer == IDENTITY_LAYER_BIN)):
+    if layer_is_identity(layer, "real" if real else "binary"):
         return None
 
     if real:
-        pooling_len = REAL_POOLING_LEN
-        concat_len = REAL_CONCAT_LEN
-        encoder_len = REAL_CONVS_LEN + REAL_POOLING_LEN
+        pooling_len = LEN_POOLINGS_REAL
+        concat_len = LEN_CONCAT_REAL
+        encoder_len = LEN_CONVS_REAL + LEN_POOLINGS_REAL
     else:
-        pooling_len = BIN_POOLING_LEN
-        concat_len = BIN_CONCAT_LEN
-        encoder_len = BIN_CONVS_LEN + BIN_POOLING_LEN
+        pooling_len = LEN_POOLINGS_BIN
+        concat_len = LEN_CONCAT_BIN
+        encoder_len = LEN_CONVS_BIN + LEN_POOLINGS_BIN
 
     encoder = layer[:encoder_len]
     decoder = layer[encoder_len:]
@@ -244,11 +247,11 @@ def decode_chromosome(
         Cromosoma decodificado
     """
     if real:
-        layer_len = REAL_LAYER_LEN
-        bottleneck_len = REAL_CONVS_LEN
+        layer_len = LEN_LAYER_REAL
+        bottleneck_len = LEN_CONVS_REAL
     else:
-        layer_len = BIN_LAYER_LEN
-        bottleneck_len = BIN_CONVS_LEN
+        layer_len = LEN_LAYER_BIN
+        bottleneck_len = LEN_CONVS_BIN
 
     decoded_layers = [
         decode_layer(
