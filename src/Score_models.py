@@ -632,8 +632,8 @@ def score_n_models(idx_start: Optional[int] = None, num: Optional[int] = None,
 
 if __name__ == "__main__":
     score_n_models(
-        idx_start=280,
-        num=21,
+        idx_start=301,
+        num=1,
         dataset="carvana",
         dataset_len=1000,
         alternative_datasets=["car"]
