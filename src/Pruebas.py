@@ -240,8 +240,7 @@ print("Aptitud para el DataLoader de entrenamiento (Loss):", c.get_aptitude())
 # c.save_unet()
 
 # %% Prueba de congruencia entre discretización y decodificación
-FILTERS = {
-    "0000": None,  # No aplicar convoluciones
+VALID_FILTERS = {
     "0001": 1,
     "0011": 2,
     "0010": 4,
@@ -254,6 +253,9 @@ FILTERS = {
     "1111": 512,
     "1110": 1024,
 }
+FILTERS = {
+    "0000": None,
+} | VALID_FILTERS
 KERNEL_SIZES = {
     "00": 1,
     "01": 3,
@@ -270,12 +272,13 @@ ACTIVATION_FUNCTIONS = {
     "0100": "softsign",
     "1100": "softmax"
 }
+
 VALID_POOLINGS = {
     "01": "max",
     "11": "average",
 }
 POOLINGS = {
-    "00": None  # No aplicar pooling
+    "00": None
 } | VALID_POOLINGS
 CONCATENATION = {
     "0": False,
@@ -283,38 +286,53 @@ CONCATENATION = {
 }
 
 
-def discretize_gene(value: int | bool | str, options: dict) -> str:
-    step = 1 / len(options)
-    real_rep = 0.01
+def encode_gene(value, options, real):
+    if real:
+        step = 1 / len(options)
+        real_representation = 0.01
 
-    for _, v in options.items():
-        if v == value:
-            return round(real_rep, 2)
+        for _, v in options.items():
+            if v == value:
+                return round(real_representation, 2)
 
-        real_rep += step
+            real_representation += step
 
-    raise ValueError(f"Value {value} not found in options")
+    else:
+        for k, v in options.items():
+            if v == value:
+                return k
+
+    raise ValueError(f"El valor {value} no está en las opciones")
 
 
-def decode_gene(value: float, options: dict) -> int | bool | str:
-    step = 1 / len(options)
+def decode_gene(value, options, real):
+    if not real:
+        if value in options:
+            return options[value]
+        else:
+            raise ValueError(
+                f"El valor {value} no está en las opciones"
+            )
+    else:
+        value = value[0] if isinstance(value, list) else value
+        step = 1 / len(options)
 
-    for i in range(len(options)):
-        cota_inf = step * i
-        cota_sup = step * (i + 1)
+        for i in range(len(options)):
+            cota_inf = step * i
+            cota_sup = step * (i + 1)
 
-        if cota_inf <= value < cota_sup:
-            return list(options.values())[i]
+            if cota_inf <= value < cota_sup:
+                return list(options.values())[i]
 
-    return list(options.values())[-1]
+        return list(options.values())[-1]
 
 
 def probarDic(dic, dic_str):
     keys = list(dic.keys())
     for key in keys:
         print(f"Probando {dic_str}[{key}]: {dic[key]} -> ", end="")
-        real = discretize_gene(dic[key], dic)
-        decode = decode_gene(real, dic)
+        real = encode_gene(dic[key], dic, real=True)
+        decode = decode_gene(real, dic, real=True)
         print(f"{dic_str}[{real}] = {decode}")
 
 
@@ -325,3 +343,38 @@ probarDic(POOLINGS, "POOLINGS")
 probarDic(CONCATENATION, "CONCATENATION")
 
 # %%
+from codec import Chromosome
+
+
+real = [0.009999999776482582, 0.009999999776482582, 0.009999999776482582, 0.009999999776482582, 0.009999999776482582, 0.009999999776482582, 0.009999999776482582, 0.009999999776482582, 0.009999999776482582, 0.009999999776482582, 0.009999999776482582, 0.009999999776482582, 0.009999999776482582, 0.009999999776482582, 0.5099999904632568, 0.6800000071525574, 0.3400000035762787, 0.6800000071525574, 0.3400000035762787, 0.11999999731779099, 0.3400000035762787, 0.3400000035762787, 0.6800000071525574, 0.8999999761581421, 0.18000000715255737, 0.009999999776482582, 0.5699999928474426, 0.5099999904632568, 0.3400000035762787, 0.009999999776482582, 0.11999999731779099,
+        0.5099999904632568, 0.6800000071525574, 0.6800000071525574, 0.6800000071525574, 0.009999999776482582, 0.009999999776482582, 0.009999999776482582, 0.18000000715255737, 0.6800000071525574, 0.5699999928474426, 0.009999999776482582, 0.009999999776482582, 0.009999999776482582, 0.009999999776482582, 0.5099999904632568, 0.3400000035762787, 0.6800000071525574, 0.6800000071525574, 0.009999999776482582, 0.009999999776482582, 0.009999999776482582, 0.3400000035762787, 0.3400000035762787, 0.44999998807907104, 0.009999999776482582, 0.8399999737739563, 0.009999999776482582, 0.8999999761581421, 0.8399999737739563, 0.009999999776482582, 0.6800000071525574]
+c = Chromosome(chromosome=real)
+# c = Chromosome(seed=81)
+
+print("Name:\n", c)
+print("Decoded:\n", c.get_decoded())
+print("Real:\n", c.get_real())
+print("Binary:\n", c.get_binary())
+print("Binary:\n", c.get_binary(zip=True))
+
+c2 = Chromosome(chromosome=c.get_binary(zip=True))
+
+print("\n\nName:\n", c2)
+print("Decoded:\n", c2.get_decoded())
+print("Real:\n", c2.get_real())
+print("Binary:\n", c2.get_binary())
+print("Binary:\n", c2.get_binary(zip=True))
+
+assert c2.get_binary() == c.get_binary()
+assert c2.get_binary(zip=True) == c.get_binary(zip=True)
+
+c3 = Chromosome(chromosome=c2.get_decoded())
+
+print("\n\nName:\n", c3)
+print("Decoded:\n", c3.get_decoded())
+print("Real:\n", c3.get_real())
+print("Binary:\n", c3.get_binary())
+print("Binary:\n", c3.get_binary(zip=True))
+
+assert c3.get_binary() == c.get_binary()
+assert c3.get_binary(zip=True) == c.get_binary(zip=True)

@@ -6,16 +6,23 @@ Clases
 ------
 - Chromosome: Clase que representa un cromosoma de la población de un algoritmo genético
 
+Funciones
+---------
+- layer_is_identity: Determina si una capa es una capa de identidad
+- conv_is_identity: Determina si una convolución es una convolución de identidad
+
 Constantes
 ----------
 - MAX_LAYERS: Número máximo de capas que puede tener un cromosoma
 - MAX_CONVS_PER_LAYER: Número máximo de convoluciones que puede tener una capa
 """
 from .chromosome import Chromosome
+from .functions import layer_is_identity, conv_is_identity
 from .constants import MAX_LAYERS, MAX_CONVS_PER_LAYER
 
 __all__ = [
     "Chromosome",
+    "layer_is_identity", "conv_is_identity",
     "MAX_LAYERS", "MAX_CONVS_PER_LAYER"
 ]
 

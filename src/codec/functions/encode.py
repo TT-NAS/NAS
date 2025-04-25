@@ -110,7 +110,8 @@ def encode_convs(convs: list[Optional[tuple[int, int, str]]],
     for conv in convs:
         if conv is None:
             if real:
-                encoded_convs.extend(IDENTITY_CONV_REAL)
+                encoded_convs.extend([x - 0.001
+                                      for x in IDENTITY_CONV_REAL])
             else:
                 encoded_convs += IDENTITY_CONV_BIN
 
@@ -175,7 +176,8 @@ def encode_chromosome(
     for layer in decoded_chromosome[0]:
         if layer is None:
             if real:
-                encoded_chromosome.extend(IDENTITY_LAYER_REAL)
+                encoded_chromosome.extend([x - 0.001
+                                           for x in IDENTITY_LAYER_REAL])
             else:
                 encoded_chromosome += IDENTITY_LAYER_BIN
 
