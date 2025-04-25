@@ -1,0 +1,16 @@
+ERROR:
+  + Semilla: 209
+  + Binary cod: AAFWIAHM4ABS7AAMRTBW2HQYXSABYLQAFZWRXFQ_192
+  - Error: CUDA se quedó sin memoria
+ERROR:
+  + Semilla: 229
+  + Binary cod: AANVPA6VQABQ7CCJQQAMKMAD6QABXPSGNLYAAVI_192
+  - Error: CUDA se quedó sin memoria
+ERROR:
+  + Semilla: 279
+  + Binary cod: AAAAAAAAAKMSH6CYDQAC3PYUXSAAFJ5KWCRBHQQ_192
+  - Error:cannot access local variable 'epoch' where it is not associated with a value
+ERROR:
+  + Semilla: 280
+  + Binary cod: AAAAAAAADWHSR2E5QW252FK3KBTOJLXL52BNHMA_192
+  - Error:Length of values (13) does not match length of index (15)
