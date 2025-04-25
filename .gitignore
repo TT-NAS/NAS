@@ -4,3 +4,4 @@ models/
 data/
 __checkpoints__/
 NASENV/
+.env
