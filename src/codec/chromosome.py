@@ -1009,4 +1009,9 @@ class Chromosome:
             name=name,
             **kwargs
         )
+
+    def remove_checkpoints(self):
+        """
+        Elimina los checkpoints del modelo UNet
+        """
         remove_checkpoints(self.get_binary(zip=True))

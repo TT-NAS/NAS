@@ -14,7 +14,7 @@ from utils import empty_cache_torch
 from codec import Chromosome, MAX_LAYERS, MAX_CONVS_PER_LAYER
 
 
-RESULTS_FILE = os.path.join(RESULTS_PATH, "results_jafet.csv")
+RESULTS_FILE = os.path.join(RESULTS_PATH, "results.csv")
 LOG_FILE = os.path.join(RESULTS_PATH, "log.txt")
 
 
@@ -79,17 +79,17 @@ def plot_learning_curves(metrics: dict[str, list[float]], save: bool = False,
         if base_name in train_metrics:
             train_values = train_metrics[base_name]
             epochs = range(1, len(train_values) + 1)
-            ax.plot(epochs, train_values, 'b-', label=f'Train {base_name}')
+            ax.plot(epochs, train_values, "b-", label=f"Train {base_name}")
 
         # Graficar val (si existe)
         if base_name in val_metrics and len(val_metrics[base_name]) > 0:
             val_values = val_metrics[base_name]
             epochs = range(1, len(val_values) + 1)
-            ax.plot(epochs, val_values, 'r-', label=f'Val {base_name}')
+            ax.plot(epochs, val_values, "r-", label=f"Val {base_name}")
 
-        ax.set_title(f'{base_name}')
-        ax.set_xlabel('Epoch')
-        ax.set_ylabel('Value')
+        ax.set_title(f"{base_name}")
+        ax.set_xlabel("Epoch")
+        ax.set_ylabel("Value")
         ax.legend()
         ax.grid(True)
 
@@ -103,11 +103,11 @@ def plot_learning_curves(metrics: dict[str, list[float]], save: bool = False,
             epochs = range(1, len(train_values) + 1)
             color_idx = i % len(colors)
             ax.plot(epochs, train_values,
-                    color=colors[color_idx], label=f'Train {base_name}')
+                    color=colors[color_idx], label=f"Train {base_name}")
 
-    ax.set_title('All Training Metrics')
-    ax.set_xlabel('Epoch')
-    ax.set_ylabel('Value')
+    ax.set_title("All Training Metrics")
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel("Value")
     ax.legend()
     ax.grid(True)
 
@@ -122,11 +122,11 @@ def plot_learning_curves(metrics: dict[str, list[float]], save: bool = False,
                 epochs = range(1, len(val_values) + 1)
                 color_idx = i % len(colors)
                 ax.plot(epochs, val_values,
-                        color=colors[color_idx], label=f'Val {base_name}')
+                        color=colors[color_idx], label=f"Val {base_name}")
 
-        ax.set_title('All Validation Metrics')
-        ax.set_xlabel('Epoch')
-        ax.set_ylabel('Value')
+        ax.set_title("All Validation Metrics")
+        ax.set_xlabel("Epoch")
+        ax.set_ylabel("Value")
         ax.legend()
         ax.grid(True)
 
@@ -134,7 +134,7 @@ def plot_learning_curves(metrics: dict[str, list[float]], save: bool = False,
 
     # Ocultar ejes vacíos si hay más subplots que métricas
     for i in range(plot_idx, len(axes)):
-        axes[i].axis('off')
+        axes[i].axis("off")
 
     plt.tight_layout()
 
@@ -297,7 +297,7 @@ def reg_results(chromosome: Chromosome, time_seconds: float, last_epoch: int,
             f.write(",".join(encabezado) + "\n")
 
     df = pd.read_csv(file)
-    df = df.dropna(axis=1, how='all')
+    df = df.dropna(axis=1, how="all")
 
     new_row = pd.DataFrame([row])
     new_row["seed"] = new_row["seed"].astype(object)
@@ -459,23 +459,30 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
         empty_cache_torch()
         time_seconds, last_epoch, metrics = c.train_unet(data_loader, **kwargs)
 
-        # si se realizó validación en cada epoch
         if metrics["val_loss"]:
             scores_dict = {
-                "loss": metrics["val_loss"][-1],
-                "iou": metrics["val_iou"][-1],
-                "dice": metrics["val_dice"][-1],
-                "dice crossentropy": metrics["val_dice crossentropy"][-1],
-                "accuracy": metrics["val_accuracy"][-1]
+                "val_loss": metrics["val_loss"][-1],
+                "val_iou": metrics["val_iou"][-1],
+                "val_dice": metrics["val_dice"][-1],
+                "val_dice crossentropy": metrics["val_dice crossentropy"][-1],
+                "val_accuracy": metrics["val_accuracy"][-1]
             }
         else:
             scores_dict = {
-                "loss": metrics["train_loss"][-1],
-                "iou": metrics["train_iou"][-1],
-                "dice": metrics["train_dice"][-1],
-                "dice crossentropy": metrics["train_dice crossentropy"][-1],
-                "accuracy": metrics["train_accuracy"][-1]
+                "val_loss": None,
+                "val_iou": None,
+                "val_dice": None,
+                "val_dice crossentropy": None,
+                "val_accuracy": None
             }
+
+        scores_dict.update({
+            "train_loss": metrics["train_loss"][-1],
+            "train_iou": metrics["train_iou"][-1],
+            "train_dice": metrics["train_dice"][-1],
+            "train_dice crossentropy": metrics["train_dice crossentropy"][-1],
+            "train_accuracy": metrics["train_accuracy"][-1]
+        })
 
         reg_results(
             chromosome=c,
@@ -530,6 +537,7 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
         log("  + Binary cod: " + c.get_binary(zip=True))
         log("  - Error:" + str(e))
     finally:
+        c.remove_checkpoints()
         empty_cache_torch()
 
     return False
@@ -632,9 +640,10 @@ def score_n_models(idx_start: Optional[int] = None, num: Optional[int] = None,
 
 if __name__ == "__main__":
     score_n_models(
-        idx_start=301,
+        idx_start=7,
         num=1,
         dataset="carvana",
         dataset_len=1000,
-        alternative_datasets=["car"]
+        alternative_datasets=["car"],
+        show_val=False
     )

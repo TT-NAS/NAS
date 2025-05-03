@@ -40,18 +40,18 @@ def save_model(model: UNet, name: str, path: str = MODELS_PATH):
     print(f"-> Modelo guardado en {os.path.join(path, name)}")
 
 
-def remove_checkpoints(net_binary: str = Optional[None], path: str = CHECKPOINT_PATH):
+def remove_checkpoints(net_binary: Optional[str] = None, path: str = CHECKPOINT_PATH):
     """
     Elimina los checkpoints de un modelo
 
     Parameters
     ----------
-    net_binary : Optional[str], optional
+    net_binary : str, optional
         Arquitectura del modelo en codificación binaria (`zip=True`), by default None
     path : str, optional
-        Ruta donde se buscarán los checkpoints, by default `CHECKPOINT`
+        Ruta donde se buscarán los checkpoints, by default `CHECKPOINT_PATH`
     """
-    if net_binary is not None:
+    if net_binary is None:
         net_binary = g.CURRENT_NET_BINARY
 
     path = os.path.join(path, net_binary)
