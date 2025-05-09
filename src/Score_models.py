@@ -529,7 +529,7 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
         log("  + Binary cod: " + c.get_binary(zip=True))
         log("  - Error: CUDA se quedó sin memoria")
     except KeyboardInterrupt:
-        print("El entrenamiento fue interrumpido")
+        print("\nEl entrenamiento fue interrumpido")
         exit()
     except Exception as e:
         log("ERROR:")
@@ -640,8 +640,8 @@ def score_n_models(idx_start: Optional[int] = None, num: Optional[int] = None,
 
 if __name__ == "__main__":
     score_n_models(
-        idx_start=601,
-        num=200,
+        idx_start=0,
+        num=1,
         dataset="carvana",
         dataset_len=1000,
         alternative_datasets=["car"]
