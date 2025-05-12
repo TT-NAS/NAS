@@ -4,13 +4,14 @@ Módulo para transformar el dataset de redes neuronales entrenadas para trabajar
 import pandas as pd
 import os
 import sys
+from tqdm import tqdm
 
 # Añadir la ruta del directorio src al sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
 import codec
 
-def get_real_and_binary_chromosoma(filename: str = "results.csv", max_layers: int = 4, max_conv_per_layer: int = 2) -> None:
+def get_real_and_binary_chromosoma(filename: str = "results.csv", out_filename: str = "results_transformed.csv", max_layers: int = 4, max_conv_per_layer: int = 2) -> None:
   """
   Transforma el dataset de redes neuronales entrenadas, agrega las columnas de codificación real y binaria, crea un nuevo archivo csv con el dataset transformado
 
@@ -31,7 +32,7 @@ def get_real_and_binary_chromosoma(filename: str = "results.csv", max_layers: in
   # Crea dos nuevas columnas en el dataframe
   df["real_codification"] = None
   # Itera sobre las filas
-  for index, row in df.iterrows():
+  for index, row in tqdm(df.iterrows()):
     chromosome = row["binary codification"]
     c = codec.Chromosome(max_layers = max_layers, max_convs_per_layer = max_conv_per_layer, chromosome = chromosome)
     # Obtiene la arquitectura en codificación real
@@ -39,7 +40,7 @@ def get_real_and_binary_chromosoma(filename: str = "results.csv", max_layers: in
     # crea una nueva columna en el dataframe
     df.at[index, "real_codification"] = c_real
   # Guarda el dataframe
-  df.to_csv(f"results_transformed.csv", index=False)
+  df.to_csv(out_filename, index=False)
 
 if __name__ == "__main__":
-  get_real_and_binary_chromosoma()
+  get_real_and_binary_chromosoma(filename="C:/Users/Jafet/Documents/Escuela-Estudio/TT/NAS/results/results.csv", out_filename="results_transformed_1000.csv")
