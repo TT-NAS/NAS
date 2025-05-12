@@ -644,5 +644,6 @@ if __name__ == "__main__":
         num=1,
         dataset="carvana",
         dataset_len=1000,
-        alternative_datasets=["car"]
+        alternative_datasets=["car"],
+        show_val=False,
     )
