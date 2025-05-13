@@ -10,6 +10,8 @@ import os
 import math
 from typing import Union
 
+import numpy as np
+from scipy.stats import pearsonr, spearmanr
 import torch
 from torch import Tensor
 from torch.amp import autocast
@@ -110,3 +112,26 @@ def plot_results(model: UNet, test_loader: DataLoader, **kwargs: Union[bool, str
         masks=result,
         **kwargs
     )
+
+def paint_results(y_test: Union[list[float] | np.ndarray], y_pred: Union[list[float] | np.ndarray], order: bool = True):
+  linespace = np.linspace(0, 1, y_pred.size)
+  if order:
+    y_test, y_pred = zip(*sorted(zip(y_test, y_pred)))
+
+  plt.plot(linespace, y_test, label="Real", marker="o")
+  plt.plot(linespace, y_pred, label="Predicción", marker="x")
+  plt.legend()
+  plt.title("Real vs Predicción")
+  plt.show()
+  
+def paint_real_vs_pred(y_test: Union[list[float] | np.ndarray], y_pred: Union[list[float] | np.ndarray]) -> None:
+  plt.scatter(y_test, y_pred, marker="o")
+  plt.xlabel("Real")
+  plt.ylabel("Predicción")
+  plt.title("Real vs Predicción")
+  plt.show()
+  
+  # Coeficientes de correlación
+  pearson = pearsonr(y_test, y_pred)[0]
+  spearman = spearmanr(y_test, y_pred)[0]
+  print(f"Pearson: {pearson:.4f}, Spearman: {spearman:.4f}")

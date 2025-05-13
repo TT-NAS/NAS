@@ -1,0 +1,4 @@
+ERROR:
+  + Semilla: None
+  + Binary cod: AAAAAAAAAAAAAAAAAAAN2NALSUAAPEQAFIL5QQA_192
+  - Error: CUDA se quedó sin memoria

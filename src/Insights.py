@@ -14,7 +14,7 @@ from utils.functions.metrics import iou_loss, dice_loss, dice_crossentropy_loss,
 
 
 # Cargar los datos
-df = pd.read_csv(f'/home/wimbo/NAS/results/results.csv')
+df = pd.read_csv(f'./results/results.csv')
 
 
 def cosine_similarity_extended(tensors: Tensor) -> Tensor:
@@ -155,7 +155,7 @@ data_loader = TorchDataLoader("carvana", **data_loader_args)
 
 prediction = []
 ground_truth = []
-df = df.sort_values(by="val_iou", ascending=True)
+df = df.head(50)
 
 for i, item in df.iterrows():
     c = Chromosome()

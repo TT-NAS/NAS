@@ -1,26 +1,23 @@
 # To Do:
 # - Test random selection vs best selection
 # - Test uniform crossover vs exponential crossover
-import os
 import sys
 
 import random
-import torch
+import numpy as np
 
 from codec import Chromosome
-from .surrogate import SurrogateModel, dim_reduction
-from sklearn.cross_decomposition import PLSRegression
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from .surrogate import SurrogateModel
 
 class DiferentialEvolution():
-  def __init__(self, surrogate_model: SurrogateModel, dim_reduction_model: PLSRegression, pop_size: int = 10, f: float = 0.9, crossover_rate: float = 0.9, max_gen: int = 100) -> None:
+  def __init__(self, surrogate_model: SurrogateModel,  pop_size: int = 10, f: float = 0.9, 
+               crossover_rate: float = 0.9, mutation_rate: float = 0.2, max_gen: int = 100) -> None:
     """
     Differential Evolution Algorithm
     Args:
         surrogate_model (SurrogateModel): Surrogate model to be used.
         pop_size (int, optional): Population size. Defaults to 100.
-        f (float, optional): Scale factor. Defaults to 0.6.
+        f (float, optional): Scale factor. Defaults to 0.9.
         crossover_rate (float, optional): Crossover rate. Defaults to 0.9.
         max_gen (int, optional): Maximum number of generations. Defaults to 100.
     
@@ -28,14 +25,15 @@ class DiferentialEvolution():
     assert surrogate_model is not None, "Surrogate model cannot be None"
     
     self.surrogate_model = surrogate_model
-    self.dim_reduction_model = dim_reduction_model
     self.pop_size = pop_size
     self.max_gen = max_gen
     self.crossover_rate = crossover_rate
+    self.mutation_rate = mutation_rate
     self.f = f
     
     self.g = 0
     self.best = None
+    self.best_fitness = None
     self.fitness = None
     
     self.upper = []
@@ -47,50 +45,39 @@ class DiferentialEvolution():
     Initialize the population
     """
     self.population = [Chromosome() for _ in range(self.pop_size)]
-    self.population = torch.tensor([chromosome.get_real() for chromosome in self.population])
+    self.population = np.array([chromosome.get_real() for chromosome in self.population])
 
   def evaluate_population(self):
     """
     Evaluate the population
     """
-    X_scaled = self.dim_reduction_model.transform(self.population)
-
-    with torch.no_grad():
-      self.surrogate_model.eval()
-      
-      fitness = self.surrogate_model(torch.tensor(X_scaled, dtype=torch.float32).detach().clone())    
-      fitness = fitness.detach().clone()
-      fitness[fitness < 0] = torch.inf
-      self.fitness = fitness
+    fitness = self.surrogate_model.predict(self.population)
+    fitness[fitness < 0] = np.inf
+    self.fitness = fitness
     
   def evaluate_individual(self, individual):
     """
-    Evaluate the population
+    Evaluate an individual
     """
-    X_scaled = self.dim_reduction_model.transform(individual)
-    with torch.no_grad():
       
-      fitness = self.surrogate_model(torch.tensor(X_scaled, dtype=torch.float32).detach().clone())
-      fitness = fitness.detach().clone()
-      
-      if fitness < 0:
-        return torch.inf
-      return fitness
+    fitness = self.surrogate_model.predict(np.array(individual))
     
+    if fitness < 0:
+      return np.inf
+    return fitness
+  
   def start(self):
-    print("Starting Differential Evolution")
     # Initialize population
     self.initialize_population()
     
     for g in range(self.max_gen):
-      sys.stdout.write(f"\r[Generation {g+1}/{self.max_gen}] - Best fitnesss (loss metric): {max(self.fitness) if self.fitness is not None else 'N/A'}")
+      sys.stdout.write(f"\r[{g+1}/{self.max_gen}] - Best fitnesss (loss metric): {self.best_fitness}")
       sys.stdout.flush()
       # Iterate for target vector
       self.evaluate_population()
       for i, target in enumerate(self.population):
         # Trial vector
-        r1 = torch.argmax(self.fitness)
-        r1_score = self.fitness[r1] # For debugg
+        r1 = np.argmax(self.fitness)
         r2, r3 = random.sample([num for num in range(self.pop_size) if num != i and num!=r1], k=2)
         v = self.population[r1]#
         d = self.f * (self.population[r2]- self.population[r3])
@@ -98,7 +85,7 @@ class DiferentialEvolution():
         #Crossover target and trial
         u=[]
         #Select a random index
-        idx = random.randint(0, self.surrogate_model.input_dim-1)
+        idx = random.randint(0, self.surrogate_model.n_features_in_)
 
         #Uniform crossover
         for f in range(target.shape[0]):
@@ -106,33 +93,36 @@ class DiferentialEvolution():
             u.append(v[f])
           else:
             u.append(target[f])
-        u = torch.tensor(u)
+        u = np.array(u)
 
         # Mutation
         for f in range(u.shape[0]):
-          if random.random() <= 0.2:
-            u[f] += torch.rand(1).item()
+          if random.random() <= self.mutation_rate:
+            u[f] += np.random.uniform(-0.1, 0.1)
             u[f]= max(u[f], 0)
             u[f]= min(u[f], 1)
           else:
             u[f] = target[f]
         
+        # Repair
+        u = np.clip(u, 0, 1)
+        
         #Selection
-        # for debugg
         u_score = self.evaluate_individual(u.reshape(1, -1))
         target_score = self.evaluate_individual(target.reshape(1, -1))
         if (u_score > target_score):
           self.population[i] = u
           self.fitness[i] = self.evaluate_individual(u.reshape(1, -1))
       
-      self.best = self.population[torch.argmax(self.fitness)]
+      self.best = self.population[np.argmax(self.fitness)]
+      self.best_fitness = self.fitness[np.argmax(self.fitness)]
       
       self.g+=1
       epsilon = 1e-15
       
-      self.upper.append(torch.max(self.fitness).item())
-      self.lower.append(torch.min(self.fitness).item())
-      self.mean.append(torch.mean(self.fitness).item())
+      self.upper.append(np.max(self.fitness).item())
+      self.lower.append(np.min(self.fitness).item())
+      self.mean.append(np.mean(self.fitness).item())
       
 
       #Stop conditions
