@@ -94,11 +94,10 @@ def default_search():
     name = input()
     if name == "":
         name = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    # Implementar el guardado
+
     saved_path = save_results(name, de)
     colorama_print(f"Resultados guardados en output/{name}\n", Back.RESET, Fore.GREEN)
-    
-    # Preguntar si se debe entrenar la red    
+    # Preguntar si se debe entrenar la red  
     display_options([
         "Entrenar la red",
         "Continuar"
@@ -155,11 +154,10 @@ def custom_search():
     name = input()
     if name == "":
         name = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    # Implementar el guardado
+
     saved_path = save_results(name, de)
     colorama_print(f"Resultados guardados en output/{name}\n", Back.RESET, Fore.GREEN)
-    
-    # Preguntar si se debe entrenar la red    
+    # Preguntar si se debe entrenar la red  
     display_options([
         "Entrenar la red",
         "Continuar"
