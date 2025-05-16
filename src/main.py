@@ -72,7 +72,7 @@ def save_results(name, de):
     os.makedirs(r"./output/" + name, exist_ok=True)
     
     json_data = {
-        "real_codification": str(de.best),
+        "real_codification": de.best.tolist(),
         "predicted_iou": float(de.best_fitness),
         "trained": False
     }
