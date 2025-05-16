@@ -139,6 +139,10 @@ class Chromosome:
                 self.__real = chromosome
             elif isinstance(chromosome, str):
                 self.__binary = unzip_binary(chromosome)
+            else:
+                raise ValueError(
+                    "El cromosoma debe ser una tupla, lista o string"
+                )
 
             self.validate()
 
