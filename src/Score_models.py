@@ -639,16 +639,9 @@ def score_n_models(idx_start: Optional[int] = None, num: Optional[int] = None,
 
 
 if __name__ == "__main__":
-    # score_n_models(
-    #     idx_start=0,
-    #     num=1,
-    #     dataset="carvana",
-    #     dataset_len=1000,
-    #     alternative_datasets=["car"],
-    #     show_val=False,
-    # )
     score_n_models(
-        chromosomes=["IRIRKEKEPCHCFYRYR5I5IXKHKH5D5C7I7I7EPEI_192"],
+        idx_start=0,
+        num=1,
         dataset="carvana",
         dataset_len=1000,
         alternative_datasets=["car"]

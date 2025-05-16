@@ -21,12 +21,11 @@ class SurrogateModel(XGBRegressor):
                 'reg_lambda': 0.0827,
                 'reg_alpha': 1.3668
             }
-        
+
         if model_path is not None:
             self.load_model(model_path)
-            
+
         else:
             for key, value in defaults.items():
                 kwargs.setdefault(key, value)
             super().__init__(**kwargs)
-        

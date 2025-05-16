@@ -11,6 +11,8 @@ pip install pandas
 pip install matplotlib
 pip install pillow
 pip install colorama
+pip install xgboost
+pip install scikit-learn
 ```
 
 ## Instrucciones previas

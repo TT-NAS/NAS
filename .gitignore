@@ -7,3 +7,4 @@ NASENV/
 .env
 imgs/
 log.txt
+output/
