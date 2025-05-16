@@ -133,6 +133,9 @@ class Chromosome:
         self.__binary = str()
 
         if chromosome is not None:
+            if not chromosome:
+                raise ValueError("El cromosoma no puede estar vacío")
+
             if isinstance(chromosome, tuple):
                 self.__decoded = chromosome
             elif isinstance(chromosome, list):
