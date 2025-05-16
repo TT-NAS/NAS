@@ -5,3 +5,5 @@ data/
 __checkpoints__/
 NASENV/
 .env
+imgs/
+log.txt
