@@ -52,7 +52,8 @@ class DiferentialEvolution():
     Evaluate the population
     """
     fitness = self.surrogate_model.predict(self.population)
-    fitness[fitness < 0] = np.inf
+    fitness[fitness < 0] = - np.inf
+    fitness[fitness > 1] = - np.inf
     self.fitness = fitness
     
   def evaluate_individual(self, individual):
@@ -62,8 +63,8 @@ class DiferentialEvolution():
       
     fitness = self.surrogate_model.predict(np.array(individual))
     
-    if fitness < 0:
-      return np.inf
+    if fitness < 0 or fitness > 1:
+      return -np.inf
     return fitness
   
   def start(self):
@@ -71,7 +72,7 @@ class DiferentialEvolution():
     self.initialize_population()
     
     for g in range(self.max_gen):
-      sys.stdout.write(f"\r[{g+1}/{self.max_gen}] - Best fitnesss (loss metric): {self.best_fitness}")
+      sys.stdout.write(f"\r[{g+1}/{self.max_gen}] - Mejor aptitúd (Predicción del IoU): {self.best_fitness}")
       sys.stdout.flush()
       # Iterate for target vector
       self.evaluate_population()
@@ -127,13 +128,13 @@ class DiferentialEvolution():
 
       #Stop conditions
       if(max(self.fitness) > 0.985):
-        print(f'\nStopped. Reason: Global Min Found - {max(self.fitness)}')
+        print(f'\nDetenido. Arquitectura encontrada - IoU predicho: {max(self.fitness)}')
         break
 
       elif(abs(max(self.fitness) - min(self.fitness)) < epsilon):
-        print('\nStopped. Reason: Diversity loss')
+        print('\nDetenido. Pérdida de diversidad')
         break
 
       elif(self.g >= self.max_gen):
-        print('\nStopped. Reason: Max Gen Reached')
+        print('\nDetenido. Número máximo de generaciones alcanzado')
         break

@@ -15,6 +15,7 @@ from utils.functions.metrics import iou_loss, dice_loss, dice_crossentropy_loss,
 
 # Cargar los datos
 df = pd.read_csv(f'./results/results.csv')
+df = df.dropna(subset=["train_iou", "val_iou"])
 
 
 def cosine_similarity_extended(tensors: Tensor) -> Tensor:
@@ -94,13 +95,11 @@ def get_tape(model: nn.Module, data_loader: TorchDataLoader):
     
     # Hook para guardar los gradientes
     gradient_tape = []
-    gradient_tape_abs = []
     handles = []  # Para guardar los handles de los hooks
     
     def get_gradients(module, grad_input, grad_output):
         #grad_output = grad_output[0].mean(dim=0, keepdim=False)
         gradient_tape.append(grad_output[0].float().cpu())
-        gradient_tape_abs.append(grad_output[0].abs().float().cpu())
     
     def register_hooks(model):
         for layer in model.children():
@@ -132,30 +131,27 @@ def get_tape(model: nn.Module, data_loader: TorchDataLoader):
     for handle in handles:
         handle.remove()
         
-    return gradient_tape, gradient_tape_abs
+    return gradient_tape
 
 def score_model(model, data_loader):
     # Obtener el tape de gradientes
-    tape, idk = get_tape(model, data_loader.train)
+    tape = get_tape(model, data_loader.train)
     score = 0
-    for item1, item2 in tqdm(zip(tape, idk), total=len(tape)):
+    for item1 in tqdm(tape, total=len(tape)):
         # Obtener la alineación de los gradientes
         alignment = cosine_similarity_extended(item1)
-        idk_metric = cosine_similarity_extended(item2)
-        # Score
-        print(f"Alignment score for the layer: {alignment}")
-        print(f"the other parameter: {idk_metric}")
+        score += alignment
     
-    return score
+    return score/len(tape)
 
-BATCH_SIZE = 5
+BATCH_SIZE = 6
 # Data loader para los experimentos
-data_loader_args, kwargs = TorchDataLoader.get_args({"dataset_len": 20, "batch_size": BATCH_SIZE})
+data_loader_args, kwargs = TorchDataLoader.get_args({"dataset_len": 64, "batch_size": BATCH_SIZE})
 data_loader = TorchDataLoader("carvana", **data_loader_args)
 
 prediction = []
 ground_truth = []
-df = df.head(50)
+df = df.head(2)
 
 for i, item in df.iterrows():
     c = Chromosome()
@@ -164,25 +160,19 @@ for i, item in df.iterrows():
     try:
         score = score_model(model, data_loader)
         prediction.append(score)
-        ground_truth.append(item["val_iou"])
+        ground_truth.append(np.abs(item["train_iou"] - item["val_iou"]))
     except Exception as e:
         print(f"Error en el modelo {item['seed']}: {e}")
         continue
 
-exit()
 # Normalizar los scores
 prediction = np.array(prediction)
-prediction = 1- ((prediction - prediction.min()) / (prediction.max() - prediction.min()))
+#prediction = 1- ((prediction - prediction.min()) / (prediction.max() - prediction.min()))
 ground_truth = np.array(ground_truth)
 ground_truth = (ground_truth - ground_truth.min()) / (ground_truth.max() - ground_truth.min())
 
-# Graficar los resultados
-plt.scatter(prediction, ground_truth)
-plt.xlabel("Predicción")
-plt.ylabel("Ground Truth")
-plt.title("Predicción vs Ground Truth")
-plt.savefig("pred_vs_gt.png")
-plt.clf()
+print("Predicción: ", prediction)
+print("Ground Truth: ", ground_truth)
 
 plt.plot(prediction, label="Predicción")
 plt.plot(ground_truth, label="Ground Truth")
@@ -190,4 +180,4 @@ plt.xlabel("Modelo")
 plt.ylabel("Score")
 plt.title("Predicción vs Ground Truth")
 plt.legend()
-plt.savefig("pred_vs_gt_line.png")
+plt.show()

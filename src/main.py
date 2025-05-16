@@ -6,15 +6,27 @@ from time import sleep
 from colorama import init, Fore, Style, Back
 import numpy as np
 
-from Score_models import score_model
+from codec import Chromosome
 from search_algorithms.de_search import DiferentialEvolution
 from search_algorithms.surrogate import SurrogateModel
 from app import ascii_art, params
 init(autoreset=True)
 
 surrogate_model = SurrogateModel(model_path = r"./sustituto/xgboost_model.json")
-
     
+def get_input(valid_options):
+    while True:
+        try:
+            value = int(input())
+            if value in valid_options:
+                return value
+            else:
+                colorama_print("Opción no disponible. Seleccione una opción válida: ", Back.RESET, Fore.RED)
+                
+        except ValueError:
+            colorama_print("Entrada inválida. Seleccione una opción válida: ", Back.RESET, Fore.RED)
+            
+            
 def colorama_print(text, bg_color=Back.RESET, text_color=Fore.RESET):
     print(f"{bg_color}{text_color}{text}{Style.RESET_ALL}", end='')
 
@@ -42,10 +54,10 @@ def main_menu():
     ])
     colorama_print("\nSeleccione una opción:", Back.GREEN, Fore.RESET)
     colorama_print(" ", Back.RESET, Fore.RESET)
-    return int(input())
+    return get_input([1, 2, 3])
 
 def architecture_search_menu():
-    display_header("BUSQUEDA DE ARQUITECTURA")
+    display_header("BÚSQUEDA DE ARQUITECTURA")
     display_options([
         "Ejecutar con parámetros por defecto",
         "Ingresar parámetros manualmente",
@@ -53,7 +65,7 @@ def architecture_search_menu():
     ])
     colorama_print("\nSeleccione una opción:", Back.GREEN, Fore.RESET)
     colorama_print(" ", Back.RESET, Fore.RESET)
-    return int(input())
+    return get_input([1, 2, 3])
 
 def save_results(name, de):
     # Guardar en un json el best fitness y un string con la codificación real
@@ -78,23 +90,38 @@ def train_network(path):
         colorama_print("La red ya ha sido entrenada.\n", Back.YELLOW, Fore.RESET)
         return True
     # Entrenar el modelo
-    trained = score_model(dataset="carvana", chromosome=real_codification, save_model=True,
-                       dataset_len=1000, alternative_datasets=["car"])
-    if trained:
-        colorama_print("Red entrenada.\n", Back.GREEN, Fore.RESET)
-        data["trained"] = True
-    return trained
+    try:
+        model = Chromosome(chromosome=real_codification)
+        model.train_unet(data_loader="carvana", dataset_len=1000, epochs=15)
+        model.show_results(data_loader="carvana", dataset_len = 32, 
+                           path=path.replace("model.json", ""), save=True, name="test_results")
+    except KeyboardInterrupt:
+        colorama_print("\nEntrenamiento interrumpido por el usuario. Presione Enter para continuar...", Back.RED, Fore.RESET)
+        
+        return False
+    except Exception as e:
+        colorama_print(f"Error al entrenar la red: {e}\n", Back.RED, Fore.RESET)
+        colorama_print("Presione Enter para continuar...\n", Back.RESET, Fore.GREEN)
+        input()
+        return False
+    
+    data["trained"] = True
+    with open(path, 'w') as f:
+        json.dump(data, f, indent=4)
+    colorama_print("Resultados guardados.\n", Back.GREEN, Fore.RESET)
+    input()
+    return True
     
 def default_search():
     display_header("EJECUTANDO BÚSQUEDA DE ARQUITECTURA CON PARÁMETROS POR DEFECTO")
     de = DiferentialEvolution(surrogate_model)
     de.start()
-    colorama_print("\n\nBúsqueda de arquitectura completada.\n", Back.GREEN, Fore.RESET)
-    colorama_print("Introduzca el nombre para guardar los resultados (o presione Enter para usar la fecha y hora actuales): ", Back.RESET, Fore.GREEN)
+    colorama_print("Búsqueda de arquitectura completada", Back.GREEN, Fore.RESET)
+    colorama_print("\nIntroduzca el nombre para guardar los resultados (o presione Enter para usar la fecha y hora actuales): ", Back.RESET, Fore.GREEN)
     name = input()
     if name == "":
         name = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
+    
     saved_path = save_results(name, de)
     colorama_print(f"Resultados guardados en output/{name}\n", Back.RESET, Fore.GREEN)
     # Preguntar si se debe entrenar la red  
@@ -102,13 +129,15 @@ def default_search():
         "Entrenar la red",
         "Continuar"
     ])
-    training = int(input())
+    training = get_input([1, 2])
     if training == 1:
         colorama_print("Entrenando la red...\n", Back.GREEN, Fore.RESET)
         # Entrenar la red
         train_network(saved_path)
         
-        colorama_print("Red entrenada.\n", Back.GREEN, Fore.RESET)
+        input()
+    else:
+        colorama_print("Continuando sin entrenar la red...\n", Back.GREEN, Fore.RESET)
         colorama_print("Presione Enter para continuar...\n", Back.RESET, Fore.GREEN)
         input()
     
@@ -135,10 +164,10 @@ def validate_input(value, type:str, range=None, default=None):
 def custom_search():
     display_header("EJECUTANDO BÚSQUEDA DE ARQUITECTURA CON PARÁMETROS MANUALES")
     for param, details in params.items():
-        colorama_print(f"Intorducir valor (Enter para utilizar el valor por defecto): \n{param} ({details['type']}, rango: {details['range']}, default: {details['default']}): ", Back.RESET, Fore.GREEN)
+        colorama_print(f"\nIntorducir valor (Enter para utilizar el valor por defecto): \n{details['name']} ({details['type']}, rango: {details['range']}, default: {details['default']}): ", Back.RESET, Fore.GREEN)
         value = input()
         while not validate_input(value, details["type"], details["range"], details["default"]):
-            colorama_print(f"Valor inválido. Intente de nuevo.\n", Back.RESET, Fore.RED)
+            colorama_print(f"Valor inválido. Intente de nuevo: ", Back.RESET, Fore.RED)
             value = input()
         if value == "":
             value = details["default"]
@@ -149,8 +178,8 @@ def custom_search():
     
     de = DiferentialEvolution(surrogate_model, **params_dict)
     de.start()
-    colorama_print("\n\nBúsqueda de arquitectura completada.\n", Back.GREEN, Fore.RESET)
-    colorama_print("Introduzca el nombre para guardar los resultados (o presione Enter para usar la fecha y hora actuales): ", Back.RESET, Fore.GREEN)
+    colorama_print("Búsqueda de arquitectura completada.", Back.GREEN, Fore.RESET)
+    colorama_print("\nIntroduzca el nombre para guardar los resultados (o presione Enter para usar la fecha y hora actuales): ", Back.RESET, Fore.GREEN)
     name = input()
     if name == "":
         name = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -162,18 +191,21 @@ def custom_search():
         "Entrenar la red",
         "Continuar"
     ])
-    training = int(input())
+    training = get_input([1, 2])
     if training == 1:
         colorama_print("Entrenando la red...\n", Back.GREEN, Fore.RESET)
         # Entrenar la red
         train_network(saved_path)
         
-        colorama_print("Red entrenada.\n", Back.GREEN, Fore.RESET)
+        input()
+    else:
+        colorama_print("Continuando sin entrenar la red...\n", Back.GREEN, Fore.RESET)
         colorama_print("Presione Enter para continuar...\n", Back.RESET, Fore.GREEN)
         input()
         
 def load_saved_networks():
     # Cargar redes guardadas
+    display_header(" REDES GUARDADAS")
     saved_networks = []
     for root, dirs, files in os.walk(r"./output"):
         for file in files:
@@ -189,18 +221,19 @@ def load_saved_networks():
         colorama_print("Presione Enter para continuar...\n", Back.RESET, Fore.GREEN)
         input()
         return
-    colorama_print("Redes guardadas:\n", Back.GREEN, Fore.RESET)
+    colorama_print("Seleccione una opción:\n", Back.GREEN, Fore.RESET)
+    colorama_print("[0] Volver al menú principal\n", Back.RESET, Fore.MAGENTA)
     for i, (path, data) in enumerate(saved_networks):
         colorama_print(f"[{i+1}] {path} - Predicted IOU: {data['predicted_iou']}, Entrenada: {data['trained']}\n", Back.RESET, Fore.MAGENTA)
-    colorama_print("Seleccione una red para entrenar (o presione Enter para continuar): ", Back.RESET, Fore.GREEN)
-    input_ = input()
-    if input_ == "":
+    colorama_print("Seleccione una red para entrenar: ", Back.RESET, Fore.GREEN)
+    input_ = get_input([i for i in range(len(saved_networks) + 1)])
+    
+    if input_ == 0:
+        colorama_print("Regresando al menú principal...", Back.RED, Fore.RESET)
+        sleep(1)
         return
     try:
-        index = int(input_) - 1
-        if index < 0 or index >= len(saved_networks):
-            colorama_print("Índice inválido. Regresando al menú principal.\n", Back.RED, Fore.RESET)
-            return
+        index = input_ - 1
         path, data = saved_networks[index]
         # Entrenar la red
         trained = train_network(path)
@@ -208,14 +241,10 @@ def load_saved_networks():
             colorama_print("Red entrenada.\n", Back.GREEN, Fore.RESET)
             colorama_print("Presione Enter para continuar...\n", Back.RESET, Fore.GREEN)
             input()
-    except ValueError:
-        colorama_print("Índice inválido. Regresando al menú principal.\n", Back.RED, Fore.RESET)
-        return
-    except IndexError:
-        colorama_print("Índice inválido. Regresando al menú principal.\n", Back.RED, Fore.RESET)
-        return
     except Exception as e:
         colorama_print(f"Error al entrenar la red: {e}\n", Back.RED, Fore.RESET)
+        colorama_print("Presione Enter para continuar...\n", Back.RESET, Fore.GREEN)
+        input()
         return
 
 
