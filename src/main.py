@@ -85,7 +85,6 @@ def train_network(path):
     with open(path, 'r') as f:
         data = json.load(f)
     real_codification = data["real_codification"]
-    real_codification = np.fromstring(real_codification, sep=' ').tolist()
     if data["trained"]:
         colorama_print("La red ya ha sido entrenada.\n", Back.YELLOW, Fore.RESET)
         return True
