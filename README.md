@@ -3,7 +3,7 @@
 ## Dependencias
 
 - [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads)
-- [PyTorch](https://pytorch.org/get-started/locally/). Instalar torch, torchvision y torchaudio desde el mismo link.
+- [PyTorch](https://pytorch.org/get-started/locally/). Instalar `torch`, `torchvision` y `torchaudio` desde el mismo link.
 - Otras dependencias:
 
 ```bash
