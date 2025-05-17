@@ -2,6 +2,7 @@
 # - Test random selection vs best selection
 # - Test uniform crossover vs exponential crossover
 import sys
+from time import time
 
 import random
 import numpy as np
@@ -35,6 +36,8 @@ class DiferentialEvolution():
     self.best = None
     self.best_fitness = None
     self.fitness = None
+    self.search_time = 0
+    self.stop_reason = None
     
     self.upper = []
     self.lower = []
@@ -70,7 +73,8 @@ class DiferentialEvolution():
   def start(self):
     # Initialize population
     self.initialize_population()
-    
+    self.search_time= 0
+    start_time = time()
     for g in range(self.max_gen):
       sys.stdout.write(f"\r[{g+1}/{self.max_gen}] - Mejor aptitúd (Predicción del IoU): {self.best_fitness}")
       sys.stdout.flush()
@@ -129,12 +133,16 @@ class DiferentialEvolution():
       #Stop conditions
       if(max(self.fitness) > 0.985):
         print(f'\nDetenido. Arquitectura encontrada - IoU predicho: {max(self.fitness)}')
+        self.stop_reason = 'Arquitectura encontrada'
         break
 
       elif(abs(max(self.fitness) - min(self.fitness)) < epsilon):
-        print('\nDetenido. Pérdida de diversidad')
+        print('\nDetenido. Pedida de diversidad')
+        self.stop_reason = 'Perdida de diversidad'
         break
 
       elif(self.g >= self.max_gen):
-        print('\nDetenido. Número máximo de generaciones alcanzado')
+        print('\nDetenido. Maximo de generaciones alcanzado')
+        self.stop_reason = 'Maximo de generaciones alcanzado'
         break
+    self.search_time = time() - start_time

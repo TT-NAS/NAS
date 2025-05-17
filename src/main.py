@@ -72,6 +72,9 @@ def save_results(name, de):
     os.makedirs(r"./output/" + name, exist_ok=True)
     
     json_data = {
+        "search_time": de.search_time,
+        "stop_reason": de.stop_reason,
+        "stop_gen": de.g,
         "real_codification": de.best.tolist(),
         "predicted_iou": float(de.best_fitness),
         "trained": False
@@ -91,9 +94,20 @@ def train_network(path):
     # Entrenar el modelo
     try:
         model = Chromosome(chromosome=real_codification)
-        model.train_unet(data_loader="carvana", dataset_len=1000, epochs=15)
-        model.show_results(data_loader="carvana", dataset_len = 32, 
-                           path=path.replace("model.json", ""), save=True, name="test_results")
+        results = model.train_unet(data_loader="carvana", dataset_len=500, epochs=15, batch_size = 4)
+        model.show_results(data_loader="carvana", dataset_len=32, path=path.replace("model.json", ""), save=True, name="test_results")
+        
+        data["trained"] = True
+        data["training_time"] = results[0]
+        data["last_epoch"] = results[1] + 1
+        data["training_iou"] = results[2]["train_iou"][0]
+        data["validation_iou"] = results[2]["val_iou"][0]
+        with open(path, 'w') as f:
+            json.dump(data, f, indent=4)
+        colorama_print("Resultados guardados.\n", Back.GREEN, Fore.RESET)
+        input()
+        return True
+
     except KeyboardInterrupt:
         colorama_print("\nEntrenamiento interrumpido por el usuario. Presione Enter para continuar...", Back.RED, Fore.RESET)
         
@@ -103,14 +117,7 @@ def train_network(path):
         colorama_print("Presione Enter para continuar...\n", Back.RESET, Fore.GREEN)
         input()
         return False
-    
-    data["trained"] = True
-    with open(path, 'w') as f:
-        json.dump(data, f, indent=4)
-    colorama_print("Resultados guardados.\n", Back.GREEN, Fore.RESET)
-    input()
-    return True
-    
+        
 def default_search():
     display_header("EJECUTANDO BÚSQUEDA DE ARQUITECTURA CON PARÁMETROS POR DEFECTO")
     de = DiferentialEvolution(surrogate_model)
@@ -282,5 +289,4 @@ while state != 3:
         # Esperar que el usuario presione una tecla
         input("\nPresione Enter para continuar...")
         state = 0
-
-    
+        
