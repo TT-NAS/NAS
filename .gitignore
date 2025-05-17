@@ -1,10 +1,10 @@
 Env/
-__pycache__/
-models/
-data/
-__checkpoints__/
-NASENV/
 .env
+NASENV/
+__pycache__/
+__checkpoints__/
+data/
 imgs/
-log.txt
+models/
 output/
+log.txt
