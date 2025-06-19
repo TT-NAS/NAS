@@ -1,0 +1,12 @@
+{
+    "search_time": 0.0,
+    "stop_reason": "BASELINE",
+    "stop_gen": 0,
+    "real_codification": "IRIRKEKEPCHCFYRYR5I5IXKHKH5D5C7I7I7EPEI_192",
+    "predicted_iou": 0.0,
+    "trained": false,
+    "training_time": 0.0,
+    "last_epoch": 0,
+    "training_iou": 0.0,
+    "validation_iou": 0.0
+}

@@ -69,7 +69,7 @@ def architecture_search_menu():
 
 def save_results(name, de):
     # Guardar en un json el best fitness y un string con la codificación real
-    os.makedirs(r"./output/" + name, exist_ok=True)
+    os.makedirs(r"./output_car/" + name, exist_ok=True)
     
     json_data = {
         "search_time": de.search_time,
@@ -79,7 +79,7 @@ def save_results(name, de):
         "predicted_iou": float(de.best_fitness),
         "trained": False
     }
-    path = os.path.join(r"./output", name, "model.json")
+    path = os.path.join(r"./output_car", name, "model.json")
     with open(path, 'w') as f:
         json.dump(json_data, f, indent=4)
     return path
@@ -94,14 +94,14 @@ def train_network(path):
     # Entrenar el modelo
     try:
         model = Chromosome(chromosome=real_codification)
-        results = model.train_unet(data_loader="carvana", dataset_len=500, epochs=15, batch_size = 4)
-        model.show_results(data_loader="carvana", dataset_len=32, path=path.replace("model.json", ""), save=True, name="test_results")
+        results = model.train_unet(data_loader="car", dataset_len=500, epochs=15)
+        model.show_results(data_loader="car", dataset_len=32, path=path.replace("model.json", ""), save=True, name="test_results")
         
         data["trained"] = True
         data["training_time"] = results[0]
         data["last_epoch"] = results[1] + 1
-        data["training_iou"] = results[2]["train_iou"][0]
-        data["validation_iou"] = results[2]["val_iou"][0]
+        data["training_iou"] = results[2]["train_iou"][-1]
+        data["validation_iou"] = results[2]["val_iou"][-1]
         with open(path, 'w') as f:
             json.dump(data, f, indent=4)
         colorama_print("Resultados guardados.\n", Back.GREEN, Fore.RESET)
@@ -213,7 +213,7 @@ def load_saved_networks():
     # Cargar redes guardadas
     display_header(" REDES GUARDADAS")
     saved_networks = []
-    for root, dirs, files in os.walk(r"./output"):
+    for root, dirs, files in os.walk(r"./output_car"):
         for file in files:
             if file.endswith(".json"):
                 path = os.path.join(root, file)

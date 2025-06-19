@@ -871,6 +871,7 @@ class Chromosome:
             - show_val : (bool) Si mostrar los resultados de la validación en cada epoch
 
             Argumentos adicionales para el DataLoader:
+            - k_folds_subsets : (tuple) Subsets para k_folds validation
             - batch_size : (int) Tamaño del batch
             - train_val_prop : (float) Proporción que se usará entre train y validation
 

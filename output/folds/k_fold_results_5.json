@@ -1,0 +1,30 @@
+{
+    "real_codification": "IRIRKEKEPCHCFYRYR5I5IXKHKH5D5C7I7I7EPEI_192",
+    "folds": [
+        {
+            "fold": 0,
+            "training_iou": 0.9799625605344773,
+            "validation_iou": 0.9779114234447479
+        },
+        {
+            "fold": 1,
+            "training_iou": 0.9805295526981354,
+            "validation_iou": 0.9747454679012298
+        },
+        {
+            "fold": 2,
+            "training_iou": 0.9812785643339157,
+            "validation_iou": 0.9806947040557862
+        },
+        {
+            "fold": 3,
+            "training_iou": 0.981600749194622,
+            "validation_iou": 0.9785011732578277
+        },
+        {
+            "fold": 4,
+            "training_iou": 0.9815634375810623,
+            "validation_iou": 0.9751811718940735
+        }
+    ]
+}

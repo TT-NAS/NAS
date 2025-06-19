@@ -9,7 +9,7 @@ Clases
 from typing import Union, Optional
 
 from torchvision import transforms as T
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader, Subset, random_split 
 
 from ..constants import (
     COCO_IDS,
@@ -38,11 +38,13 @@ class TorchDataLoader:
         "dataset_len",
         "test_prop",
         "img_width",
-        "img_height"
+        "img_height",
+        "k_folds_subsets"
     ]
 
     def __init__(self, dataset_class: str, batch_size: Optional[int] = None,
-                 train_val_prop: float = 0.8, **kwargs: Union[T.Compose, str, int]):
+                 train_val_prop: float = 0.8, k_folds_subsets: tuple[Subset] = None,
+                 **kwargs: Union[T.Compose, str, int]):
         """
         Wrapper de los DataLoaders de train, validation y test para un dataset
 
@@ -151,6 +153,7 @@ class TorchDataLoader:
 
         TRAIN_SIZE = int(train_val_prop * len(dataset))
         VAL_SIZE = len(dataset) - TRAIN_SIZE
+        self.full_dataset = dataset
 
         train_dataset, val_dataset = random_split(
             dataset=dataset,
@@ -187,7 +190,26 @@ class TorchDataLoader:
             prefetch_factor=2,
             persistent_workers=True
         )
-
+        
+        if k_folds_subsets:
+            self.train = DataLoader(
+                dataset=k_folds_subsets[0],
+                batch_size=batch_size,
+                shuffle=True,
+                num_workers=2,
+                pin_memory=True,
+                prefetch_factor=2,
+                persistent_workers=True
+            )
+            self.validation = DataLoader(
+                dataset=k_folds_subsets[1],
+                batch_size=batch_size,
+                shuffle=False,
+                num_workers=2,
+                pin_memory=True,
+                prefetch_factor=2,
+                persistent_workers=True
+            )
     def __str__(self) -> str:
         return self.identifier
 
