@@ -1,2 +1,2 @@
 from .surrogate import SurrogateModel
-from .de_search import DiferentialEvolution
+from .algorithms import Evaluator, SearchAlgorithm, DiferentialEvolution
