@@ -32,10 +32,10 @@ def colorama_print(text, bg_color=Back.RESET, text_color=Fore.RESET):
 
 def display_options(options):
     for i, option in enumerate(options):
-        
-        colorama_print(f"{'\t' if i > 0 else ''}[{i + 1}]", 
-                       Back.GREEN, Fore.RESET)
-        colorama_print(f" {option}{'\n' if i == len(options)-1 else ' '}", Back.RESET, Fore.RESET)
+        prefix = "\t" if i > 0 else ""
+        colorama_print(f"{prefix}[{i + 1}]", Back.GREEN, Fore.RESET)
+        suffix = "\n" if i == len(options)-1 else " "
+        colorama_print(f" {option}{suffix}", Back.RESET, Fore.RESET)
 
 def display_header(title="MENU PRINCIPAL"):
     os.system('cls' if os.name == 'nt' else 'clear')
