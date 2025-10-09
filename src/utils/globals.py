@@ -26,3 +26,4 @@ logging.basicConfig(
 CUDA = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 LOGGER = logging.getLogger()
 CURRENT_NET_BINARY = str()
+MAX_TRAINING_TIME = 14400 

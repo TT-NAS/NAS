@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 from scipy.signal import savgol_filter
 
-IMAGES_PATH = "./results_carvana/imgs/"
+IMAGES_PATH = "./results/imgs_car/"
 PATIENCE = 5
-NUM_MODELS = 30
+NUM_MODELS = 42
 
 
 def detectar_epoca_maxima(loss):
@@ -34,7 +34,7 @@ max_epochs = []
 for dir in dirs:
     ruta_carpeta = os.path.join(IMAGES_PATH, dir)
     csv = [f for f in os.listdir(
-        ruta_carpeta) if f.startswith("learning curves carvana") and f.endswith(".csv")]
+        ruta_carpeta) if f.startswith("learning curves car") and f.endswith(".csv")]
 
     if not csv:
         print(f"No se encontró CSV para {dir}")

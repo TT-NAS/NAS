@@ -3,6 +3,7 @@ Script para generar, entrenar y evaluar modelos de segmentación de imágenes
 """
 import os
 import math
+from multiprocessing import freeze_support
 from typing import Union, Optional
 
 import pandas as pd
@@ -14,7 +15,7 @@ from utils import empty_cache_torch
 from codec import Chromosome, MAX_LAYERS, MAX_CONVS_PER_LAYER
 
 
-RESULTS_FILE = os.path.join(RESULTS_PATH, "results_new.csv")
+RESULTS_FILE = os.path.join(RESULTS_PATH, "results_max_epoch.csv")
 LOG_FILE = os.path.join(RESULTS_PATH, "log.txt")
 
 
@@ -639,10 +640,10 @@ def score_n_models(idx_start: Optional[int] = None, num: Optional[int] = None,
 
 
 if __name__ == "__main__":
+    freeze_support()
     score_n_models(
         idx_start=0,
-        num=10,
-        dataset="carvana",
-        dataset_len=1000,
-        alternative_datasets=["car"]
+        num=1,
+        dataset="road",
+        infinite=True,
     )

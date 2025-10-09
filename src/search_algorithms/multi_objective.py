@@ -108,11 +108,11 @@ class TwoObjectiveOptimizer:
         ===========
             - np.ndarray: Índices de la población que forman el frente de Pareto.
         """
-        ### Métod de selección para dos objetivos
-        ### Se ordenan según el primer objetivo, así se asegura que el primer objetivo siempre mejora
+        ### Método de selección para dos objetivos (minimización)
+        ### Se ordenan según el primer objetivo, así se asegura que el primer objetivo siempre empeora
         ### Para que un punto sea no dominado, el segundo objetivo debe mejorar respecto al mínimo actual
-        ### Si no mejora, será dominado por un punto anterior (mejor en el primer objetivo y mejor o igual en el segundo)
-        
+        ### Si no mejora, será dominado por un punto anterior (mejor o igual en el primer objetivo y mejor en el segundo)
+
         # Ordenar por el primer objetivo
         sorted_idxs = np.argsort(fitness[:, 0])
         sorted_fitness = fitness[sorted_idxs]

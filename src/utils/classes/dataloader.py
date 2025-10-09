@@ -106,7 +106,7 @@ class TorchDataLoader:
             default_len = ROAD_DATASET_LENGTH
             default_path = ROAD_DATA_PATH
             default_batch_size = ROAD_BATCH_SIZE
-            suffix_img = ""
+            suffix_img = ".png"
             suffix_mask = ".png"
             self.identifier = "rd"
         elif dataset_class == "car" or dataset_class == "car":
@@ -114,7 +114,7 @@ class TorchDataLoader:
             default_len = CAR_DATASET_LENGTH
             default_path = CAR_DATA_PATH
             default_batch_size = CAR_BATCH_SIZE
-            suffix_img = ".jpg"
+            suffix_img = ".png"
             suffix_mask = ".png"
             self.identifier = "car"
         else:
