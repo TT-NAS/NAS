@@ -7,6 +7,7 @@ Funciones
 - train_model: Entrena un modelo UNet con los datos de un DataLoader
 """
 import math
+from time import time
 from typing import Union
 
 import torch
@@ -15,7 +16,7 @@ from torch.amp import autocast, GradScaler
 from colorama import Fore
 
 from ..classes import UNet, TorchDataLoader
-from ..globals import CUDA, LOGGER
+from ..globals import CUDA, LOGGER, MAX_TRAINING_TIME
 from .checkpoint_manager import load_checkpoint, set_checkpoint
 from .metrics import iou_loss, dice_loss, dice_crossentropy_loss, accuracy_loss
 
@@ -187,6 +188,9 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
             "val_accuracy": []
         }
 
+    time_start = time()
+    max_time_per_epoch = MAX_TRAINING_TIME / epochs
+    
     for epoch in range(initial_epoch, epochs):
         model.train()
         total_train_loss = 0
@@ -196,7 +200,10 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
         total_train_acc = 0
         loss_ant = torch.tensor(1.0)
         print(f"=== Epoch [{epoch + 1}/{epochs}] ===")
-
+        
+        if time() - time_start > MAX_TRAINING_TIME:
+            raise TimeoutError("Tiempo máximo de entrenamiento alcanzado")
+        
         for i, (images, masks) in enumerate(data_loader.train):
             images = images.to(CUDA)
             masks = masks.to(CUDA)
@@ -246,7 +253,10 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
                     f"Evolución Loss: {evol_loss}",
                     end=" "
                 )
-
+                
+        if epoch == initial_epoch and time() - time_start > max_time_per_epoch:
+            raise TimeoutError("El tiempo estimado para el entrenamiento excede el tiempo máximo.")
+                 
         evol_train_loss = (
             Fore.GREEN + "↓"
             if total_train_loss / len_data < train_loss_ant
@@ -292,6 +302,9 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
 
         with torch.no_grad():
             for images, masks in data_loader.validation:
+                if time() - time_start > MAX_TRAINING_TIME:
+                    raise TimeoutError("Tiempo máximo de entrenamiento alcanzado")
+                
                 images = images.to(CUDA)
                 masks = masks.to(CUDA)
 
