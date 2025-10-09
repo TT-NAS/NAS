@@ -529,16 +529,18 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
         log("  + Semilla: " + str(seed))
         log("  + Binary cod: " + c.get_binary(zip=True))
         log("  - Error: CUDA se quedó sin memoria")
+        c.remove_checkpoints()
     except KeyboardInterrupt:
         print("\nEl entrenamiento fue interrumpido")
+        c.remove_checkpoints()
         exit()
     except Exception as e:
         log("ERROR:")
         log("  + Semilla: " + str(seed))
         log("  + Binary cod: " + c.get_binary(zip=True))
         log("  - Error:" + str(e))
-    finally:
         c.remove_checkpoints()
+    finally:
         empty_cache_torch()
 
     return False
