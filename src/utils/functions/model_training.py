@@ -398,6 +398,9 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
         print()
 
         set_checkpoint(best_model_state, metrics_results, epoch)
+    else:
+      if initial_epoch >= epochs:
+        epoch = initial_epoch
 
     # Asegurarse de que el modelo final sea el mejor encontrado
     if best_model_state is not None:
