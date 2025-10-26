@@ -1,5 +1,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
+from typing import Annotated
+from fastapi import Body
+
 from codec import Chromosome
 from search_algorithms.de_search import DiferentialEvolution
 from search_algorithms.surrogate import SurrogateModel
@@ -61,3 +64,8 @@ def train_network(args: TrainingArg):
   }
   
   return register
+
+@app.post("/json")
+def get_json_chromosome(chromosome: Annotated[list[float], Body(..., embed=True)]):
+    model = Chromosome(chromosome=chromosome)
+    return model.get_json()
