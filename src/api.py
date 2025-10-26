@@ -34,7 +34,7 @@ def root():
 def run_search(params: SearchParams):
   # Realiza la búsqueda
   de = DiferentialEvolution(surrogate_model, **params.model_dump())
-  de.start()
+  fitness_register = de.start()
   vector = [random.randint(int(i/2), i) for i in range(100)]
   vector.reverse()
   json_data = {
@@ -44,7 +44,7 @@ def run_search(params: SearchParams):
         "real_codification": de.best.tolist(),
         "predicted_iou": float(de.best_fitness),
         "trained": False,
-        "vector": vector
+        "vector": fitness_register
     }
   # Retorna los resultados
   result = {"params": params, "results": json_data}

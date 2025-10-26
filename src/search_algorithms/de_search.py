@@ -75,6 +75,7 @@ class DiferentialEvolution():
     self.initialize_population()
     self.search_time= 0
     start_time = time()
+    fitness_register = []
     for g in range(self.max_gen):
       sys.stdout.write(f"\r[{g+1}/{self.max_gen}] - Mejor aptitúd (Predicción del IoU): {self.best_fitness}")
       sys.stdout.flush()
@@ -121,6 +122,7 @@ class DiferentialEvolution():
       
       self.best = self.population[np.argmax(self.fitness)]
       self.best_fitness = self.fitness[np.argmax(self.fitness)]
+      fitness_register.append(self.best_fitness)
       
       self.g+=1
       epsilon = 1e-15
@@ -146,3 +148,5 @@ class DiferentialEvolution():
         self.stop_reason = 'Maximo de generaciones alcanzado'
         break
     self.search_time = time() - start_time
+    fitness_register = [float(x) for x in fitness_register]
+    return fitness_register
