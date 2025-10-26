@@ -72,6 +72,7 @@ from utils import (
 )
 from .functions import (
     get_num_layers, get_num_convs,
+    layer_is_identity, conv_is_identity,
     zip_binary, encode_chromosome,
     unzip_binary, decode_chromosome
 )
@@ -774,6 +775,84 @@ class Chromosome:
             self.set_unet(**kwargs)
 
         return self.__unet
+
+    def get_json(self) -> dict:
+        """
+        Devuelve una representación en JSON del cromosoma
+
+        Returns
+        -------
+        dict
+            Representación en JSON del cromosoma
+        """
+        if not self.__decoded:
+            self.set_decoded()
+
+        unet_json = {}
+
+        for i, layer in enumerate(self.__decoded[0]):
+            if layer_is_identity(layer, "decoded"):
+                unet_json[f"layer{i}"] = None
+                continue
+
+            encoder_convs, pooling = layer[0]
+            decoder_convs, concat = layer[1]
+            conv_path = {}
+
+            for j, conv in enumerate(encoder_convs):
+                if conv_is_identity(conv, "decoded"):
+                    conv_path[f"conv{j}"] = None
+                    continue
+
+                filters, kernel_size, activation = conv
+                conv_path[f"conv{j}"] = {
+                    "filters": filters,
+                    "kernelSize": kernel_size,
+                    "activation": activation
+                }
+
+            conv_path["pooling"] = pooling
+            deconv_path = {}
+
+            for j, conv in enumerate(decoder_convs):
+                if conv_is_identity(conv, "decoded"):
+                    deconv_path[f"conv{j}"] = None
+                    continue
+
+                filters, kernel_size, activation = conv
+                deconv_path[f"conv{j}"] = {
+                    "filters": filters,
+                    "kernelSize": kernel_size,
+                    "activation": activation
+                }
+
+            deconv_path["concat"] = bool(concat)
+
+            unet_json[f"layer{i}"] = {
+                "convPath": conv_path,
+                "deconvPath": deconv_path
+            }
+
+        bottleneck_json = {}
+
+        for j, conv in enumerate(self.__decoded[1]):
+            if conv_is_identity(conv, "decoded"):
+                bottleneck_json[f"conv{j}"] = None
+                continue
+
+            filters, kernel_size, activation = conv
+            bottleneck_json[f"conv{j}"] = {
+                "filters": filters,
+                "kernelSize": kernel_size,
+                "activation": activation
+            }
+
+        unet_json["bottleneck"] = bottleneck_json
+
+        return {
+            "binary": self.get_binary(zip=True),
+            "unet": unet_json
+        }
 
     def get_aptitude(self, **kwargs: Union[str, int, float, TorchDataLoader]) -> float:
         """
