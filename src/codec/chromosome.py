@@ -61,14 +61,15 @@ Funciones para entrenar, evaluar y guardad el modelo UNet
 """
 import time
 import random
-from typing import Union, Optional
+from typing import Union, Optional, Literal
 
 from utils import CUDA, float16
 from utils import UNet, TorchDataLoader, autocast
 from utils import (
     plot_results,
     train_model, save_model, eval_model,
-    remove_checkpoints, set_current_net_binary
+    remove_checkpoints, set_current_net_binary,
+    save_pickle, save_torchscript
 )
 from .functions import (
     get_num_layers, get_num_convs,
@@ -1017,6 +1018,36 @@ class Chromosome:
             name=name,
             **kwargs
         )
+
+    def export_unet(self, name: Optional[str] = None, 
+                    format: Optional[Literal["pickle", "torchscript"]] = "torchscript",
+                    path: Optional[str] = '.'):
+        """
+        Exporta el modelo de la Unet
+
+        Parameters
+        ----------
+        name : Optional[str], optional
+            Nombre del archivo, si no se especifica el nombre será el hash del cromosoma
+            binario, by default `None`
+        format : (str)
+            Formato de salida del modelo
+        path : (str) 
+            Ruta donde se guardará el modelo
+        """
+        if not self.__unet:
+            self.set_unet()
+
+        if name is None:
+            name = self.__str__()
+            name = name.replace("/", "#s").replace("\\", "#b")
+
+        
+        # Formato pickle
+        if format == "pickle":
+            save_pickle(self.get_unet(), path, name)
+        elif format == "torchscript":
+            save_torchscript(self.get_unet(), path, name)        
 
     def remove_checkpoints(self):
         """

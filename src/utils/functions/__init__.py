@@ -17,7 +17,7 @@ from .cache_manager import get_data
 from .model_training import eval_model, train_model
 from .data_visualization import plot_batch, plot_results
 from .state import empty_cache_torch, set_current_net_binary
-from .checkpoint_manager import save_model, remove_checkpoints
+from .checkpoint_manager import save_model, remove_checkpoints, save_pickle, save_torchscript
 from .data_visualization import paint_results, paint_real_vs_pred
 
 __all__ = [
@@ -26,5 +26,6 @@ __all__ = [
     "plot_batch", "plot_results",
     "empty_cache_torch", "set_current_net_binary",
     "save_model", "remove_checkpoints",
-    "paint_results", "paint_real_vs_pred"
+    "paint_results", "paint_real_vs_pred",
+    "save_pickle", "save_torchscript"
 ]

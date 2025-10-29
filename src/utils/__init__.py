@@ -44,7 +44,8 @@ from .functions import (
     plot_batch, plot_results,
     save_model, remove_checkpoints,
     empty_cache_torch, set_current_net_binary,
-    paint_real_vs_pred, paint_results
+    paint_real_vs_pred, paint_results,
+    save_pickle, save_torchscript
 )
 from .globals import CUDA, LOGGER
 from .constants import (
@@ -72,6 +73,7 @@ __all__ = [
     "save_model", "remove_checkpoints",
     "empty_cache_torch", "set_current_net_binary",
     "paint_real_vs_pred", "paint_results",
+    "save_pickle", "save_torchscript",
 
     "CUDA", "LOGGER",
 

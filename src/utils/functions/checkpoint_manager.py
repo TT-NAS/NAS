@@ -18,7 +18,34 @@ import utils.globals as g
 from ..classes import UNet
 from ..constants import CHECKPOINT_PATH, MODELS_PATH
 
+def save_pickle(model: UNet, path: str, name: str):
+    """
+    Exporta el modelo y sus pesos a un archivo pickle
+    
+    Parameters
+    ----------
+        model : UNet
+            Modelo a guardar
+        path : str
+            Ruta del archivo
+    """
+    with open(os.path.join(path, name + ".pkl"), 'wb') as f:
+        pickle.dump(model, f)
 
+def save_torchscript(model: UNet, path: str, name: str):
+    """
+    Exporta el modelo y sus pesos a un archivo pickle
+    
+    Parameters
+    ----------
+        model : UNet
+            Modelo a guardar
+        path : str
+            Ruta del archivo
+    """
+    scripted_model = torch.jit.script(model)
+    scripted_model.save(os.path.join(path, name + ".pt"))
+        
 def save_model(model: UNet, name: str, path: str = MODELS_PATH):
     """
     Guarda un modelo en un archivo
@@ -51,6 +78,7 @@ def remove_checkpoints(net_binary: Optional[str] = None, path: str = CHECKPOINT_
     path : str, optional
         Ruta donde se buscarán los checkpoints, by default `CHECKPOINT_PATH`
     """
+    return
     if net_binary is None:
         net_binary = g.CURRENT_NET_BINARY
 
@@ -79,11 +107,12 @@ def set_checkpoint(model_state: dict[str, any], metrics_results: dict[str, list[
     path : str, optional
         Ruta donde se guardará el checkpoint, by default `CHECKPOINT_PATH`
     """
+    return
     remove_checkpoints(path=path)
 
     path = os.path.join(path, g.CURRENT_NET_BINARY)
 
-    if not os.path.exists(path):
+    if not os.path.exists(path) and g.CURRENT_NET_BINARY != '':
         os.makedirs(path, exist_ok=True)
 
     model_name = f"{current_epoch}.pt"
@@ -113,9 +142,10 @@ def load_checkpoint(model: UNet, path: str = CHECKPOINT_PATH) -> tuple[UNet,
         (Modelo cargado, resultados de las métricas del checkpoint,
         época inicial para continuar el entrenamiento)
     """
+    return model, None, 0
     path = os.path.join(path, g.CURRENT_NET_BINARY)
 
-    if not os.path.exists(path):
+    if not os.path.exists(path) or g.CURRENT_NET_BINARY == '':
         return model, None, 0
 
     print("Se encontró un checkpoint para el modelo actual")
