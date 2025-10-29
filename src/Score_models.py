@@ -642,10 +642,11 @@ def score_n_models(idx_start: Optional[int] = None, num: Optional[int] = None,
 
 
 if __name__ == "__main__":
-    freeze_support()
+    # freeze_support()
+    start = 280
     score_n_models(
-        idx_start=0,
-        num=1,
+        idx_start=start,
+        num=300-start,
         dataset="road",
-        infinite=True,
+        epochs = 25
     )

@@ -1,62 +1,74 @@
-"""
-Archivo temporal para pruebas de código
-"""
-from utils import COCO_BATCH_SIZE, CARVANA_BATCH_SIZE, ROAD_BATCH_SIZE, CAR_BATCH_SIZE
-from utils import COCO_PEOPLE_DATA_PATH, COCO_CAR_DATA_PATH, CARVANA_DATA_PATH, ROAD_DATA_PATH, CAR_DATA_PATH
-from utils import TorchDataLoader
-from utils import plot_batch
-from multiprocessing import freeze_support
+# %% Probar la generación del formato JSON de las redes
+from codec import Chromosome
 
-def main():
-    # Elige el dataset a cargar
-    # name = "coco-people"
-    # bs = COCO_BATCH_SIZE
-    # data_path = COCO_PEOPLE_DATA_PATH
-    # name = "coco-car"
-    # bs = COCO_BATCH_SIZE
-    # data_path = COCO_CAR_DATA_PATH
-    # name = "carvana"
-    # bs = CARVANA_BATCH_SIZE
-    # data_path = CARVANA_DATA_PATH
-    # name = "road"
-    # bs = ROAD_BATCH_SIZE
-    # data_path = ROAD_DATA_PATH
-    name = "car"
-    bs = CAR_BATCH_SIZE
-    data_path = CAR_DATA_PATH
+for seed in range(3, 11):
+    c = Chromosome(seed=seed)
+    unet_json = c.get_json()
 
-    #data_path = "." + data_path
+    with open(f"../redes-json/red{seed}.json", "w") as f:
+        import json
+        json.dump(unet_json, f, indent=4)
 
-    data_loader = TorchDataLoader(name, data_path=data_path)
-    imgs, masks = next(iter(data_loader.train))
+# %%
+# """
+# Archivo temporal para pruebas de código
+# """
+# from utils import COCO_BATCH_SIZE, CARVANA_BATCH_SIZE, ROAD_BATCH_SIZE, CAR_BATCH_SIZE
+# from utils import COCO_PEOPLE_DATA_PATH, COCO_CAR_DATA_PATH, CARVANA_DATA_PATH, ROAD_DATA_PATH, CAR_DATA_PATH
+# from utils import TorchDataLoader
+# from utils import plot_batch
+# from multiprocessing import freeze_support
 
-    # SHOW_SIZE solo es para mostrar las imágenes de prueba, si se quiere ver un batch de entrenamiento
-    # se debe asignar show_size al correspondiente del dataset,
-    # por ejemplo, CARVANA_BATCH_SIZE o ROAD_BATCH_SIZE
-    plot_batch(imgs, masks, show_size=bs)
+# def main():
+#     # Elige el dataset a cargar
+#     # name = "coco-people"
+#     # bs = COCO_BATCH_SIZE
+#     # data_path = COCO_PEOPLE_DATA_PATH
+#     # name = "coco-car"
+#     # bs = COCO_BATCH_SIZE
+#     # data_path = COCO_CAR_DATA_PATH
+#     # name = "carvana"
+#     # bs = CARVANA_BATCH_SIZE
+#     # data_path = CARVANA_DATA_PATH
+#     # name = "road"
+#     # bs = ROAD_BATCH_SIZE
+#     # data_path = ROAD_DATA_PATH
+#     name = "car"
+#     bs = CAR_BATCH_SIZE
+#     data_path = CAR_DATA_PATH
 
-    # Comprobación de las dimensiones de los DataLoaders
-    train = data_loader.train
-    data_train = next(iter(train))
-    val = data_loader.validation
-    data_val = next(iter(val))
-    test = data_loader.test
-    data_test = next(iter(test))
+#     #data_path = "." + data_path
 
-    print(
-        f"Train: {len(train)},\t length: {len(data_train)},\t shape: {data_train[0].shape}"
-    )
-    print(
-        f"Val:   {len(val)},\t length: {len(data_val)},\t shape: {data_val[0].shape}"
-    )
-    print(
-        f"Test:  {len(test)},\t length: 1,\t shape: {data_test.shape}"
-    )
+#     data_loader = TorchDataLoader(name, data_path=data_path)
+#     imgs, masks = next(iter(data_loader.train))
 
-if __name__ == "__main__":
-    freeze_support()
-    main()
-    
+#     # SHOW_SIZE solo es para mostrar las imágenes de prueba, si se quiere ver un batch de entrenamiento
+#     # se debe asignar show_size al correspondiente del dataset,
+#     # por ejemplo, CARVANA_BATCH_SIZE o ROAD_BATCH_SIZE
+#     plot_batch(imgs, masks, show_size=bs)
+
+#     # Comprobación de las dimensiones de los DataLoaders
+#     train = data_loader.train
+#     data_train = next(iter(train))
+#     val = data_loader.validation
+#     data_val = next(iter(val))
+#     test = data_loader.test
+#     data_test = next(iter(test))
+
+#     print(
+#         f"Train: {len(train)},\t length: {len(data_train)},\t shape: {data_train[0].shape}"
+#     )
+#     print(
+#         f"Val:   {len(val)},\t length: {len(data_val)},\t shape: {data_val[0].shape}"
+#     )
+#     print(
+#         f"Test:  {len(test)},\t length: 1,\t shape: {data_test.shape}"
+#     )
+
+# if __name__ == "__main__":
+#     freeze_support()
+#     main()
+
 # %% Prueba de codificación y decodificación
 # from codec import Chromosome
 

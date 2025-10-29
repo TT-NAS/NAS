@@ -1,8 +1,12 @@
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
+from typing import Annotated
+from fastapi import Body
+
 from codec import Chromosome
 from search_algorithms.de_search import DiferentialEvolution
 from search_algorithms.surrogate import SurrogateModel
+import random
 
 app = FastAPI(title = "NAS API", version = "1.0.0")
 surrogate_model = SurrogateModel(model_path = r"./sustituto/xgboost_model.json")
@@ -30,14 +34,17 @@ def root():
 def run_search(params: SearchParams):
   # Realiza la búsqueda
   de = DiferentialEvolution(surrogate_model, **params.model_dump())
-  de.start()
+  fitness_register = de.start()
+  vector = [random.randint(int(i/2), i) for i in range(100)]
+  vector.reverse()
   json_data = {
         "search_time": de.search_time,
         "stop_reason": de.stop_reason,
         "stop_gen": de.g,
         "real_codification": de.best.tolist(),
         "predicted_iou": float(de.best_fitness),
-        "trained": False
+        "trained": False,
+        "vector": fitness_register
     }
   # Retorna los resultados
   result = {"params": params, "results": json_data}
@@ -47,7 +54,7 @@ def run_search(params: SearchParams):
 def train_network(args: TrainingArg):
   model = Chromosome(chromosome=args.chromosome)
   # Se entrena
-  results  = model.train_unet(data_loader = args.data_loader, dataset_len = args.dataset_len, epochs = args.epochs, data_path = "C:/Users/Jafet/Documents/Escuela-Estudio/TT/NAS/data/car-dataset")
+  results  = model.train_unet(data_loader = args.data_loader, dataset_len = args.dataset_len, epochs = args.epochs)
   
   register = {
     "training_time": results[0],
@@ -57,3 +64,8 @@ def train_network(args: TrainingArg):
   }
   
   return register
+
+@app.post("/json")
+def get_json_chromosome(chromosome: Annotated[list[float], Body(..., embed=True)]):
+    model = Chromosome(chromosome=chromosome)
+    return model.get_json()
