@@ -1,7 +1,5 @@
-import pickle
-
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field
 from typing import Annotated
 from fastapi import Body
@@ -9,7 +7,6 @@ from fastapi import Body
 from codec import Chromosome
 from search_algorithms.de_search import DiferentialEvolution
 from search_algorithms.surrogate import SurrogateModel
-import random
 
 from utils import save_pickle
 
@@ -51,46 +48,92 @@ def download_model(chromosome: Annotated[list[float], Body(..., embed=True)]):
     filename=model.get_binary(zip=True) + ".pkl"
   )
 
-@app.post("/search",summary="Run surrogate-assisted differential evolution",response_description="Search parameters together with the best architecture found.")
-def run_search(params: SearchParams):
-  """Execute the differential evolution search with the supplied hyperparameters."""
+# @app.post("/search")
+# def run_search(params: SearchParams):
+#   # Realiza la búsqueda
+#   de = DiferentialEvolution(surrogate_model, **params.model_dump())
+#   fitness_register = de.start()
+#   vector = [random.randint(int(i/2), i) for i in range(100)]
+#   vector.reverse()
+#   json_data = {
+#         "search_time": de.search_time,
+#         "stop_reason": de.stop_reason,
+#         "stop_gen": de.g,
+#         "real_codification": de.best.tolist(),
+#         "predicted_iou": float(de.best_fitness),
+#         "trained": False,
+#         "vector": fitness_register
+#     }
+#   # Retorna los resultados
+#   result = {"params": params, "results": json_data}
+#   return result
+
+@app.post("/search")
+async def run_search(params: SearchParams):
   # Realiza la búsqueda
   de = DiferentialEvolution(surrogate_model, **params.model_dump())
-  fitness_register = de.start()
-  json_data = {
-        "search_time": de.search_time,
-        "stop_reason": de.stop_reason,
-        "stop_gen": de.g,
-        "real_codification": de.best.tolist(),
-        "predicted_iou": float(de.best_fitness),
-        "trained": False,
-        "vector": fitness_register
-    }
-  # Retorna los resultados
-  result = {"params": params, "results": json_data}
-  return result
 
-@app.post("/train",summary="Train UNet architecture",response_description="Training metrics and pickle endpoint for the trained model.")
-def train_network(args: TrainingArg):
-  """Train the UNet defined by the chromosome and return key metrics plus the pickle URL."""
+  return StreamingResponse(
+    de.start(),
+    media_type="text/event-stream"
+  )
+
+  # El streaming utiliza protocolo SSE, para leerlo en javaScript:
+  # const source = new EventSource("/search");
+
+  # source.addEventListener("iteration", (event) => {
+  #   const data = JSON.parse(event.data);
+  #   console.log("Iteración:", data.generation, data.best_fitness);
+  # });
+
+  # source.addEventListener("result", (event) => {
+  #   const data = JSON.parse(event.data);
+  #   console.log("Resultado final:", data);
+  # });
+
+
+# @app.post("/train")
+# def train_network(args: TrainingArg):
+#   model = Chromosome(chromosome=args.chromosome)
+#   # Se entrena
+#   results  = model.train_unet(data_loader = args.data_loader, dataset_len = args.dataset_len, epochs = args.epochs)
+
+#   register = {
+#     "training_time": results[0],
+#     "last_epoch": results[1] + 1,
+#     "training_iou": results[2]["train_iou"][-1],
+#     "validation_iou": results[2]["val_iou"][-1]
+#   }
+
+#   file_path = "models"
+
+#   save_pickle(model.get_unet(), file_path, model.get_binary(zip=True))
+
+#   return {
+#     "register": register,
+#     "pickle_url": f"/download/{model.get_binary(zip=True)}"
+#   }
+
+@app.post("/train")
+async def train_network(args: TrainingArg):
   model = Chromosome(chromosome=args.chromosome)
   # Se entrena
-  results  = model.train_unet(data_loader = args.data_loader, dataset_len = args.dataset_len, epochs = args.epochs)
+  return StreamingResponse(
+      model.train_unet_stream(
+          save_model_pickle=True,
+          data_loader=args.data_loader,
+          dataset_len=args.dataset_len,
+          epochs=args.epochs),
+      media_type="text/event-stream"
+  )
 
-  register = {
-    "training_time": results[0],
-    "last_epoch": results[1] + 1,
-    "training_iou": results[2]["train_iou"][-1],
-    "validation_iou": results[2]["val_iou"][-1]
-  }
+  # El streaming utiliza protocolo SSE, para leerlo en javaScript:
+  # const source = new EventSource("/train");
 
-  save_pickle(model.get_unet(), file_path, model.get_binary(zip=True))
-
-  return {
-    "register": register,
-    "pickle_url": f"/download/{model.get_binary(zip=True)}"
-  }
-
+  # source.onmessage = (event) => {
+  #     const data = JSON.parse(event.data); // parsear JSON
+  #     console.log("Progreso de entrenamiento:", data);
+  # };
 
 @app.get("/download/{name}",summary="Download stored UNet",response_description="Binary pickle for the requested UNet filename.")
 def download_file(name: str):

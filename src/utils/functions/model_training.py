@@ -8,7 +8,7 @@ Funciones
 """
 import math
 from time import time
-from typing import Union
+from typing import Union, Optional, AsyncGenerator
 
 import torch
 from torch import Tensor
@@ -84,7 +84,7 @@ def eval_model(scores: Tensor, target: Tensor, metrics: list[str],
 def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", lr: float = 0.01,
                 epochs: int = 15, early_stopping: bool = False, early_stopping_patience: int = 5,
                 early_stopping_delta: float = 0.001, stopping_threshold: float = 0.05,
-                infinite: bool = False, show_val: bool = True) -> tuple[UNet,
+                infinite: bool = False, show_val: bool = True, timeout_error: bool = True) -> tuple[UNet,
                                                                         int,
                                                                         dict[str, list[float]]]:
     """
@@ -120,6 +120,8 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
         Si el entrenamiento es infinito, by default `False`
     show_val : bool, optional
         Si mostrar los resultados de la validación en cada epoch, by default `True`
+    timeout_error : bool, optional
+        Si lanzar un error al estimar o superar el tiempo máximo de entrenamiento, by default `True`
 
     Returns
     -------
@@ -190,7 +192,7 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
 
     time_start = time()
     max_time_per_epoch = MAX_TRAINING_TIME / epochs
-    
+
     for epoch in range(initial_epoch, epochs):
         model.train()
         total_train_loss = 0
@@ -200,10 +202,10 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
         total_train_acc = 0
         loss_ant = torch.tensor(1.0)
         print(f"=== Epoch [{epoch + 1}/{epochs}] ===")
-        
-        if time() - time_start > MAX_TRAINING_TIME:
+
+        if time() - time_start > MAX_TRAINING_TIME and timeout_error:
             raise TimeoutError("Tiempo máximo de entrenamiento alcanzado")
-        
+
         for i, (images, masks) in enumerate(data_loader.train):
             images = images.to(CUDA)
             masks = masks.to(CUDA)
@@ -253,10 +255,10 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
                     f"Evolución Loss: {evol_loss}",
                     end=" "
                 )
-                
-        if epoch == initial_epoch and time() - time_start > max_time_per_epoch:
+
+        if epoch == initial_epoch and time() - time_start > max_time_per_epoch and timeout_error:
             raise TimeoutError("El tiempo estimado para el entrenamiento excede el tiempo máximo.")
-                 
+
         evol_train_loss = (
             Fore.GREEN + "↓"
             if total_train_loss / len_data < train_loss_ant
@@ -302,9 +304,9 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
 
         with torch.no_grad():
             for images, masks in data_loader.validation:
-                if time() - time_start > MAX_TRAINING_TIME:
+                if time() - time_start > MAX_TRAINING_TIME and timeout_error:
                     raise TimeoutError("Tiempo máximo de entrenamiento alcanzado")
-                
+
                 images = images.to(CUDA)
                 masks = masks.to(CUDA)
 
@@ -412,8 +414,8 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
 
         set_checkpoint(best_model_state, metrics_results, epoch)
     else:
-      if initial_epoch >= epochs:
-        epoch = initial_epoch
+        if initial_epoch >= epochs:
+            epoch = initial_epoch
 
     # Asegurarse de que el modelo final sea el mejor encontrado
     if best_model_state is not None:
@@ -421,3 +423,352 @@ def train_model(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", 
         print("Se ha restaurado el mejor modelo encontrado.")
 
     return model, epoch, metrics_results
+
+
+async def train_model_stream(model: UNet, data_loader: TorchDataLoader, metric: str = "iou", lr: float = 0.01,
+                epochs: int = 15, early_stopping: bool = False, early_stopping_patience: int = 5,
+                early_stopping_delta: float = 0.001, stopping_threshold: float = 0.05,
+                          infinite: bool = False, show_val: bool = True, timeout_error: bool = True):
+    """
+    Entrena un modelo UNet y stremea el progreso
+
+    Parameters
+    ----------
+    model : UNet
+        Modelo a entrenar
+    data_loader : TorchDataLoader
+        DataLoader con los datos de entrenamiento y validación
+    metric : str, optional
+        Métrica a utilizar para calcular la pérdida, by default `"iou"`
+
+        Opciones:
+            - "iou"
+            - "dice"
+            - "dice crossentropy"
+    lr : float, optional
+        Tasa de aprendizaje, by default `0.01`
+    epochs : int, optional
+        Número de épocas, by default `15`
+    early_stopping : bool, optional
+        Si usar early stopping, by default `False`
+    early_stopping_patience : int, optional
+        Número de épocas a esperar sin mejora antes de detener el entrenamiento, by default `5`
+    early_stopping_delta : float, optional
+        Umbral mínimo de mejora para considerar un progreso, by default `0.001`
+    stopping_threshold : float, optional
+        Umbral de rendimiento para la métrica de validación. Si se alcanza o supera,
+        el entrenamiento se detiene, by default `0.05`
+    infinite : bool, optional
+        Si el entrenamiento es infinito, by default `False`
+    show_val : bool, optional
+        Si mostrar los resultados de la validación en cada epoch, by default `True`
+    timeout_error : bool, optional
+        Si lanzar un error al estimar o superar el tiempo máximo de entrenamiento, by default `True`
+
+    Returns
+    -------
+    tuple
+        (Modelo entrenado, última época, resultados de las métricas a lo largo del entrenamiento)
+    """
+    model = model.to(CUDA)
+    model, metrics_results, initial_epoch = load_checkpoint(model)
+    len_data = len(data_loader.train)
+    len_val = len(data_loader.validation)
+
+    best_loss = float("inf")
+    counter = 0
+    best_model_state = None
+
+    scaler = GradScaler("cuda")
+    optimizer = torch.optim.SGD(
+        model.parameters(),
+        lr=lr,
+        momentum=0.95,
+        weight_decay=1e-4
+    )
+
+    if infinite:
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer,
+            mode='min',
+            factor=0.3,
+            patience=max(math.ceil(early_stopping_patience / 2), 1),
+            threshold=early_stopping_delta,
+            min_lr=1e-6,
+        )
+
+        epochs = 100
+        early_stopping = True
+    else:
+        scheduler = torch.optim.lr_scheduler.OneCycleLR(
+            optimizer,
+            max_lr=1e-1,
+            steps_per_epoch=len_data,
+            epochs=epochs,
+            pct_start=0.43,
+            div_factor=10,
+            final_div_factor=1000,
+            three_phase=True
+        )
+
+    if early_stopping and not show_val:
+        LOGGER.warning("Show_val asignado a True para early stopping")
+        show_val = True
+
+    train_loss_ant = torch.tensor(1.0)
+    val_loss_ant = torch.tensor(1.0)
+
+    if metrics_results is None:
+        metrics_results = {
+            "train_loss": None,
+            "train_iou": None,
+            "train_dice": None,
+            "train_dice crossentropy": None,
+            "train_accuracy": None,
+            "val_loss": None,
+            "val_iou": None,
+            "val_dice": None,
+            "val_dice crossentropy": None,
+            "val_accuracy": None
+        }
+
+    time_start = time()
+    max_time_per_epoch = MAX_TRAINING_TIME / epochs
+
+    for epoch in range(initial_epoch, epochs):
+        model.train()
+        total_train_loss = 0
+        total_train_iou = 0
+        total_train_dice = 0
+        total_train_dice_ce = 0
+        total_train_acc = 0
+        loss_ant = torch.tensor(1.0)
+        print(f"=== Epoch [{epoch + 1}/{epochs}] ===")
+
+        if time() - time_start > MAX_TRAINING_TIME and timeout_error:
+            raise TimeoutError("Tiempo máximo de entrenamiento alcanzado")
+
+        for i, (images, masks) in enumerate(data_loader.train):
+            images = images.to(CUDA)
+            masks = masks.to(CUDA)
+
+            optimizer.zero_grad()
+
+            with autocast(device_type="cuda", dtype=torch.float16):
+                output = model(images)
+                loss = eval_model(
+                    scores=output,
+                    target=masks,
+                    metrics=[metric],
+                    clone=False
+                )[0]
+
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
+
+            if not infinite:
+                scheduler.step()
+
+            with torch.no_grad():
+                iou, dice, dice_ce, acc = eval_model(
+                    scores=output.float(),
+                    target=masks.float(),
+                    metrics=["iou", "dice", "dice crossentropy", "accuracy"],
+                    loss=False,
+                    items=True
+                )
+
+            total_train_loss += loss.item()
+            total_train_iou += iou
+            total_train_dice += dice
+            total_train_dice_ce += dice_ce
+            total_train_acc += acc
+
+            if i == 0 or (i + 1) % 5 == 0 or i + 1 == len_data:
+                evol_loss = Fore.GREEN + "↓" if loss < loss_ant else Fore.RED + "↑"
+                evol_loss += Fore.RESET
+                loss_ant = loss
+
+                print(
+                    f"\rBatch [{i + 1}/{len_data}], Loss: {loss.item():.4f}, "
+                    f"IoU: {iou:.4f}, Dice: {dice:.4f}, "
+                    f"Dice CE: {dice_ce:.4f}, Acc: {acc:.4f}, "
+                    f"Evolución Loss: {evol_loss}",
+                    end=" "
+                )
+
+        if epoch == initial_epoch and time() - time_start > max_time_per_epoch and timeout_error:
+            raise TimeoutError(
+                "El tiempo estimado para el entrenamiento excede el tiempo máximo.")
+
+        evol_train_loss = (
+            Fore.GREEN + "↓"
+            if total_train_loss / len_data < train_loss_ant
+            else Fore.RED + "↑"
+        )
+        evol_train_loss += Fore.RESET
+        train_loss_ant = total_train_loss
+        print(
+            "\n-- "
+            f"Loss: {total_train_loss / len_data:.4f}, "
+            f"IoU: {total_train_iou / len_data:.4f}, "
+            f"Dice: {total_train_dice / len_data:.4f}, "
+            f"Dice CE: {total_train_dice_ce / len_data:.4f}, "
+            f"Acc: {total_train_acc / len_data:.4f}, "
+            f"Evolución Train Loss: {evol_train_loss}"
+            " --"
+        )
+        metrics_results["train_loss"] = total_train_loss / len_data
+        metrics_results["train_iou"] = total_train_iou / len_data
+        metrics_results["train_dice"] = total_train_dice / len_data
+        metrics_results["train_dice crossentropy"] = total_train_dice_ce / len_data
+        metrics_results["train_accuracy"] = total_train_acc / len_data
+
+        if not early_stopping:
+            set_checkpoint(model.state_dict(), metrics_results, epoch)
+
+        # Validación y early stopping
+        if not show_val:
+            if total_train_loss / len_data < best_loss:
+                best_loss = total_train_loss / len_data
+                best_model_state = model.state_dict().copy()
+
+            yield None, epoch, metrics_results
+
+            continue
+
+        model.eval()
+        total_val_loss = 0
+        total_val_iou = 0
+        total_val_dice = 0
+        total_val_dice_ce = 0
+        total_val_acc = 0
+
+        with torch.no_grad():
+            for images, masks in data_loader.validation:
+                if time() - time_start > MAX_TRAINING_TIME and timeout_error:
+                    raise TimeoutError(
+                        "Tiempo máximo de entrenamiento alcanzado")
+
+                images = images.to(CUDA)
+                masks = masks.to(CUDA)
+
+                with autocast(device_type="cuda", dtype=torch.float16):
+                    output = model(images)
+                    loss = eval_model(
+                        scores=output.float(),
+                        target=masks.float(),
+                        metrics=[metric],
+                        items=True
+                    )[0]
+
+                iou, dice, dice_ce, acc = eval_model(
+                    scores=output.float(),
+                    target=masks.float(),
+                    metrics=[
+                        "iou", "dice",
+                        "dice crossentropy", "accuracy"
+                    ],
+                    loss=False,
+                    items=True
+                )
+
+                total_val_loss += loss
+                total_val_iou += iou
+                total_val_dice += dice
+                total_val_dice_ce += dice_ce
+                total_val_acc += acc
+
+        avg_val_loss = total_val_loss / len_val
+        avg_val_iou = total_val_iou / len_val
+        avg_val_dice = total_val_dice / len_val
+        avg_val_dice_ce = total_val_dice_ce / len_val
+        avg_val_acc = total_val_acc / len_val
+        evol_val_loss = (
+            Fore.GREEN + "↓"
+            if avg_val_loss < val_loss_ant
+            else Fore.RED + "↑"
+        )
+        evol_val_loss += Fore.RESET
+        val_loss_ant = avg_val_loss
+        print(
+            "--- "
+            f"Val Loss: {avg_val_loss:.4f}, "
+            f"Val IoU: {avg_val_iou:.4f}, "
+            f"Val Dice: {avg_val_dice:.4f}, "
+            f"Val Dice CE: {avg_val_dice_ce:.4f}, "
+            f"Val Acc: {avg_val_acc:.4f}, "
+            f"Evolución Val Loss: {evol_val_loss}"
+            " ---"
+        )
+        metrics_results["val_loss"] = avg_val_loss
+        metrics_results["val_iou"] = avg_val_iou
+        metrics_results["val_dice"] = avg_val_dice
+        metrics_results["val_dice crossentropy"] = avg_val_dice_ce
+        metrics_results["val_accuracy"] = avg_val_acc
+
+        if not early_stopping:
+            if avg_val_loss < best_loss:
+                best_loss = avg_val_loss
+                best_model_state = model.state_dict().copy()
+
+            yield None, epoch, metrics_results
+
+            continue
+
+        if infinite:
+            scheduler.step(avg_val_loss)
+
+        if avg_val_loss < stopping_threshold:
+            print(
+                f"¡Umbral de rendimiento alcanzado! {metric}: "
+                f"{avg_val_loss:.4f} < {stopping_threshold:.4f}"
+            )
+            best_model_state = model.state_dict().copy()
+            break
+
+        if epoch == 99:
+            print("¡Límite de épocas alcanzado!")
+            break
+
+        LOGGER.info(
+            "Comparación de métricas para early stopping: "
+            f"{avg_val_loss < best_loss - early_stopping_delta=}"
+        )
+
+        if avg_val_loss < best_loss - early_stopping_delta:
+            best_loss = avg_val_loss
+            counter = 0
+            best_model_state = model.state_dict().copy()
+        else:
+            counter += 1
+            LOGGER.info(
+                f"Sin mejora en la pérdida. Contador: {counter}/{early_stopping_patience}"
+            )
+
+        if counter >= early_stopping_patience:
+            print(
+                "Early stopping activado por falta de mejora. "
+                f"La mejor pérdida fue: {best_loss:.4f}"
+            )
+            if best_model_state is not None:
+                model.load_state_dict(best_model_state)
+            break
+
+        print()
+
+        set_checkpoint(best_model_state, metrics_results, epoch)
+
+        yield None, epoch, metrics_results
+    else:
+        if initial_epoch >= epochs:
+            epoch = initial_epoch
+
+    # Asegurarse de que el modelo final sea el mejor encontrado
+    if best_model_state is not None:
+        model.load_state_dict(best_model_state)
+        print("Se ha restaurado el mejor modelo encontrado.")
+
+    # return model, epoch, metrics_results
+    yield model, epoch, metrics_results

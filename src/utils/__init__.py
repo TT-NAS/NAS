@@ -40,7 +40,7 @@ from torch import OutOfMemoryError, float16
 
 from .classes import UNet, TorchDataLoader
 from .functions import (
-    eval_model, train_model,
+    eval_model, train_model, train_model_stream,
     plot_batch, plot_results,
     save_model, remove_checkpoints,
     empty_cache_torch, set_current_net_binary,
@@ -68,7 +68,7 @@ __all__ = [
 
     "UNet", "TorchDataLoader",
 
-    "eval_model", "train_model",
+    "eval_model", "train_model", "train_model_stream",
     "plot_batch", "plot_results",
     "save_model", "remove_checkpoints",
     "empty_cache_torch", "set_current_net_binary",
