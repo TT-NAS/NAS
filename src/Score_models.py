@@ -385,6 +385,7 @@ def score_model(dataset: str, chromosome: Optional[Union[tuple, list, str]] = No
                                alcanza o supera, el entrenamiento se detiene
         - infinite : (bool) Si el entrenamiento es infinito
         - show_val : (bool) Si mostrar los resultados de la validación en cada epoch
+        - timeout_error : (bool) Si lanzar un error al estimar o superar el tiempo máximo de entrenamiento
 
         Argumentos adicionales para el DataLoader:
         - batch_size : (int) Tamaño del batch
@@ -602,6 +603,7 @@ def score_n_models(idx_start: Optional[int] = None, num: Optional[int] = None,
                                alcanza o supera, el entrenamiento se detiene
         - infinite : (bool) Si el entrenamiento es infinito
         - show_val : (bool) Si mostrar los resultados de la validación en cada epoch
+        - timeout_error : (bool) Si lanzar un error al estimar o superar el tiempo máximo de entrenamiento
 
         Argumentos adicionales para el DataLoader:
         - batch_size : (int) Tamaño del batch
@@ -643,10 +645,9 @@ def score_n_models(idx_start: Optional[int] = None, num: Optional[int] = None,
 
 if __name__ == "__main__":
     # freeze_support()
-    start = 280
     score_n_models(
-        idx_start=start,
-        num=300-start,
+        idx_start=1000,
+        num=300,
         dataset="road",
         epochs = 25
     )

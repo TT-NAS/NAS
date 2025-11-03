@@ -60,14 +60,15 @@ Funciones de la UNet
 Funciones para entrenar, evaluar y guardad el modelo UNet
 """
 import time
+import json
 import random
-from typing import Union, Optional, Literal
+from typing import Union, Optional, Literal, AsyncGenerator
 
 from utils import CUDA, float16
 from utils import UNet, TorchDataLoader, autocast
 from utils import (
     plot_results,
-    train_model, save_model, eval_model,
+    train_model, train_model_stream, save_model, eval_model,
     remove_checkpoints, set_current_net_binary,
     save_pickle, save_torchscript
 )
@@ -917,6 +918,9 @@ class Chromosome:
     # NOTE: Funciones de la UNet
     # ========================
     def train_unet(self, data_loader: Union[TorchDataLoader, str],
+                   save_model_pickle: bool = False,
+                   save_path: str = "./models/",
+                   save_name: Optional[str] = None,
                    **kwargs: Union[str, int, float, bool]) -> tuple[float,
                                                                     int,
                                                                     dict[str,
@@ -935,6 +939,12 @@ class Chromosome:
                 - "carvana"
                 - "road"
                 - "car"
+        save_model_pickle : Optional[bool], optional
+            Si se guarda el modelo entrenado como un archivo pickle, by default `False`
+        save_path : Optional[str], optional
+            Ruta donde se guardará el pickle del modelo entrenado, by default `"./models/"`
+        save_name : Optional[str], optional
+            Nombre del archivo donde se guardará el pickle del modelo entrenado, si no se especifica
         **kwargs : T.Compose or str or int or float or bool
             Argumentos adicionales para el entrenamiento:
             - metric : (str) Métrica a utilizar para calcular la pérdida
@@ -949,6 +959,7 @@ class Chromosome:
                                    Si se alcanza o supera, el entrenamiento se detiene
             - infinite : (bool) Si el entrenamiento es infinito
             - show_val : (bool) Si mostrar los resultados de la validación en cada epoch
+            - timeout_error : (bool) Si lanzar un error al estimar o superar el tiempo máximo de entrenamiento
 
             Argumentos adicionales para el DataLoader:
             - k_folds_subsets : (tuple) Subsets para k_folds validation
@@ -998,7 +1009,131 @@ class Chromosome:
             f"{time_seconds:.4f} segundos"
         )
 
+        if save_model_pickle:
+            if save_name is None:
+                save_name = self.get_binary(zip=True)
+
+            save_pickle(
+                model=self.get_unet(),
+                path=save_path,
+                name=save_name
+            )
+
         return time_seconds, last_epoch, metrics
+
+    async def train_unet_stream(self, data_loader: Union[TorchDataLoader, str],
+                   save_model_pickle: bool = False,
+                   save_path: str = "./models/",
+                   save_name: Optional[str] = None,
+                   **kwargs: Union[str, int, float, bool]) -> AsyncGenerator[str, None]:
+        """
+        Entrena el modelo UNet y stremea el progreso
+
+        Parameters
+        ----------
+        data_loader : TorchDataLoader or str
+            DataLoader con los datos de entrenamiento y validación
+
+            Opciones (si se proporciona un string):
+                - "coco-people"
+                - "coco-car"
+                - "carvana"
+                - "road"
+                - "car"
+        save_model_pickle : Optional[bool], optional
+            Si se guarda el modelo entrenado como un archivo pickle, by default `False`
+        save_path : Optional[str], optional
+            Ruta donde se guardará el pickle del modelo entrenado, by default `"./models/"`
+        save_name : Optional[str], optional
+            Nombre del archivo donde se guardará el pickle del modelo entrenado, si no se especifica
+        **kwargs : T.Compose or str or int or float or bool
+            Argumentos adicionales para el entrenamiento:
+            - metric : (str) Métrica a utilizar para calcular la pérdida
+                       ("iou", "dice" o "dice crossentropy")
+            - lr : (float) Tasa de aprendizaje
+            - epochs : (int) Número de épocas
+            - early_stopping : (bool) Si se debe usar el early stopping
+            - early_stopping_patience : (int) Número de épocas a esperar sin mejora antes de
+                                        detener el entrenamiento
+            - early_stopping_delta : (float) Umbral mínimo de mejora para considerar un progreso
+            - stopping_threshold : (float) Umbral de rendimiento para la métrica de validación.
+                                   Si se alcanza o supera, el entrenamiento se detiene
+            - infinite : (bool) Si el entrenamiento es infinito
+            - show_val : (bool) Si mostrar los resultados de la validación en cada epoch
+            - timeout_error : (bool) Si lanzar un error al estimar o superar el tiempo máximo de entrenamiento
+
+            Argumentos adicionales para el DataLoader:
+            - k_folds_subsets : (tuple) Subsets para k_folds validation
+            - batch_size : (int) Tamaño del batch
+            - train_val_prop : (float) Proporción que se usará entre train y validation
+
+            Argumentos adicionales para el Dataset:
+            - data_path : (str) Ruta de los datos
+            - dataset_len : (int) Número de imágenes a cargar
+            - test_prop : (float) Proporción de imágenes que se usará entre el conjunto de
+                          entrenamiento (train y validation) y test
+            - img_width : (int) Ancho a redimensionar las imágenes
+            - img_height : (int) Alto a redimensionar las imágenes
+
+        Returns
+        -------
+        tuple
+            (Tiempo de entrenamiento en segundos, última época, resultados de las métricas
+            a lo largo del entrenamiento)
+        """
+        if not self.__unet:
+            self.set_unet()
+
+        self.data_loader_args, kwargs = TorchDataLoader.get_args(kwargs)
+
+        if isinstance(data_loader, str):
+            data_loader = TorchDataLoader(
+                data_loader,
+                **self.data_loader_args
+            )
+
+        self.data_loader = str(data_loader)
+        set_current_net_binary(self.get_binary(zip=True))
+
+        pickle_url = None
+
+        if save_model_pickle:
+            if save_name is None:
+                save_name = self.get_binary(zip=True)
+
+            pickle_url = f"/download/{save_name}"
+
+        start = time.perf_counter()
+
+        async for unet, last_epoch, metrics in train_model_stream(
+            model=self.__unet,
+            data_loader=data_loader,
+            **kwargs
+        ):
+            if unet is not None:
+                self.__unet = unet
+
+            yield f"""data: {json.dumps({
+                'training_time': time.perf_counter() - start,
+                'last_epoch': last_epoch + 1,
+                'training_iou': metrics['train_iou'],
+                'validation_iou': metrics['val_iou'],
+                'pickle_url': pickle_url
+            })}\n\n"""
+
+        time_seconds = time.perf_counter() - start
+
+        print(
+            "Entrenamiento finalizado en "
+            f"{time_seconds:.4f} segundos"
+        )
+
+        if save_model_pickle:
+            save_pickle(
+                model=self.get_unet(),
+                path=save_path,
+                name=save_name
+            )
 
     def show_results(self, data_loader: Optional[Union[TorchDataLoader, str]] = None,
                      name: Optional[str] = None, **kwargs: Union[str, int, float, bool]):
@@ -1098,7 +1233,7 @@ class Chromosome:
             **kwargs
         )
 
-    def export_unet(self, name: Optional[str] = None, 
+    def export_unet(self, name: Optional[str] = None,
                     format: Optional[Literal["pickle", "torchscript"]] = "torchscript",
                     path: Optional[str] = '.'):
         """
@@ -1111,7 +1246,7 @@ class Chromosome:
             binario, by default `None`
         format : (str)
             Formato de salida del modelo
-        path : (str) 
+        path : (str)
             Ruta donde se guardará el modelo
         """
         if not self.__unet:
@@ -1121,12 +1256,12 @@ class Chromosome:
             name = self.__str__()
             name = name.replace("/", "#s").replace("\\", "#b")
 
-        
+
         # Formato pickle
         if format == "pickle":
             save_pickle(self.get_unet(), path, name)
         elif format == "torchscript":
-            save_torchscript(self.get_unet(), path, name)        
+            save_torchscript(self.get_unet(), path, name)
 
     def remove_checkpoints(self):
         """
