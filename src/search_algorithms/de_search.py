@@ -205,7 +205,7 @@ class DiferentialEvolution():
       self.best = self.population[np.argmax(self.fitness)]
       self.best_fitness = self.fitness[np.argmax(self.fitness)]
       # fitness_register.append(self.best_fitness)
-      yield f"""event: iteration\ndata: {json.dumps({
+      yield f"""{json.dumps({
         'generation': self.g,
         'best_fitness': float(self.best_fitness),
         'best_chromosome': Chromosome(chromosome=self.best.tolist()).get_json()
@@ -237,7 +237,7 @@ class DiferentialEvolution():
     self.search_time = time() - start_time
     # fitness_register = [float(x) for x in fitness_register]
     # return fitness_register
-    yield f"""event: result\ndata: {json.dumps({
+    yield f"""{json.dumps({
       'search_time': self.search_time,
       'stop_reason': self.stop_reason,
       'stop_gen': self.g,

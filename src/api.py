@@ -3,6 +3,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field
 from typing import Annotated
 from fastapi import Body
+import json
 
 from codec import Chromosome
 from search_algorithms.de_search import DiferentialEvolution
@@ -70,13 +71,14 @@ def download_model(chromosome: Annotated[list[float], Body(..., embed=True)]):
 
 @app.post("/search")
 async def run_search(params: SearchParams):
-  # Realiza la búsqueda
-  de = DiferentialEvolution(surrogate_model, **params.model_dump())
+    de = DiferentialEvolution(surrogate_model, **params.model_dump())
 
-  return StreamingResponse(
-    de.start(),
-    media_type="text/event-stream"
-  )
+    async def stream_results():
+        async for result in de.start():
+            # Serializa cada diccionario como JSON + salto de línea
+            yield json.dumps(result) + "\n"
+
+    return StreamingResponse(stream_results(), media_type="application/json")
 
   # El streaming utiliza protocolo SSE, para leerlo en javaScript:
   # const source = new EventSource("/search");
