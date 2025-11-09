@@ -16,11 +16,11 @@ surrogate_model = SurrogateModel(model_path = r"./sustituto/xgboost_model.json")
 file_path = "models"
 
 class SearchParams(BaseModel):
-  pop_size: int = Field(100, ge=10, le=100, description="Tamaño de la población")
+  population_size: int = Field(100, ge=10, le=100, description="Tamaño de la población")
   f: float = Field(0.9, ge=0.1, le=1.0, description="Factor de escala del diferencial")
   crossover_rate: float = Field(0.9, ge=0, le=1.0, description="Probabilidad de cruce")
   mutation_rate: float = Field(0.2, ge=0, le=1.0, description="Tasa de mutación")
-  max_gen: int = Field(100, ge=2, le=1000, description="Número máximo de generaciones")
+  generations: int = Field(100, ge=2, le=1000, description="Número máximo de generaciones")
 
 class TrainingArg(BaseModel):
   chromosome: list = Field(description="Codificación real del cromosoma")
@@ -71,14 +71,21 @@ def download_model(chromosome: Annotated[list[float], Body(..., embed=True)]):
 
 @app.post("/search")
 async def run_search(params: SearchParams):
-    de = DiferentialEvolution(surrogate_model, **params.model_dump())
+  de = DiferentialEvolution(
+    surrogate_model,
+    pop_size=params.population_size,
+    f=params.f,
+    crossover_rate=params.crossover_rate,
+    mutation_rate=params.mutation_rate,
+    max_gen=params.generations
+  )
 
-    async def stream_results():
-        async for result in de.start():
-            # Serializa cada diccionario como JSON + salto de línea
-            yield json.dumps(result) + "\n"
+  async def stream_results():
+    async for result in de.start():
+      # Serializa cada diccionario como JSON + salto de línea
+      yield json.dumps(result) + "\n"
 
-    return StreamingResponse(stream_results(), media_type="application/json")
+  return StreamingResponse(stream_results(), media_type="application/json")
 
   # El streaming utiliza protocolo SSE, para leerlo en javaScript:
   # const source = new EventSource("/search");

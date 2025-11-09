@@ -157,7 +157,7 @@ class DiferentialEvolution():
     self.initialize_population()
     self.search_time= 0
     start_time = time()
-    # fitness_register = []
+    fitness_register = []
     for g in range(self.max_gen):
       sys.stdout.write(f"\r[{g+1}/{self.max_gen}] - Mejor aptitúd (Predicción del IoU): {self.best_fitness}")
       sys.stdout.flush()
@@ -204,12 +204,17 @@ class DiferentialEvolution():
 
       self.best = self.population[np.argmax(self.fitness)]
       self.best_fitness = self.fitness[np.argmax(self.fitness)]
-      # fitness_register.append(self.best_fitness)
-      yield f"""{json.dumps({
-        'generation': self.g,
-        'best_fitness': float(self.best_fitness),
-        'best_chromosome': Chromosome(chromosome=self.best.tolist()).get_json()
-      })}\n\n"""
+      fitness_register.append(float(self.best_fitness))
+
+      progress_payload = {
+        "type": "progress",
+        "generation": self.g + 1,
+        "best_fitness": float(self.best_fitness),
+        "best_binary": Chromosome(chromosome=self.best.tolist()).get_binary(zip=True),
+        "best_real": self.best.tolist()
+      }
+
+      yield json.dumps(progress_payload) + "\n"
 
       self.g+=1
       epsilon = 1e-15
@@ -235,13 +240,34 @@ class DiferentialEvolution():
         self.stop_reason = 'Maximo de generaciones alcanzado'
         break
     self.search_time = time() - start_time
-    # fitness_register = [float(x) for x in fitness_register]
-    # return fitness_register
-    yield f"""{json.dumps({
-      'search_time': self.search_time,
-      'stop_reason': self.stop_reason,
-      'stop_gen': self.g,
-      'final_chromosome': Chromosome(chromosome=self.best.tolist()).get_json(),
-      'predicted_iou': float(self.best_fitness),
-      'trained': False,
-    })}\n\n"""
+    final_chromosome = Chromosome(chromosome=self.best.tolist())
+    final_json = final_chromosome.get_json()
+
+    def _ensure_basic(obj, fallback=None):
+      if obj is None:
+        return fallback
+      if hasattr(obj, "tolist"):
+        return obj.tolist()
+      if isinstance(obj, (np.ndarray, np.generic)):
+        return obj.item() if np.isscalar(obj) else obj.tolist()
+      return obj
+
+    real_codification = _ensure_basic(final_chromosome.get_real(), [])
+
+    result_payload = {
+      "type": "result",
+      "message": "Búsqueda completada exitosamente",
+      "results": {
+        "predicted_iou": float(self.best_fitness),
+        "search_time": self.search_time,
+        "stop_gen": self.g,
+        "stop_reason": self.stop_reason,
+        "vector": fitness_register,
+        "real_codification": real_codification,
+        "binary": final_chromosome.get_binary(zip=True),
+        "architecture": final_json.get("unet") if isinstance(final_json, dict) else final_json,
+        "trained": False
+      }
+    }
+
+    yield json.dumps(result_payload) + "\n"
