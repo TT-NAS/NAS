@@ -1,9 +1,14 @@
 # Implementación de la arquitectura FCN-VGG para segmentación semántica
-import torch.nn as nn
-from utils import set_current_net_binary
 import torch
-def bilinear_kernel(in_ch, out_ch, k):
-    import torch
+import torch.nn as nn
+
+
+from utils import set_current_net_binary
+
+def bilinear_kernel(in_ch: int, out_ch: int, k: int) -> torch.Tensor:
+    """
+    Crea un kernel bilineal
+    """
     factor = (k + 1) // 2
     if k % 2 == 1:
         center = factor - 1
@@ -17,7 +22,10 @@ def bilinear_kernel(in_ch, out_ch, k):
         w[i, i] = w2d
     return w
 
-def init_deconv_bilinear(deconv: nn.ConvTranspose2d):
+def init_deconv_bilinear(deconv: nn.ConvTranspose2d) -> None:
+    """
+    Iniicializa un kernel de deconvolución con un filitro bilineal
+    """
     k = deconv.kernel_size[0]
     w = bilinear_kernel(deconv.in_channels, deconv.out_channels, k)
     w = w.to(device=deconv.weight.device, dtype=deconv.weight.dtype)
@@ -25,7 +33,15 @@ def init_deconv_bilinear(deconv: nn.ConvTranspose2d):
         deconv.weight.copy_(w)
         
 class VGG_FCN(nn.Module):
-    def __init__(self, version='32'):
+    def __init__(self, version: str = '32') -> None:
+        """
+        Implementación de la arquitectura FCN
+
+        Parameters
+        ----------
+            version : str
+                Versión de la arquitectura FCN ('32', '16' o '8')
+        """
         super(VGG_FCN, self).__init__()
         self.version = version
         self.conv_layers = nn.ModuleList()

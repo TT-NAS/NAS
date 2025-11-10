@@ -1,0 +1,2 @@
+fold,training secs,epochs,val_loss,val_iou,val_dice,val_dice crossentropy,val_accuracy,train_loss,train_iou,train_dice,train_dice crossentropy,train_accuracy
+0,623.152739000041,25,,,,,0.6591745694478353,,,,,0.6596187194188435

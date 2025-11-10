@@ -1,3 +1,5 @@
+# Configuración original de la arquitectura UNet
+
 unet_paper = (
     [  # layers: [convs+deconvs, convs+deconvs, ...]
         (  # convs+deconvs: [nconvs+pooling, nconvs+concat]

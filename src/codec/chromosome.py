@@ -962,7 +962,6 @@ class Chromosome:
             - timeout_error : (bool) Si lanzar un error al estimar o superar el tiempo máximo de entrenamiento
 
             Argumentos adicionales para el DataLoader:
-            - k_folds_subsets : (tuple) Subsets para k_folds validation
             - batch_size : (int) Tamaño del batch
             - train_val_prop : (float) Proporción que se usará entre train y validation
 
@@ -1058,12 +1057,11 @@ class Chromosome:
             - early_stopping_delta : (float) Umbral mínimo de mejora para considerar un progreso
             - stopping_threshold : (float) Umbral de rendimiento para la métrica de validación.
                                    Si se alcanza o supera, el entrenamiento se detiene
-            - infinite : (bool) Si el entrenamiento es infinito
+            - infinite : (bool) Si el entrenamiento es infinitos
             - show_val : (bool) Si mostrar los resultados de la validación en cada epoch
             - timeout_error : (bool) Si lanzar un error al estimar o superar el tiempo máximo de entrenamiento
 
             Argumentos adicionales para el DataLoader:
-            - k_folds_subsets : (tuple) Subsets para k_folds validation
             - batch_size : (int) Tamaño del batch
             - train_val_prop : (float) Proporción que se usará entre train y validation
 
