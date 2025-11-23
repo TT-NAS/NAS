@@ -1094,12 +1094,14 @@ class Chromosome:
         set_current_net_binary(self.get_binary(zip=True))
 
         pickle_url = None
+        results_url = None
 
         if save_model_pickle:
             if save_name is None:
                 save_name = self.get_binary(zip=True)
 
             pickle_url = f"/download/{save_name}"
+            results_url = f"/results/{save_name}"
 
         start = time.perf_counter()
 
@@ -1116,7 +1118,8 @@ class Chromosome:
                 'last_epoch': last_epoch + 1,
                 'training_iou': metrics['train_iou'],
                 'validation_iou': metrics['val_iou'],
-                'pickle_url': pickle_url
+                'pickle_url': pickle_url,
+                'results_url': results_url
             })}\n\n"""
 
         time_seconds = time.perf_counter() - start
@@ -1131,6 +1134,12 @@ class Chromosome:
                 model=self.get_unet(),
                 path=save_path,
                 name=save_name
+            )
+            self.show_results(
+                save=True,
+                show_size=4,
+                path=save_path,
+                name=save_name+".png"
             )
 
     def show_results(self, data_loader: Optional[Union[TorchDataLoader, str]] = None,
