@@ -32,15 +32,18 @@ def get_real_and_binary_chromosoma(filename: str = "results.csv", out_filename: 
   # Crea dos nuevas columnas en el dataframe
   df["real_codification"] = None
   # Itera sobre las filas
-  for index, row in tqdm(df.iterrows()):
+  for index, row in tqdm(df.iterrows(), total=df.shape[0], desc="Transforming dataset"):
     chromosome = row["binary codification"]
-    c = codec.Chromosome(max_layers = max_layers, max_convs_per_layer = max_conv_per_layer, chromosome = chromosome)
-    # Obtiene la arquitectura en codificación real
-    c_real = c.get_real()
-    # crea una nueva columna en el dataframe
-    df.at[index, "real_codification"] = c_real
+    try:
+      c = codec.Chromosome(chromosome = chromosome)
+      # Obtiene la arquitectura en codificación real
+      c_real = c.get_real()
+      # crea una nueva columna en el dataframe
+      df.at[index, "real_codification"] = c_real
+    except Exception as e:
+      print(f"Error processing row {index}: {e}")
   # Guarda el dataframe
   df.to_csv(out_filename, index=False)
 
 if __name__ == "__main__":
-  get_real_and_binary_chromosoma(filename="C:/Users/Jafet/Documents/Escuela-Estudio/TT/NAS/results/results.csv", out_filename="results_transformed_1000.csv")
+  get_real_and_binary_chromosoma(filename="./results_max_epoch.csv", out_filename="results_transformed_2376.csv")

@@ -1,0 +1,26 @@
+Arbol de decisión
+
+Mean Absolute Error:  0.11504157374529364
+R2:  0.14090127780007855
+
+Mean Absolute Error:  0.11018090453026272
+R2:  0.1674509845629183
+----------
+
+Random forest
+
+Pearson: 0.5977, Spearman: 0.4277
+Mean Absolute Error:  0.11808082511883437
+R2:  0.3121345461890207
+
+Pearson: 0.5625, Spearman: 0.5142
+Mean Absolute Error:  0.10200363154798199
+R2:  0.31302513660739517
+----------
+
+XGBRegressor
+
+Mean Absolute Error: 0.121088084875062
+R² Score: 0.18241662490472632
+Pearson: 0.4274, Spearman: 0.5365
+
