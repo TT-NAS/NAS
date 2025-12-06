@@ -1,13 +1,41 @@
-# %% Probar la generación del formato JSON de las redes
+# %% Probar la correccion de errores en la codificacion binaria
 from codec import Chromosome
 
-for seed in range(3, 11):
-    c = Chromosome(seed=seed)
-    unet_json = c.get_json()
+c_bin = "1" * 192
+c = Chromosome(chromosome=c_bin)
 
-    with open(f"../redes-json/red{seed}.json", "w") as f:
-        import json
-        json.dump(unet_json, f, indent=4)
+v1 = c.get_binary()
+v1_z = c.get_binary(zip=True)
+c.fix()
+v2 = c.get_binary()
+v2_z = c.get_binary(zip=True)
+
+print(v1, '\n', v2)
+print(v1_z, '\n', v2_z)
+
+if (v1 == v2):
+    print("los binarios son iguales")
+else:
+    print("los binarios no son iguales")
+if (v1_z == v2_z):
+    print("los zip_binarios son iguales")
+else:
+    print("los zip_binarios no son iguales")
+
+print(c.get_decoded())
+x = c.get_unet()
+print(x)
+
+# %% Probar la generación del formato JSON de las redes
+# from codec import Chromosome
+
+# for seed in range(3, 11):
+#     c = Chromosome(seed=seed)
+#     unet_json = c.get_json()
+
+#     with open(f"../redes-json/red{seed}.json", "w") as f:
+#         import json
+#         json.dump(unet_json, f, indent=4)
 
 # %%
 # """

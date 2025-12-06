@@ -17,12 +17,12 @@ Constantes
 - MAX_CONVS_PER_LAYER: Número máximo de convoluciones que puede tener una capa
 """
 from .chromosome import Chromosome
-from .functions import layer_is_identity, conv_is_identity
+from .functions import layer_is_identity, conv_is_identity, fix_bin_chromosome
 from .constants import MAX_LAYERS, MAX_CONVS_PER_LAYER
 
 __all__ = [
     "Chromosome",
-    "layer_is_identity", "conv_is_identity",
+    "layer_is_identity", "conv_is_identity", "fix_bin_chromosome",
     "MAX_LAYERS", "MAX_CONVS_PER_LAYER"
 ]
 
