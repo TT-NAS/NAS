@@ -1,30 +1,102 @@
-# %% Probar la correccion de errores en la codificacion binaria
+# %% Calcular baseline
+import numpy as np
 from codec import Chromosome
 
-c_bin = "1" * 192
-c = Chromosome(chromosome=c_bin)
+def eficiencia(iou, n_params, min_params=4, max_params=506_597_377, beta=0.5):
+    norm = ((np.log(n_params) - np.log(min_params)) /
+            (np.log(max_params) - np.log(min_params)))
 
-v1 = c.get_binary()
-v1_z = c.get_binary(zip=True)
-c.fix()
-v2 = c.get_binary()
-v2_z = c.get_binary(zip=True)
+    return beta * iou + (1-beta) * (1 - norm)
 
-print(v1, '\n', v2)
-print(v1_z, '\n', v2_z)
+def eficiencia_debug(iou, n_params, min_params=4, max_params=506_597_377, beta=0.5):
+    norm = ((np.log(n_params) - np.log(min_params)) /
+            (np.log(max_params) - np.log(min_params)))
 
-if (v1 == v2):
-    print("los binarios son iguales")
-else:
-    print("los binarios no son iguales")
-if (v1_z == v2_z):
-    print("los zip_binarios son iguales")
-else:
-    print("los zip_binarios no son iguales")
+    print(f"IOU: {iou}")
+    print(f"n_params: {n_params:,}")
+    print(f"params_norm: {norm}")
+    print(f"1-params_norm: {1 - norm}")
+    print(f"beta: {beta}")
+    print(f"beta * iou: {beta * iou}")
+    print(f"(1-beta) * (1 - norm): {(1-beta) * (1 - norm)}")
 
+    return beta * iou + (1-beta) * (1 - norm)
+
+
+c = Chromosome(chromosome="IRIRKEKEPCHCFYRYR5I5IXKHKH5D5C7I7I7EPEI_192")
 print(c.get_decoded())
-x = c.get_unet()
-print(x)
+
+# Resultados obtenidos en el paper original
+iou_unet = 0.9829
+params_unet = sum(p.numel() for p in c.get_unet().parameters())
+eficiencia_resta_unet = eficiencia(iou_unet, params_unet)
+
+print(f"IOU UNet: {iou_unet}")
+print(f"Parámetros UNet: {params_unet:,}")
+print(f"""Baseline de la unet para eficiencia según la fórmula:
+eficiencia = beta * IOU + (1-beta) * (1-params)
+para beta = 0.5: {eficiencia_resta_unet}""")
+
+
+# %% Calcular parametros máximos
+# from codec import Chromosome
+
+# HEAVIEST_CONV = "1110111100"
+# HEAVIEST_LAYER = HEAVIEST_CONV * 2 + "11" + HEAVIEST_CONV * 2 + "1"
+# HEAVIEST_UNET = HEAVIEST_LAYER * 4 + HEAVIEST_CONV * 2
+
+# c = Chromosome(chromosome=HEAVIEST_UNET)
+
+# print(c.get_decoded())
+# parameters = sum(p.numel() for p in c.get_unet().parameters())
+# print("Parametros:" + " " * 55 + f"{parameters:,}")  # 506,597,377
+
+# for _ in range(1000):
+#     c_rand = Chromosome()
+
+#     params_rand = sum(p.numel() for p in c_rand.get_unet().parameters())
+#     print(f"Parametros de la red {c_rand.get_binary(zip=True)}: {params_rand:,}")
+
+#     assert params_rand <= parameters, f"{params_rand:,} es mayor a {parameters:,}"
+
+
+# %% Probar la correccion de errores en la codificacion binaria
+# from codec import Chromosome
+
+# c_bin = "0" * 192
+# c = Chromosome(chromosome=c_bin)
+
+# v1 = c.get_binary()
+# v1_z = c.get_binary(zip=True)
+# c.fix()
+# v2 = c.get_binary()
+# v2_z = c.get_binary(zip=True)
+
+# print(v1, '\n', v2)
+# print(v1_z, '\n', v2_z)
+
+# if (v1 == v2):
+#     print("los binarios son iguales")
+# else:
+#     print("los binarios no son iguales")
+# if (v1_z == v2_z):
+#     print("los zip_binarios son iguales")
+# else:
+#     print("los zip_binarios no son iguales")
+
+# print(c.get_decoded())
+# x = c.get_unet()
+# print(x)
+
+# c.train_unet(
+#     data_loader="road",
+#     epochs=25
+# )
+
+# c.show_results(
+#     save=True,
+#     name="prueba_entrenamiento.png",
+# )
 
 # %% Probar la generación del formato JSON de las redes
 # from codec import Chromosome
