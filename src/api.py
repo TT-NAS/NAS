@@ -1,13 +1,15 @@
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field
-from typing import Annotated
+from typing import Annotated, Literal, Union
 from fastapi import Body
 import json
 
 from codec import Chromosome
 from search_algorithms.de_search import DiferentialEvolution
 from search_algorithms.surrogate import SurrogateModel
+from search_algorithms.evaluator import CombinedMetricEvaluator
+from search_algorithms.mono_objective import DifferentialEvolution, GeneticAlgorithm
 
 from utils import save_pickle
 
@@ -15,12 +17,37 @@ app = FastAPI(title = "NAS API", version = "1.0.0")
 surrogate_model = SurrogateModel(model_path = r"./sustituto/xgboost_model.json")
 file_path = "models"
 
-class SearchParams(BaseModel):
+class SearchParams_ant(BaseModel):
   population_size: int = Field(100, ge=10, le=100, description="Tamaño de la población")
   f: float = Field(0.9, ge=0.1, le=1.0, description="Factor de escala del diferencial")
   crossover_rate: float = Field(0.9, ge=0, le=1.0, description="Probabilidad de cruce")
   mutation_rate: float = Field(0.2, ge=0, le=1.0, description="Tasa de mutación")
-  generations: int = Field(100, ge=2, le=1000, description="Número máximo de generaciones")
+  generations: int = Field(100, ge=2, le=100, description="Número máximo de generaciones")
+
+
+class DEParams(BaseModel):
+  algorithm: Literal["de"] = Field("de")
+  dataset: str = Field(
+      "carvana", description="Dataset to use: 'carvana' or 'road'"
+  )
+
+  n_pop: int = Field(25, ge=10, le=100, description="Tamaño de la población")
+  max_gen: int = Field(50, ge=2, le=100, description="Número máximo de generaciones")
+  F: float = Field(0.5, ge=0.1, le=1.0, description="Factor de escala del diferencial")
+  crossover_rate: float = Field(0.9, ge=0.0, le=1.0, description="Probabilidad de cruce")
+
+
+class GAParams(BaseModel):
+  algorithm: Literal["ga"] = Field("ga")
+  dataset: str = Field(
+      "carvana", description="Dataset to use: 'carvana' or 'road'")
+
+  n_pop: int = Field(25, ge=10, le=100, description="Tamaño de la población")
+  max_gen: int = Field(50, ge=2, le=100, description="Número máximo de generaciones")
+  mutation_rate: float = Field(0.2, ge=0.0, le=1.0, description="Tasa de mutación")
+  crossover_rate: float = Field(0.8, ge=0.0, le=1.0, description="Probabilidad de cruce")
+
+SearchParams = Union[DEParams, GAParams]
 
 class TrainingArg(BaseModel):
   chromosome: list = Field(description="Codificación real del cromosoma")
@@ -50,8 +77,8 @@ def download_model(chromosome: Annotated[list[float], Body(..., embed=True)]):
   )
 
 
-@app.post("/search")
-async def run_search(params: SearchParams):
+@app.post("/search_ant")
+async def run_search_ant(params: SearchParams_ant):
   de = DiferentialEvolution(
     surrogate_model,
     pop_size=params.population_size,
@@ -68,6 +95,41 @@ async def run_search(params: SearchParams):
 
   return StreamingResponse(stream_results(), media_type="application/json")
 
+@app.post("/search")
+async def run_search(params: SearchParams):
+  evaluator = CombinedMetricEvaluator(
+    codification="real" if params.algorithm == "de" else "binary",
+    dataset=params.dataset,
+    beta=0.837 if params.dataset == "carvana" else 0.79,
+  )
+
+  search_params = params.model_dump(exclude={"algorithm", "dataset"})
+
+  if params.algorithm == "de":
+    search = DifferentialEvolution(
+      base="random",
+      n_differences=1,
+      crossover="bin"
+    )
+    search.evaluator = evaluator
+  else:  # GA
+    search = GeneticAlgorithm(
+      selection="tournament",
+      crossover="uniform"
+    )
+    search.evaluator = evaluator
+
+  async def stream_results():
+    async for result in search.start(
+      **search_params,
+      diversity_min=0.01,
+      target_fitness=0.846 if params.dataset == "carvana" else 0.79
+    ):
+      # Serializa cada diccionario como JSON + salto de línea
+      yield json.dumps(result) + "\n"
+
+  return StreamingResponse(stream_results(), media_type="application/json")
+
 
 @app.post("/train")
 async def train_network(args: TrainingArg):
@@ -76,7 +138,7 @@ async def train_network(args: TrainingArg):
     Chromosome(chromosome=args.chromosome)
   except Exception as e:
     return {"error": f"Cromosoma inválido: {str(e)}"}
-  
+
   model = Chromosome(chromosome=args.chromosome)
   # Se entrena
   return StreamingResponse(
