@@ -76,7 +76,8 @@ from .functions import (
     get_num_layers, get_num_convs,
     layer_is_identity, conv_is_identity,
     zip_binary, encode_chromosome,
-    unzip_binary, decode_chromosome
+    unzip_binary, decode_chromosome,
+    fix_bin_chromosome
 )
 from .constants import (
     MAX_LAYERS, MAX_CONVS_PER_LAYER,
@@ -151,6 +152,7 @@ class Chromosome:
                 )
 
             self.validate()
+            self.fix()
 
     # ========================
     # NOTE: Utils de la clase
@@ -443,6 +445,12 @@ class Chromosome:
         self.__decoded = (layers, bottleneck)
         self.validate()
 
+    def fix(self):
+        if self.__binary:
+            self.__binary = fix_bin_chromosome(self.__binary)
+            self.validate()
+
+
     # ========================
     # NOTE: Setters
     # ========================
@@ -556,6 +564,7 @@ class Chromosome:
             self.__unet = None
             self.__real = []
             self.validate()
+            self.fix()
             # Creamos el cromosoma decodificado, el real se creará cuando se necesite
             self.set_decoded()
 

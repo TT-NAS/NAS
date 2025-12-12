@@ -14,6 +14,7 @@ Funciones
 """
 from .encode import zip_binary, encode_chromosome
 from .decode import unzip_binary, decode_chromosome
+from .fix import fix_bin_chromosome
 from .chromosome_utils import (
     get_num_layers, get_num_convs,
     layer_is_identity, conv_is_identity
@@ -23,6 +24,8 @@ __all__ = [
     "zip_binary", "encode_chromosome",
 
     "unzip_binary", "decode_chromosome",
+
+    "fix_bin_chromosome",
 
     "get_num_layers", "get_num_convs",
     "layer_is_identity", "conv_is_identity"
