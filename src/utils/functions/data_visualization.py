@@ -87,11 +87,12 @@ def plot_results(model: UNet, test_loader: DataLoader, **kwargs: Union[bool, str
     test_loader : DataLoader
         DataLoader con las imágenes a evaluar
     **kwargs : bool or str
-        Argumentos adicionales para la generación de la gráfica:
+        Argumentos adicionales para la generación de la gráfica:f
         - save : (bool) Si se guardan las imágenes o se muestran
         - show_size : (int) Número de imágenes a mostrar
         - name : (str) Nombre del archivo a guardar
         - path : (str) Ruta donde se guardarán las imágenes
+        - umbralize: (bool) Si se umbralizan las máscaras predichas, by default `True`
     """
     imgs = next(iter(test_loader))
     imgs = imgs.to(CUDA)
@@ -103,7 +104,7 @@ def plot_results(model: UNet, test_loader: DataLoader, **kwargs: Union[bool, str
         with autocast(device_type="cuda", dtype=torch.float16):
             scores = model(imgs)
 
-        result = (scores > 0.5).float()
+        result = (scores > 0.5).float() if kwargs.pop("umbralize", True) else scores
 
     imgs = imgs.cpu()
     result = result.cpu()

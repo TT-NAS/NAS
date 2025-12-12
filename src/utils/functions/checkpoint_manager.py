@@ -110,7 +110,10 @@ def set_checkpoint(model_state: dict[str, any], metrics_results: dict[str, list[
 
     path = os.path.join(path, g.CURRENT_NET_BINARY)
 
-    if not os.path.exists(path) and g.CURRENT_NET_BINARY != '':
+    if g.CURRENT_NET_BINARY != '':
+        return
+        
+    if not os.path.exists(path):
         os.makedirs(path, exist_ok=True)
 
     model_name = f"{current_epoch}.pt"
@@ -140,9 +143,12 @@ def load_checkpoint(model: UNet, path: str = CHECKPOINT_PATH) -> tuple[UNet,
         (Modelo cargado, resultados de las métricas del checkpoint,
         época inicial para continuar el entrenamiento)
     """
+    if g.CURRENT_NET_BINARY == '':
+        return model, None, 0
+    
     path = os.path.join(path, g.CURRENT_NET_BINARY)
 
-    if not os.path.exists(path) or g.CURRENT_NET_BINARY == '':
+    if not os.path.exists(path):
         return model, None, 0
 
     print("Se encontró un checkpoint para el modelo actual")

@@ -9,7 +9,7 @@ Clases
 from typing import Union, Optional
 
 from torchvision import transforms as T
-from torch.utils.data import DataLoader, Subset, random_split 
+from torch.utils.data import DataLoader, Subset, random_split
 
 from ..constants import (
     COCO_IDS,
@@ -39,11 +39,11 @@ class TorchDataLoader:
         "test_prop",
         "img_width",
         "img_height",
-        "k_folds_subsets"
+        "k_fold_idxs"
     ]
 
     def __init__(self, dataset_class: str, batch_size: Optional[int] = None,
-                 train_val_prop: float = 0.8, k_folds_subsets: tuple[Subset] = None,
+                 train_val_prop: float = 0.8, k_fold_idxs: tuple[int] = None,
                  **kwargs: Union[T.Compose, str, int]):
         """
         Wrapper de los DataLoaders de train, validation y test para un dataset
@@ -63,6 +63,8 @@ class TorchDataLoader:
             Tamaño del batch, by default `BATCH_SIZE`
         train_val_prop : float, optional
             Proporción que se usará entre train y validation, by default `0.8`
+        k_fold_idxs : tuple[int], optional
+            Índices de los subsets para k-folds, by default `None`
         **kwargs : T.Compose or str or int
             Argumentos adicionales para el Dataset:
             - data_path : (str) Ruta de los datos
@@ -150,15 +152,25 @@ class TorchDataLoader:
             identifier=self.identifier,
             **kwargs
         )
-
-        TRAIN_SIZE = int(train_val_prop * len(dataset))
-        VAL_SIZE = len(dataset) - TRAIN_SIZE
+        
         self.full_dataset = dataset
-
-        train_dataset, val_dataset = random_split(
-            dataset=dataset,
-            lengths=[TRAIN_SIZE, VAL_SIZE]
-        )
+        
+        if k_fold_idxs:
+            train_dataset = Subset(
+                dataset,
+                k_fold_idxs[0]
+            )
+            val_dataset = Subset(
+                dataset,
+                k_fold_idxs[1]
+            )
+        else:
+            TRAIN_SIZE = int(train_val_prop * len(dataset))
+            VAL_SIZE = len(dataset) - TRAIN_SIZE
+            train_dataset, val_dataset = random_split(
+                dataset=dataset,
+                lengths=[TRAIN_SIZE, VAL_SIZE]
+            )
 
         if batch_size is None:
             batch_size = default_batch_size
@@ -181,6 +193,7 @@ class TorchDataLoader:
             prefetch_factor=2,
             persistent_workers=True
         )
+        
         self.test = DataLoader(
             dataset=test_dataset,
             batch_size=SHOW_SIZE,
@@ -191,25 +204,6 @@ class TorchDataLoader:
             persistent_workers=True
         )
         
-        if k_folds_subsets:
-            self.train = DataLoader(
-                dataset=k_folds_subsets[0],
-                batch_size=batch_size,
-                shuffle=True,
-                num_workers=2,
-                pin_memory=True,
-                prefetch_factor=2,
-                persistent_workers=True
-            )
-            self.validation = DataLoader(
-                dataset=k_folds_subsets[1],
-                batch_size=batch_size,
-                shuffle=False,
-                num_workers=2,
-                pin_memory=True,
-                prefetch_factor=2,
-                persistent_workers=True
-            )
     def __str__(self) -> str:
         return self.identifier
 
