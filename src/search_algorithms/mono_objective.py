@@ -303,7 +303,7 @@ class GeneticAlgorithm(SearchAlgorithm):
 
   def start(self, n_pop: int = 100, max_gen: int = 100,
             crossover_rate: float = 0.9, mutation_rate: float = 0.01,
-            tournament_size: int = 3, diversity_min: float = None, target_fitness: float = None) -> None:
+            tournament_size: int = 3, diversity_min: float = None, target_fitness: float = None):
     """
     Iniciar el algoritmo genético.
 
