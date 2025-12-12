@@ -219,7 +219,7 @@ class DifferentialEvolution(SearchAlgorithm):
 
       progress_payload = {
         "type": "progress",
-        "generation": self.gen + 1,
+        "generation": gen + 1,
         "best_fitness": float(self.upper[-1]),
         "best_binary": Chromosome(chromosome=self.population[np.argmax(fitness)].tolist()).get_binary(zip=True),
         "best_real": self.population[np.argmax(fitness)].tolist()
@@ -301,7 +301,7 @@ class GeneticAlgorithm(SearchAlgorithm):
         "mutation_type": mutation_type
     }
 
-  def start(self, n_pop: int = 100, max_gen: int = 100,
+  async def start(self, n_pop: int = 100, max_gen: int = 100,
             crossover_rate: float = 0.9, mutation_rate: float = 0.01,
             tournament_size: int = 3, diversity_min: float = None, target_fitness: float = None):
     """
@@ -362,9 +362,9 @@ class GeneticAlgorithm(SearchAlgorithm):
 
       progress_payload = {
           "type": "progress",
-          "generation": self.gen + 1,
+          "generation": gen + 1,
           "best_fitness": float(self.upper[-1]),
-          "best_binary": Chromosome(chromosome=self.population[np.argmax(fitness)].tolist()).get_binary(zip=True),
+          "best_binary": Chromosome(chromosome="".join(self.population[np.argmax(fitness)].astype(str).tolist())).get_binary(zip=True),
           "best_real": self.population[np.argmax(fitness)].tolist()
       }
       yield json.dumps(progress_payload) + "\n"
@@ -388,7 +388,7 @@ class GeneticAlgorithm(SearchAlgorithm):
     self.fitness = self.evaluator.evaluate_population(self.population)
 
     self.search_time = time() - start_time
-    final_chromosome = Chromosome(chromosome=self.population[np.argmax(self.fitness)].tolist())
+    final_chromosome = Chromosome(chromosome="".join(self.population[np.argmax(self.fitness)].astype(str).tolist()))
     final_json = final_chromosome.get_json()
 
     def _ensure_basic(obj, fallback=None):

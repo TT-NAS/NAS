@@ -123,7 +123,7 @@ async def run_search(params: SearchParams):
     async for result in search.start(
       **search_params,
       diversity_min=0.01,
-      target_fitness=0.846 if params.dataset == "carvana" else 0.79
+      target_fitness=0.866 if params.dataset == "carvana" else 0.81
     ):
       # Serializa cada diccionario como JSON + salto de línea
       yield json.dumps(result) + "\n"
