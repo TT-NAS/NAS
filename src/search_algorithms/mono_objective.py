@@ -31,6 +31,10 @@ class SearchAlgorithm():
     self.mean = []
     self.diversity = []
     self.results = {}
+    self.best = None
+    self.best_fitness = None
+    self.best_iou = None
+    self.best_params = None
 
     self.diversity_loss = False
     self.reached_target = False
@@ -258,12 +262,17 @@ class DifferentialEvolution(SearchAlgorithm):
       return obj
 
     real_codification = _ensure_basic(final_chromosome.get_real(), [])
+    
+    self.best_fitness = self.fitness[np.argmax(fitness)]
+    self.best_iou, self.best_params = self.evaluator.evaluate_individual(self.population[np.argmax(self.fitness)])
 
     result_payload = {
         "type": "result",
         "message": "Búsqueda completada exitosamente",
         "results": {
-            "predicted_iou": float(self.upper[-1]),
+            "fitness": float(self.best_fitness),
+            "predicted_iou": float(self.best_iou),
+            "num_params": int(self.best_params),
             "search_time": self.search_time,
             "stop_gen": self.gen,
             "stop_reason": ", ".join(stop_conditions),
@@ -401,12 +410,17 @@ class GeneticAlgorithm(SearchAlgorithm):
       return obj
 
     real_codification = _ensure_basic(final_chromosome.get_real(), [])
+    
+    self.best_fitness = self.fitness[np.argmax(fitness)]
+    self.best_iou, self.best_params = self.evaluator.evaluate_individual(self.population[np.argmax(self.fitness)])
 
     result_payload = {
         "type": "result",
         "message": "Búsqueda completada exitosamente",
         "results": {
-            "predicted_iou": float(self.upper[-1]),
+            "fitness": float(self.best_fitness),
+            "predicted_iou": float(self.best_iou),
+            "num_params": int(self.best_params),
             "search_time": self.search_time,
             "stop_gen": self.gen,
             "stop_reason": ", ".join(stop_conditions),
