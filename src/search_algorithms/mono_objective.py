@@ -232,13 +232,13 @@ class DifferentialEvolution(SearchAlgorithm):
 
       # Stop conditions
       if diversity_min and self.diversity[-1] <= diversity_min:
-        stop_conditions.append("Diversity minimum reached")
+        stop_conditions.append("Colapso de diversidad")
         self.diversity_loss = True
       if target_fitness and self.upper[-1] >= target_fitness:
-        stop_conditions.append("Target fitness reached")
+        stop_conditions.append("Aptitud objetivo alcanzada")
         self.reached_target = True
       if gen == max_gen-1:
-        stop_conditions.append("Max generations reached")
+        stop_conditions.append("Máximo de generaciones alcanzado")
         self.reached_gens = True
       if len(stop_conditions) > 0:
         print("\nStopping criteria met: " + ", ".join(stop_conditions))
@@ -381,13 +381,13 @@ class GeneticAlgorithm(SearchAlgorithm):
       # Stop conditions
       stop_conditions = []
       if diversity_min and self.diversity[-1] <= diversity_min:
-        stop_conditions.append("Diversity minimum reached")
+        stop_conditions.append("Colapso de diversidad")
         self.diversity_loss = True
       if target_fitness and self.upper[-1] >= target_fitness:
-        stop_conditions.append("Target fitness reached")
+        stop_conditions.append("Aptitud objetivo alcanzada")
         self.reached_target = True
       if gen == max_gen-1:
-        stop_conditions.append("Max generations reached")
+        stop_conditions.append("Máximo de generaciones alcanzado")
         self.reached_gens = True
       if len(stop_conditions) > 0:
         print("\nStopping criteria met: " + ", ".join(stop_conditions))
