@@ -233,7 +233,7 @@ class DifferentialEvolution(SearchAlgorithm):
       if target_fitness and self.upper[-1] >= target_fitness:
         stop_conditions.append("Target fitness reached")
         self.reached_target = True
-      if gen == max_gen:
+      if gen == max_gen-1:
         stop_conditions.append("Max generations reached")
         self.reached_gens = True
       if len(stop_conditions) > 0:
@@ -377,7 +377,7 @@ class GeneticAlgorithm(SearchAlgorithm):
       if target_fitness and self.upper[-1] >= target_fitness:
         stop_conditions.append("Target fitness reached")
         self.reached_target = True
-      if gen == max_gen:
+      if gen == max_gen-1:
         stop_conditions.append("Max generations reached")
         self.reached_gens = True
       if len(stop_conditions) > 0:
