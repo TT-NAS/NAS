@@ -31,6 +31,10 @@ class SearchAlgorithm():
     self.mean = []
     self.diversity = []
     self.results = {}
+    self.best = None
+    self.best_fitness = None
+    self.best_iou = None
+    self.best_params = None
 
     self.diversity_loss = False
     self.reached_target = False
@@ -219,7 +223,7 @@ class DifferentialEvolution(SearchAlgorithm):
 
       progress_payload = {
         "type": "progress",
-        "generation": self.gen + 1,
+        "generation": gen + 1,
         "best_fitness": float(self.upper[-1]),
         "best_binary": Chromosome(chromosome=self.population[np.argmax(fitness)].tolist()).get_binary(zip=True),
         "best_real": self.population[np.argmax(fitness)].tolist()
@@ -228,13 +232,13 @@ class DifferentialEvolution(SearchAlgorithm):
 
       # Stop conditions
       if diversity_min and self.diversity[-1] <= diversity_min:
-        stop_conditions.append("Diversity minimum reached")
+        stop_conditions.append("Colapso de diversidad")
         self.diversity_loss = True
       if target_fitness and self.upper[-1] >= target_fitness:
-        stop_conditions.append("Target fitness reached")
+        stop_conditions.append("Aptitud objetivo alcanzada")
         self.reached_target = True
-      if gen == max_gen:
-        stop_conditions.append("Max generations reached")
+      if gen == max_gen-1:
+        stop_conditions.append("Máximo de generaciones alcanzado")
         self.reached_gens = True
       if len(stop_conditions) > 0:
         print("\nStopping criteria met: " + ", ".join(stop_conditions))
@@ -258,12 +262,17 @@ class DifferentialEvolution(SearchAlgorithm):
       return obj
 
     real_codification = _ensure_basic(final_chromosome.get_real(), [])
+    
+    self.best_fitness = self.fitness[np.argmax(fitness)]
+    self.best_iou, self.best_params = self.evaluator.evaluate_individual(self.population[np.argmax(self.fitness)])
 
     result_payload = {
         "type": "result",
         "message": "Búsqueda completada exitosamente",
         "results": {
-            "predicted_iou": float(self.upper[-1]),
+            "fitness": float(self.best_fitness),
+            "predicted_iou": float(self.best_iou),
+            "num_params": int(self.best_params),
             "search_time": self.search_time,
             "stop_gen": self.gen,
             "stop_reason": ", ".join(stop_conditions),
@@ -301,7 +310,7 @@ class GeneticAlgorithm(SearchAlgorithm):
         "mutation_type": mutation_type
     }
 
-  def start(self, n_pop: int = 100, max_gen: int = 100,
+  async def start(self, n_pop: int = 100, max_gen: int = 100,
             crossover_rate: float = 0.9, mutation_rate: float = 0.01,
             tournament_size: int = 3, diversity_min: float = None, target_fitness: float = None):
     """
@@ -362,7 +371,7 @@ class GeneticAlgorithm(SearchAlgorithm):
 
       progress_payload = {
           "type": "progress",
-          "generation": self.gen + 1,
+          "generation": gen + 1,
           "best_fitness": float(self.upper[-1]),
           "best_binary": Chromosome(chromosome="".join(self.population[np.argmax(fitness)].astype(str).tolist())).get_binary(zip=True),
           "best_real": self.population[np.argmax(fitness)].tolist()
@@ -372,13 +381,13 @@ class GeneticAlgorithm(SearchAlgorithm):
       # Stop conditions
       stop_conditions = []
       if diversity_min and self.diversity[-1] <= diversity_min:
-        stop_conditions.append("Diversity minimum reached")
+        stop_conditions.append("Colapso de diversidad")
         self.diversity_loss = True
       if target_fitness and self.upper[-1] >= target_fitness:
-        stop_conditions.append("Target fitness reached")
+        stop_conditions.append("Aptitud objetivo alcanzada")
         self.reached_target = True
-      if gen == max_gen:
-        stop_conditions.append("Max generations reached")
+      if gen == max_gen-1:
+        stop_conditions.append("Máximo de generaciones alcanzado")
         self.reached_gens = True
       if len(stop_conditions) > 0:
         print("\nStopping criteria met: " + ", ".join(stop_conditions))
@@ -401,12 +410,17 @@ class GeneticAlgorithm(SearchAlgorithm):
       return obj
 
     real_codification = _ensure_basic(final_chromosome.get_real(), [])
+    
+    self.best_fitness = self.fitness[np.argmax(fitness)]
+    self.best_iou, self.best_params = self.evaluator.evaluate_individual(self.population[np.argmax(self.fitness)])
 
     result_payload = {
         "type": "result",
         "message": "Búsqueda completada exitosamente",
         "results": {
-            "predicted_iou": float(self.upper[-1]),
+            "fitness": float(self.best_fitness),
+            "predicted_iou": float(self.best_iou),
+            "num_params": int(self.best_params),
             "search_time": self.search_time,
             "stop_gen": self.gen,
             "stop_reason": ", ".join(stop_conditions),

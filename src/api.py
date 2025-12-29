@@ -108,22 +108,22 @@ async def run_search(params: SearchParams):
   if params.algorithm == "de":
     search = DifferentialEvolution(
       base="random",
-      n_differences=1,
-      crossover="bin"
+      n_differences=2,
+      crossover="exp"
     )
     search.evaluator = evaluator
   else:  # GA
     search = GeneticAlgorithm(
-      selection="tournament",
-      crossover="uniform"
+      selection="roulette",
+      crossover="two_point",
     )
     search.evaluator = evaluator
 
   async def stream_results():
     async for result in search.start(
       **search_params,
-      diversity_min=0.01,
-      target_fitness=0.846 if params.dataset == "carvana" else 0.79
+      diversity_min=0.001,
+      target_fitness=0.866 if params.dataset == "carvana" else 0.810
     ):
       # Serializa cada diccionario como JSON + salto de línea
       yield json.dumps(result) + "\n"

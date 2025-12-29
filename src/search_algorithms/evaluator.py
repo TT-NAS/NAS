@@ -212,26 +212,27 @@ class CombinedMetricEvaluator():
     Evaluar un individuo.
     Parametros:
     ===========
-      - individual (np.ndarray): Individuo a evaluar (Cromosoma).
-    Retorna:
-    ===========
-      - np.ndarray: Aptitudes del individuo.
-    """ 
+      
+    individual (np.ndarray): Individuo a evaluar (Cromosoma).
+      Retorna:
+      ===========
+        
+    np.ndarray: Aptitudes del individuo.""" 
     ind = individual.copy()
     if self.codification == "binary":
       ind = "".join(map(str, individual))
-      ind = Chromosome(chromosome=ind).get_real()
-  
+      ind = np.array(Chromosome(chromosome=ind).get_real())
+
     fitness_1 = self.surrogate_model.predict(np.array(ind.reshape(1, -1)))
     if fitness_1 < 0 or fitness_1 > 1:
       fitness_1 = np.inf
-    
-    model = Chromosome(chromosome=list(individual))
+
+    model = Chromosome(chromosome=list(ind))
     unet = model.get_unet()
     params = sum(p.numel() for p in unet.parameters() if p.requires_grad)
     fitness_2 = params
-    
-    return self.addition_penalty(fitness_1, np.array([fitness_2, ]))
+
+    return fitness_1[0].item(), fitness_2
   
   def get_params__(self, population: np.ndarray) -> np.ndarray:
     """
