@@ -1,41 +1,27 @@
 # %% Calcular baseline
-import numpy as np
-from codec import Chromosome
+# import numpy as np
+# from codec import Chromosome
 
-def eficiencia(iou, n_params, min_params=4, max_params=506_597_377, beta=0.5):
-    norm = ((np.log(n_params) - np.log(min_params)) /
-            (np.log(max_params) - np.log(min_params)))
+# def eficiencia(iou, n_params, min_params=4, max_params=506_597_377, beta=0.5):
+#     norm = ((np.log(n_params) - np.log(min_params)) /
+#             (np.log(max_params) - np.log(min_params)))
 
-    return beta * iou + (1-beta) * (1 - norm)
+#     return beta * iou + (1-beta) * (1 - norm)
 
-def eficiencia_debug(iou, n_params, min_params=4, max_params=506_597_377, beta=0.5):
-    norm = ((np.log(n_params) - np.log(min_params)) /
-            (np.log(max_params) - np.log(min_params)))
-
-    print(f"IOU: {iou}")
-    print(f"n_params: {n_params:,}")
-    print(f"params_norm: {norm}")
-    print(f"1-params_norm: {1 - norm}")
-    print(f"beta: {beta}")
-    print(f"beta * iou: {beta * iou}")
-    print(f"(1-beta) * (1 - norm): {(1-beta) * (1 - norm)}")
-
-    return beta * iou + (1-beta) * (1 - norm)
+# # c = Chromosome(chromosome="IRIRKEKEPCHCFYRYR5I5IXKHKH5D5C7I7I7EPEI_192")
+# # print(c.get_decoded())
 
 
-c = Chromosome(chromosome="IRIRKEKEPCHCFYRYR5I5IXKHKH5D5C7I7I7EPEI_192")
-print(c.get_decoded())
+# # Resultados obtenidos en el paper original
+# # params_unet = sum(p.numel() for p in c.get_unet().parameters())
+# params_unet = 130_363
+# iou_unet = 0.9180
+# eficiencia_resta_unet = eficiencia(iou_unet, params_unet, beta=0.79)
 
-# Resultados obtenidos en el paper original
-iou_unet = 0.9829
-params_unet = sum(p.numel() for p in c.get_unet().parameters())
-eficiencia_resta_unet = eficiencia(iou_unet, params_unet)
-
-print(f"IOU UNet: {iou_unet}")
-print(f"Parámetros UNet: {params_unet:,}")
-print(f"""Baseline de la unet para eficiencia según la fórmula:
-eficiencia = beta * IOU + (1-beta) * (1-params)
-para beta = 0.5: {eficiencia_resta_unet}""")
+# print(f"IOU UNet: {iou_unet}")
+# print(f"Parámetros UNet: {params_unet:,}")
+# print(f"""Baseline de la unet para eficiencia según la fórmula:
+# eficiencia = beta * IOU + (1-beta) * (1-params): {eficiencia_resta_unet}""")
 
 
 # %% Calcular parametros máximos
@@ -99,7 +85,14 @@ para beta = 0.5: {eficiencia_resta_unet}""")
 # )
 
 # %% Probar la generación del formato JSON de las redes
-# from codec import Chromosome
+from codec import Chromosome
+import json
+
+chromosome = "AAAAAAAAAAAAAAAAACDUCVAYPQMAJEQAHKQAAAA_192"
+# chromosome = "AAJSIAAAEADTTAAMVTAFJVJQ6YFMNAQAFBIUTMY_192"
+c = Chromosome(chromosome=chromosome)
+unet_json = c.get_json()
+print(json.dumps(unet_json, sort_keys=False, indent=4))
 
 # for seed in range(3, 11):
 #     c = Chromosome(seed=seed)

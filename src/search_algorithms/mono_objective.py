@@ -364,7 +364,7 @@ class GeneticAlgorithm(SearchAlgorithm):
           "type": "progress",
           "generation": self.gen + 1,
           "best_fitness": float(self.upper[-1]),
-          "best_binary": Chromosome(chromosome=self.population[np.argmax(fitness)].tolist()).get_binary(zip=True),
+          "best_binary": Chromosome(chromosome="".join(self.population[np.argmax(fitness)].astype(str).tolist())).get_binary(zip=True),
           "best_real": self.population[np.argmax(fitness)].tolist()
       }
       yield json.dumps(progress_payload) + "\n"
@@ -388,7 +388,7 @@ class GeneticAlgorithm(SearchAlgorithm):
     self.fitness = self.evaluator.evaluate_population(self.population)
 
     self.search_time = time() - start_time
-    final_chromosome = Chromosome(chromosome=self.population[np.argmax(self.fitness)].tolist())
+    final_chromosome = Chromosome(chromosome="".join(self.population[np.argmax(self.fitness)].astype(str).tolist()))
     final_json = final_chromosome.get_json()
 
     def _ensure_basic(obj, fallback=None):

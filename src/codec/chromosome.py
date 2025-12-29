@@ -810,6 +810,18 @@ class Chromosome:
             decoder_convs, concat = layer[1]
             conv_path = {}
 
+            if encoder_convs == [None] * MAX_CONVS_PER_LAYER:
+                encoder_convs = ([None,] * (MAX_CONVS_PER_LAYER - 1))
+                encoder_convs.append(
+                    (1, 1, "linear")
+                )
+
+            if decoder_convs == [None] * MAX_CONVS_PER_LAYER:
+                decoder_convs = ([None,] * (MAX_CONVS_PER_LAYER - 1))
+                decoder_convs.append(
+                    (1, 1, "linear")
+                )
+
             for j, conv in enumerate(encoder_convs):
                 if conv_is_identity(conv, "decoded"):
                     conv_path[f"conv{j}"] = None
@@ -845,8 +857,15 @@ class Chromosome:
             }
 
         bottleneck_json = {}
+        bottleneck_convs = self.__decoded[1]
 
-        for j, conv in enumerate(self.__decoded[1]):
+        if bottleneck_convs == [None] * MAX_CONVS_PER_LAYER:
+            bottleneck_convs = ([None,] * (MAX_CONVS_PER_LAYER - 1))
+            bottleneck_convs.append(
+                (1, 1, "linear")
+            )
+
+        for j, conv in enumerate(bottleneck_convs):
             if conv_is_identity(conv, "decoded"):
                 bottleneck_json[f"conv{j}"] = None
                 continue
