@@ -14,6 +14,14 @@ To reduce the cost of evaluating each architecture, a surrogate model was implem
 
 ---
 
+## Research
+
+Designing convolutional neural network (CNN) architectures for semantic segmentation is often expert-dependent. This work presents a neural architecture search (NAS) prototype that democratizes architecture design through evolutionary computation. The framework employs a dual-representation search space and a surrogate performance estimator to identify high-performing U-Net variants without the prohibitive cost of full training. A graphical user interface improves search transparency and user interaction. Testing on the Carvana and a custom road dataset shows that our automated approach consistently produces architectures that outperform the U-Net baseline, balancing IoU and model size. This prototype offers an accessible and transparent solution for researchers to generate efficient, task-specific segmentation models autonomously.
+
+Related Paper: [An Evolutionary Neural Architecture Search Approach with Visual Interfacing Prototype for Semantic Image Segmentation | Proceedings of the Genetic and Evolutionary Computation Conference Companion](https://dl.acm.org/doi/10.1145/3795101.3805393)
+
+---
+
 ### Main features
 
 1. **Automatic architecture search:**
@@ -52,6 +60,10 @@ The application provides an interface for configuring the search parameters and 
 ---
 
 ### Examples
+
+#### Demonstration
+
+https://github.com/user-attachments/assets/c6e3e373-f417-4fe7-bf52-7185f568e3e6
 
 #### Search configuration
 
